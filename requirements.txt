@@ -1,0 +1,4 @@
+python-dotenv
+Django>=4.2
+django-bootstrap4>=25.3
+pyscopg2[binary]>=2.9
