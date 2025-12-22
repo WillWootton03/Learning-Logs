@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load static tailwind_tags %}
+
+{% block content %}
+<div class="flex min-h-full flex-col mt-16 px-6 py-12 lg:px-8">
+    <div class="sm:mx-auto sm:w-full sm:max-w-sm inline">
+        <img src="{% static 'icons/LearningLogsLogo.png' %}" alt="Learning Logs" class="mx-auto h-16 w-auto inline" />
+        <h2 class="text-center text-2xl/9 font-bold tracking-tight text-white inline ml-5">Register a new account</h2>
+    </div>
+
+    <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+        <form action="#" method="POST" class="space-y-6">
+            {% csrf_token %}
+        <div>
+            <label for="email" class="block text-sm/6 font-medium text-gray-100">Email address</label>
+            <div class="mt-2">
+                <input id="email" type="email" name="email" placeholder="email@email.com" required autocomplete="email" class="block w-full rounded-md 
+                    bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 
+                    focus:-outline-offset-2 focus:outline-purple-500 sm:text-sm/6" />
+            </div>
+        </div>
+        
+        <div>
+            <label for="username" class="block text-sm/6 font-medium text-gray-100">Username</label>
+            <div class="mt-2">
+                <input id="username" type="username" name="username" placeholder="Username" required autocomplete="username" class="block w-full rounded-md
+                bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2
+                focus:-outline-offset-2 focus:outline-purple-500 sm:text-sm/6" />
+            </div>
+        </div>
+
+        <div>
+            <div class="flex items-center justify-between">
+                <label for="password" class="block text-sm/6 font-medium text-gray-100">Password</label>
+            </div>
+        <div class="relative mt-2 mb-4 w-full max-w-sm">
+            <input id="password" type="password" placeholder="Password" class="w-full rounded-md bg-white/5 px-3 py-2 pr-10 text-white placeholder-gray-500 
+                                                                                focus:outline-none focus:ring-2 focus:ring-purple-500"
+            />
+            <button type="button" id="toggle-password" class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                <img src="{% static 'icons/hidePassword.png' %}" id="password-button" class="h-5 w-5">
+            </button>
+        </div>
+
+                <div>
+            <div class="flex items-center justify-between">
+                <label for="password" class="block text-sm/6 font-medium text-gray-100">Verify Password</label>
+            </div>
+        <div class="relative mt-2 mb-4 w-full max-w-sm">
+            <input id="verify-password" type="password" placeholder="Password" class="w-full rounded-md bg-white/5 px-3 py-2 pr-10 text-white placeholder-gray-500 
+                                                                                focus:outline-none focus:ring-2 focus:ring-purple-500"
+            />
+            <button type="button" id="verify-toggle-password" name="verify-toggle-passsword" class="absolute right-2 top-1/2 transform -translate-y-1/2">
+                <img src="{% static 'icons/hidePassword.png' %}" id="verify-password-button" class="h-5 w-5">
+            </button>
+        </div>
+
+        <div>
+            <button type="submit" class="flex w-full justify-center rounded-md bg-purple-800 px-3 py-1.5 text-sm/6 font-semibold text-white hover:bg-purple-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">Sign in</button>
+        </div>
+        </form>
+
+        <p class="mt-10 text-center text-sm/6 text-gray-400">
+        Already have an account?
+        <a href="/signIn" class="font-semibold text-purple-400 hover:text-purple-500">Sign In</a>
+        </p>
+    </div>
+</div>
+<script>
+    const togglePassword = document.getElementById('toggle-password');
+    const password = document.getElementById('password');
+    const passwordBtn = document.getElementById('password-button');
+
+    const verifyTogglePassword = document.getElementById('verify-toggle-password');
+    const verifyPassword = document.getElementById('verify-password');
+    const verifyPasswordBtn = document.getElementById('verify-password-button')
+
+
+    togglePassword.addEventListener('click', () => {
+        if (password.type === 'password'){
+            password.type = 'text';
+            verifyPassword.type = 'text';
+            passwordBtn.src = "{% static 'icons/showPassword.png' %}";
+            verifyPasswordBtn.src = "{% static 'icons/showPassword.png' %}";
+        } else {
+            password.type = 'password';
+            verifyPassword.type = 'password';
+            passwordBtn.src = "{% static 'icons/hidePassword.png' %}";
+            verifyPasswordBtn.src = "{% static 'icons/hidePassword.png' %}";
+        }
+    });
+    verifyTogglePassword.addEventListener('click', () => {
+        if (password.type === 'password'){
+            password.type = 'text';
+            verifyPassword.type = 'text';
+            passwordBtn.src = "{% static 'icons/showPassword.png' %}";
+            verifyPasswordBtn.src = "{% static 'icons/showPassword.png' %}";
+        } else {
+            password.type = 'password';
+            verifyPassword.type = 'password';
+            passwordBtn.src = "{% static 'icons/hidePassword.png' %}";
+            verifyPasswordBtn.src = "{% static 'icons/hidePassword.png' %}";
+        }
+    });
+</script>
+{% endblock %}
