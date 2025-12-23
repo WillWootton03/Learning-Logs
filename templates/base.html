@@ -21,7 +21,7 @@
     <header class="bg-gray-800 py-1 rounded-2xl my-2 mx-16">
         <nav class="flex justify-between items-center w-full mx-auto">
             <div class="flex items-center gap-4 pl-4">
-                <a href="">
+                <a href="{% url 'home' %}">
                     <img src="{% static 'icons/LearningLogsLogo.png' %}" class="h-14 w-14 object-contain">
                 </a>
                 <a href="/dashboard">
@@ -44,7 +44,14 @@
                     <div id="profile-dropdown" class="origin-top-right absolute right-0 mt-2 w-56 rounded-md bg-gray-800 shadow-lg hidden">
                         <div class="py-1">
                             <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700">Account Settings</a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700">Sign Out</a>
+                            {% if user.is_authenticated %}
+                            <form method="post" action="{% url 'logout' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 block w-full text-left">Sign Out</button>
+                            </form>
+                            {% else %}
+                            <a href="{% url 'signIn' %}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700">Sign In</a>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -72,6 +79,10 @@
                 profileDropdown.classList.add('hidden');
             }
         });
+
+        function SignOut(){
+
+        }
     </script>
 </body>
 </html>

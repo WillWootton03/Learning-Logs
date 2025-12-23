@@ -16,6 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.contrib.auth.views import LogoutView
+
 from authentication.views import home
 from authentication.views import signIn, register
 from dashboard.views import home
@@ -23,12 +25,14 @@ from dashboard.views import home
 urlpatterns = [
     path('admin/', admin.site.urls),
     
-    path('home/', home, name='home'),
+    path('', home, name='home'),
 
+    #All Authentication URLs
     path('signIn/', signIn, name='signIn'),
     path('register/', register, name='register'),
+    path('logout/', LogoutView.as_view(), name='logout'),
 
-
+    #All Dashboards Urls
 
     path('__reload__/', include('django_browser_reload.urls')),
 

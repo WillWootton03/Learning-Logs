@@ -71,6 +71,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+
+                'learning_logs.context_processors.global_context',
             ],
         },
     },
@@ -94,11 +96,11 @@ load_dotenv()
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'learning_logs',
-        'USER': 'learning_logs_user',
-        'PASSWORD': 'MeiMei01304962!',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
     }
 }
 
@@ -143,3 +145,6 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 
 
 AUTH_USER_MODEL = 'authentication.User'
+
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'signIn'
