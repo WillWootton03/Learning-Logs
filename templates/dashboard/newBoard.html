@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load static tailwind_tags %}
+
+{% block content %}
+
+<!-- Spacer equal to navbar height -->
+<div class="h-32"></div>
+
+<!--Page Container-->
+<div class="container relative mx-auto flex flex-col items-center px-4 py-12 mb-12 bg-gray-700 rounded-lg" style="min-height: calc(100vh - 7rem - 5rem);">
+        <!--New boards Title-->
+    <form method="POST">
+        {% csrf_token %}
+        <div class="bg-gray-600 rounded-xl w-[40rem] mb-6 mx-auto">
+            {{ form.title }}
+        </div>
+        <!--New boards Description-->
+        <div class="bg-gray-600 rounded-xl w-[60rem] mb-6 mx-auto">
+            {{ form.description }}
+        </div>
+        <!--New boards repetition amount dropdown-->
+        <div class="relative">
+            <button type="button" id="concept-dropdown" class="block mx-auto border-2 border-purple-700  bg-gray-600 px-4 text-gray-200 w-[35rem] py-2 rounded flex justify-between items-center">
+                <span id="dropdown-text">Choose how many times it takes to move a concept to known </span>
+                <svg id="downarrow-chevron" class="w-5 h-5 bg-gray-400 rounded text-gray-600" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 9l-7 7-7-7" />
+                </svg> 
+            </button>
+            <!--Concept amount dropdown-->
+            <div id="concepts-menu" class="absolute left-1/2 transform text-center -translate-x-1/2 mt-1 w-full  rounded-md shadow-lg hidden">
+                <div class="bg-gray-800 px-4 py-2 cursor-default text-gray-400 rounded">Choose how many times it takes to move a concept to known</div>
+                <div class="py-1">
+                    {% for key, value in options.items %}
+                    <button type="button" onclick="selectKnown('{{ key }}', '{{ value }}')" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-600">{{ key}} : {{ value }}</button>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!--Hidden for form input based on dropdown value selected-->
+        <input type="hidden" name="dropdown-value" id="dropdown-value" value="">
+
+        <button type="submit" class="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-500 border-2 rounded border-purple-600 px-2 py-1 text-white hover:bg-gray-600 hover:border-purple-800">
+            Submit
+        </button>
+    </form>
+</div>
+
+<script>
+    const dropdownBtn = document.getElementById('concept-dropdown');
+    const dropdownMenu = document.getElementById('concepts-menu');
+    const dropdownValue = document.getElementById('dropdown-value');
+    const dropdownText = document.getElementById('dropdown-text');
+    const downArrow = document.getElementById('downarrow-chevron');
+
+    dropdownBtn.addEventListener('click', () => {
+        dropdownMenu.classList.toggle('hidden');
+        if(!dropdownMenu.classList.contains('hidden')){
+            downArrow.classList.remove('text-gray-600');
+            downArrow.classList.add('text-gray-400');
+            downArrow.classList.remove('bg-gray-400');
+            downArrow.classList.add('bg-gray-300');
+        } else {
+            downArrow.classList.remove('text-gray-400');
+            downArrow.classList.add('text-gray-600');
+            downArrow.classList.remove('bg-gray-300');
+            downArrow.classList.add('bg-gray-400');
+            
+        }
+    });
+
+    window.addEventListener('click', function(e){
+        if(!dropdownBtn.contains(e.target) && !dropdownBtn.contains(e.target)){
+            dropdownMenu.classList.add('hidden');
+            dropdownMenu.classList.add('hidden');
+            downArrow.classList.remove('text-gray-400');
+            downArrow.classList.add('text-gray-600');
+            downArrow.classList.remove('bg-gray-300');
+            downArrow.classList.add('bg-gray-400');
+        }
+    });
+
+    function selectKnown(value, desciption){
+        dropdownText.innerText = `${value} : ${desciption}`;
+        dropdownValue.value = value;
+        console.log(`${value}`)
+    }
+
+
+
+</script>
+
+{% endblock %}

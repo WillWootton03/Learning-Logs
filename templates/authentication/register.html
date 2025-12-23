@@ -26,19 +26,6 @@
             </div>
         </div>
         
-        <div>
-            <label for="username" class="block text-sm/6 font-medium text-gray-100">Username</label>
-            <div class="mt-2">
-                {{ form.username }}
-                {% if form.username.errors %}
-                    <p class="text-red-500 text-sm mt-1">
-                        {% for error in form.username.errors %}
-                            {{ error }}
-                        {% endfor %}
-                    </p>
-                {% endif %}
-            </div>
-        </div>
 
         <div>
             <div class="flex items-center justify-between">
@@ -46,6 +33,13 @@
             </div>
         <div class="relative mt-2 mb-4 w-full max-w-sm">
             {{ form.password }}
+            {% if form.password.errors %}
+                    <p class="text-red-500 text-sm mt-1">
+                        {% for error in form.password.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </p>
+                {% endif %}
             <button type="button" id="toggle-password" class="absolute right-2 top-1/2 transform -translate-y-1/2">
                 <img src="{% static 'icons/hidePassword.png' %}" id="password-button" class="h-5 w-5">
             </button>

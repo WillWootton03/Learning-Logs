@@ -19,7 +19,7 @@ def signIn(request):
                email = form.cleaned_data['email']
                password = form.cleaned_data['password']
 
-               user = authenticate(request, username=email, password=password)
+               user = authenticate(request, email=email, password=password)
                if user is not None:
                     login(request, user)
                     return redirect('home')
@@ -37,7 +37,6 @@ def register(request):
                user = form.save(commit=False)
                user.set_password(form.cleaned_data['password'])
                user.email = form.cleaned_data['email']
-               user.username = form.cleaned_data['username']
 
                user.save()
 

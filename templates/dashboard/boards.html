@@ -1,10 +1,11 @@
 {% extends 'base.html' %} {% load static tailwind_tags %}
 {% block content %}
-    <div class="container h-full flex justify-center items-center py-4">
+    <div class="mt-24"></div>
+    <div class="container h-full flex justify-center items-center py-4 ">
         {% if boards is not None %}
         <div class="grid grid-cols-3 gap-2 w-full h-full">
             {% for board in boards %}
-            <div class="w-96 h-64 bg-purple-800 rounded-2xl flex flex-col">
+            <a href="{% url 'boardPage' board.id %}" class="w-96 h-64 bg-purple-800 rounded-2xl flex flex-col hover:bg-purple-950">
                 <div class="text-2xl text-amber-50 text-center py-2">{{ board.title }}</div>
                 <div class="bg-purple-600 drop-shadow-lg flex-1 mx-4 mb-3 overflow-auto rounded-lg">
                     <div class="">
@@ -14,18 +15,15 @@
                         <h2 class="text-2xl mx-2 my-2.5 text-gray-300 text-center">Log Count : </h2>
                     </div>
                 </div>
-            </div>
+            </a>
             {% endfor %}
         </div>
-        <button class="fixed bottom-6 right-6 bg-yellow-300 text-black px-8 py-4 rounded-full shadow-2xl hover:bg-yellow-500"></button>
+        <a href="{% url 'newBoard' %}" class="fixed bottom-6 right-6 bg-yellow-300 text-black px-8 py-4 rounded-full shadow-2xl hover:bg-yellow-500">+</a>
         {% else %}
             <div class="text-center space-y-2">
                 <h1 class="text-2xl text-amber-50">You have no boards</h1>
-                <a href="#" class="block text-blue-400 text-2xl underline hover:text-blue-600">Create Board</a>
+                <a href="{% url 'newBoard' %}" class="block text-blue-400 text-2xl underline hover:text-blue-600">Create Board</a>
             </div>
         {% endif %}
     </div>
-
-        +
-    </button>
 {% endblock %}

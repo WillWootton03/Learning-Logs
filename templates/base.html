@@ -24,7 +24,7 @@
                 <a href="{% url 'home' %}">
                     <img src="{% static 'icons/LearningLogsLogo.png' %}" class="h-14 w-14 object-contain">
                 </a>
-                <a href="/dashboard">
+                <a href="{% url 'dashboard' %}">
                     <h1 class="text-2xl text-purple-300">Board Page</h1>
                 </a>
                 <a href="/concepts">
@@ -60,7 +60,6 @@
     </header>
 
     {% block content%}
-        
     {% endblock %}
 
         <!-- Bootstrap JS -->

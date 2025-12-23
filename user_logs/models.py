@@ -7,6 +7,6 @@ from dashboard.models import Board
 # Create your models here.
 class Log(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    board = models.ForeignKey(Board, on_delete=models.CASCADE)
+    board = models.ForeignKey(Board, on_delete=models.CASCADE, related_name='logs')
     title = models.CharField(max_length=255)
     content = models.TextField()

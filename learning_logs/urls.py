@@ -18,9 +18,9 @@ from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth.views import LogoutView
 
-from authentication.views import home
-from authentication.views import signIn, register
-from dashboard.views import home, boards
+from accounts.views import home
+from accounts.views import signIn, register
+from dashboard.views import home, boards, newBoard, boardPage
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -34,6 +34,8 @@ urlpatterns = [
 
     #All Dashboards Urls
     path('dashboard/', boards, name='dashboard'),
+    path('newBoard/', newBoard, name='newBoard'),
+    path('board/<uuid:id>/', boardPage, name='boardPage'),
 
     #Used to auto reload browser
     path('__reload__/', include('django_browser_reload.urls')),

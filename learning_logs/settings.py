@@ -37,10 +37,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    #Tailwind Apps
     'tailwind',
     'theme',
     'django_browser_reload',
-    'authentication',
+    #My Apps
+    'accounts',
     'dashboard',
     'user_logs',
     'study_session',
@@ -144,7 +146,7 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
 
-AUTH_USER_MODEL = 'authentication.User'
+AUTH_USER_MODEL = 'accounts.User'
 
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'signIn'

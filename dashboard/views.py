@@ -1,7 +1,12 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 
-from .models import Board
+from .models import Board, Concept
+from user_logs.models import Log
+from study_session.models import Session
+
+from .forms import NewBoard
+
 
 # Create your views here.
 def home(request):
@@ -17,7 +22,7 @@ def home(request):
 @login_required
 def boards(request):
     user = request.user
-    boards = Board.objects.filter(user=user.id)
+    boards = Board.objects.filter(user=user)
     if not boards.exists():
         boards = None
     context = {
@@ -25,3 +30,42 @@ def boards(request):
         'boards' : boards,
     }
     return render(request, 'dashboard/boards.html', context=context)
+
+@login_required 
+def newBoard(request):
+    user = request.user
+    
+    options = {
+        5 : 'Quick Memorization',
+        10 : 'Some Memorization',
+        15 : 'Slightly Below Reccommended',
+        20 : 'Reccommended Amount for Memorization',
+        25 : 'Really Remember Something',
+        30 : 'Fully Understand a Concept'
+    }
+
+    if request.method == 'POST':
+        form = NewBoard(request.POST)
+        if form.is_valid():
+            board = form.save(commit=False)
+            board.knownThreshold = int(request.POST.get('dropdown-value', 5))
+            board.user = user
+            board.save()
+            print(f'Saved Board: {board.title}, id={board.id}, user={board.user}, knownThreshold={board.knownThreshold}')
+
+            return redirect('home')
+        else:
+            print(form.errors)
+    else:
+        form = NewBoard()
+
+
+    return render(request, 'dashboard/newBoard.html', {'form' : form, 'options' : options, 'user' : user})
+
+@login_required
+def boardPage(request, id):
+    board = Board.objects.get(id=id)
+    logs = Log.objects.filter(board=board)
+    concepts = Concept.objects.filter(board=board)
+    sessions = Session.objects.filter(board=board)
+    return render(request, 'dashboard/boardPage.html', {'board' : board})

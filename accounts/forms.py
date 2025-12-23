@@ -12,19 +12,13 @@ class RegisterForm(forms.ModelForm):
             }))
     class Meta:
         model = User
-        fields = ['email', 'username', 'password']
+        fields = ['email', 'password']
         widgets = {
             'email' : forms.EmailInput(attrs={
                 'placeholder': 'email@example.com',
                 'required' : True,
                 'id' : 'email',
                 'class' : "block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-purple-500 sm:text-sm/6"
-            }),
-            'username' : forms.TextInput(attrs={
-                'placeholder' : 'Username',
-                'required': True,
-                'id' : 'username',
-                'class' : "block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-purple-500 sm:text-sm/6" 
             }),
             'password' : forms.PasswordInput(attrs={
                 'placeholder' : 'Password',
