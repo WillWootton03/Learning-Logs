@@ -20,7 +20,7 @@ from django.contrib.auth.views import LogoutView
 
 from authentication.views import home
 from authentication.views import signIn, register
-from dashboard.views import home
+from dashboard.views import home, boards
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -33,7 +33,9 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(), name='logout'),
 
     #All Dashboards Urls
+    path('dashboard/', boards, name='dashboard'),
 
+    #Used to auto reload browser
     path('__reload__/', include('django_browser_reload.urls')),
 
 
