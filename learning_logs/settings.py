@@ -41,7 +41,9 @@ INSTALLED_APPS = [
     'theme',
     'django_browser_reload',
     'authentication',
-
+    'dashboard',
+    'user_logs',
+    'study_session',
 ]
 
 TAILWIND_APP_NAME = 'theme'
@@ -91,14 +93,15 @@ load_dotenv()
 
 DATABASES = {
     'default': {
-        'ENGINE' : 'django.db.backends.postgresql',
-        'NAME' : os.getenv("DB_NAME"),
-        'USER' : os.getenv("DB_USER"),
-        'PASSWORD' : os.getenv("DB_PASSWORD"),
-        'HOST' : os.getenv("DB_HOST"),
-        'PORT' : os.getenv("DB_PORT"),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'learning_logs',
+        'USER': 'learning_logs_user',
+        'PASSWORD': 'MeiMei01304962!',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
+
 
 
 # Password validation
@@ -137,3 +140,6 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / "static"]
+
+
+AUTH_USER_MODEL = 'authentication.User'

@@ -17,17 +17,18 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from authentication.views import home
-from authentication.views import signIn, register, boards
+from authentication.views import signIn, register
+from dashboard.views import home
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     
-    path('', home),
+    path('home/', home, name='home'),
 
-    path('signIn/', signIn),
-    path('register/', register),
+    path('signIn/', signIn, name='signIn'),
+    path('register/', register, name='register'),
 
-    path('boards/', boards),
+
 
     path('__reload__/', include('django_browser_reload.urls')),
 

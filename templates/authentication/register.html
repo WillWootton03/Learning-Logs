@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static tailwind_tags %}
 
+
 {% block content %}
 <div class="flex min-h-full flex-col mt-16 px-6 py-12 lg:px-8">
     <div class="sm:mx-auto sm:w-full sm:max-w-sm inline">
@@ -12,51 +13,60 @@
         <form action="#" method="POST" class="space-y-6">
             {% csrf_token %}
         <div>
-            <label for="email" class="block text-sm/6 font-medium text-gray-100">Email address</label>
+            <label for="{{ form.email.id_for_label}}" class="block text-sm/6 font-medium text-gray-100">Email address</label>
             <div class="mt-2">
-                <input id="email" type="email" name="email" placeholder="email@email.com" required autocomplete="email" class="block w-full rounded-md 
-                    bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 
-                    focus:-outline-offset-2 focus:outline-purple-500 sm:text-sm/6" />
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <p class="text-red-500 text-sm mt-1">
+                        {% for error in form.email.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </p>
+                {% endif %}
             </div>
         </div>
         
         <div>
             <label for="username" class="block text-sm/6 font-medium text-gray-100">Username</label>
             <div class="mt-2">
-                <input id="username" type="username" name="username" placeholder="Username" required autocomplete="username" class="block w-full rounded-md
-                bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2
-                focus:-outline-offset-2 focus:outline-purple-500 sm:text-sm/6" />
+                {{ form.username }}
+                {% if form.username.errors %}
+                    <p class="text-red-500 text-sm mt-1">
+                        {% for error in form.username.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </p>
+                {% endif %}
             </div>
         </div>
 
         <div>
             <div class="flex items-center justify-between">
-                <label for="password" class="block text-sm/6 font-medium text-gray-100">Password</label>
+                <label for="{{ form.password.id_for_label}}" class="block text-sm/6 font-medium text-gray-100">Password</label>
             </div>
         <div class="relative mt-2 mb-4 w-full max-w-sm">
-            <input id="password" type="password" placeholder="Password" class="w-full rounded-md bg-white/5 px-3 py-2 pr-10 text-white placeholder-gray-500 
-                                                                                focus:outline-none focus:ring-2 focus:ring-purple-500"
-            />
+            {{ form.password }}
             <button type="button" id="toggle-password" class="absolute right-2 top-1/2 transform -translate-y-1/2">
                 <img src="{% static 'icons/hidePassword.png' %}" id="password-button" class="h-5 w-5">
             </button>
         </div>
 
-                <div>
+        <div>
             <div class="flex items-center justify-between">
-                <label for="password" class="block text-sm/6 font-medium text-gray-100">Verify Password</label>
+                <label for="{{ form.verifyPasswrd.id_for_label}}" class="block text-sm/6 font-medium text-gray-100">Verify Password</label>
             </div>
         <div class="relative mt-2 mb-4 w-full max-w-sm">
-            <input id="verify-password" type="password" placeholder="Password" class="w-full rounded-md bg-white/5 px-3 py-2 pr-10 text-white placeholder-gray-500 
-                                                                                focus:outline-none focus:ring-2 focus:ring-purple-500"
-            />
+            {{ form.verifyPassword }}
             <button type="button" id="verify-toggle-password" name="verify-toggle-passsword" class="absolute right-2 top-1/2 transform -translate-y-1/2">
                 <img src="{% static 'icons/hidePassword.png' %}" id="verify-password-button" class="h-5 w-5">
             </button>
         </div>
 
         <div>
-            <button type="submit" class="flex w-full justify-center rounded-md bg-purple-800 px-3 py-1.5 text-sm/6 font-semibold text-white hover:bg-purple-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">Sign in</button>
+            <button type="submit" class="flex w-full justify-center rounded-md bg-purple-800 px-3 py-1.5 text-sm/6 font-semibold text-white hover:bg-purple-500 
+                focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">
+                Register
+            </button>
         </div>
         </form>
 
@@ -102,5 +112,26 @@
             verifyPasswordBtn.src = "{% static 'icons/hidePassword.png' %}";
         }
     });
+
+    function checkPassword() {
+            if (!password.value || !verifyPassword.value)
+            {
+                password.classList.remove('ring-2', 'ring-red-500');
+                verifyPassword.classList.remove('ring-2', 'ring-red-500');
+                return;
+            } 
+            else {
+                if (password.value !== verifyPassword.value) {
+                    password.classList.add('ring-2', 'ring-red-500');
+                    verifyPassword.classList.add('ring-2', 'ring-red-500');
+                } else{
+                    password.classList.remove('ring-2', 'ring-red-500');
+                    verifyPassword.classList.remove('ring-2', 'ring-red-500');
+                }
+            }
+        }
+    password.addEventListener('blur', checkPassword);
+    verifyPassword.addEventListener('blur', checkPassword);
+
 </script>
 {% endblock %}
