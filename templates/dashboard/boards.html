@@ -1,7 +1,6 @@
 {% extends 'base.html' %} {% load static tailwind_tags %}
 {% block content %}
-    <div class="mt-24"></div>
-    <div class="container h-full flex justify-center items-center py-4 ">
+    <div class="flex flex-box mx-5 pt-24 justify-center align-items-center h-[calc(100vh-3rem)]">
         {% if boards is not None %}
         <div class="grid grid-cols-3 gap-2 w-full h-full">
             {% for board in boards %}
@@ -20,7 +19,7 @@
         </div>
         <a href="{% url 'newBoard' %}" class="fixed bottom-6 right-6 bg-yellow-300 text-black px-8 py-4 rounded-full shadow-2xl hover:bg-yellow-500">+</a>
         {% else %}
-            <div class="text-center space-y-2">
+            <div class="text-center space-y-2 ">
                 <h1 class="text-2xl text-amber-50">You have no boards</h1>
                 <a href="{% url 'newBoard' %}" class="block text-blue-400 text-2xl underline hover:text-blue-600">Create Board</a>
             </div>

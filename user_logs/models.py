@@ -10,3 +10,4 @@ class Log(models.Model):
     board = models.ForeignKey(Board, on_delete=models.CASCADE, related_name='logs')
     title = models.CharField(max_length=255)
     content = models.TextField()
+    dateAdded = models.DateTimeField(default=timezone.now)

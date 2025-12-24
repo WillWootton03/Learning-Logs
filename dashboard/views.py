@@ -22,7 +22,7 @@ def home(request):
 @login_required
 def boards(request):
     user = request.user
-    boards = Board.objects.filter(user=user)
+    boards = user.boards.all()
     if not boards.exists():
         boards = None
     context = {
@@ -65,7 +65,4 @@ def newBoard(request):
 @login_required
 def boardPage(request, id):
     board = Board.objects.get(id=id)
-    logs = Log.objects.filter(board=board)
-    concepts = Concept.objects.filter(board=board)
-    sessions = Session.objects.filter(board=board)
     return render(request, 'dashboard/boardPage.html', {'board' : board})
