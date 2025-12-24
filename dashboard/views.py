@@ -63,6 +63,12 @@ def newBoard(request):
     return render(request, 'dashboard/newBoard.html', {'form' : form, 'options' : options, 'user' : user})
 
 @login_required
+def newConcept(request, id):
+    board = Board.objects.get(id=id)
+
+    return render(request, 'dashboard/newConcept.html')
+
+@login_required
 def boardPage(request, id):
     board = Board.objects.get(id=id)
     logs = board.logs.all().order_by('-dateAdded')
