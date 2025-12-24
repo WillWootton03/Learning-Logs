@@ -21,6 +21,7 @@ from django.contrib.auth.views import LogoutView
 from accounts.views import home
 from accounts.views import signIn, register
 from dashboard.views import home, boards, newBoard, boardPage
+from user_logs.views import newLog
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -32,10 +33,13 @@ urlpatterns = [
     path('register/', register, name='register'),
     path('logout/', LogoutView.as_view(), name='logout'),
 
-    #All Dashboards Urls
+    #All Dashboards URLs
     path('dashboard/', boards, name='dashboard'),
     path('newBoard/', newBoard, name='newBoard'),
     path('board/<uuid:id>/', boardPage, name='boardPage'),
+
+    #All Logs URLs
+    path('board/<uuid:id>/newLog/', newLog, name='newLog'),
 
     #Used to auto reload browser
     path('__reload__/', include('django_browser_reload.urls')),

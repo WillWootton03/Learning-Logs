@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static tailwind_tags %}
+
+{% block content %}
+<form method="POST">
+    {% csrf_token %}
+<!--Sets up the view area-->
+<div class="flex flex-box mx-20 pt-24 h-[calc(100vh-3rem)]">
+    <div class="grid grid-cols-2 w-full h-full gap-x-4">
+        <!--Left Column-->
+        <div class="px-10 py-8 relative">
+            {{ form.title }}
+            {% if form.title.errors %}
+                <p class="text-red-500 text-sm mt-1">
+                    {% for error in form.title.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </p>
+            {% endif %}   
+            <div class="relative bg-grey-300 mt-8 bg-gray-500 w-full rounded-3xl">
+                <h2 class="text-2xl text-white px-2 py-3 text-center font-bold">Log Tags</h2>      
+                <button class="absolute top-2.5 right-2.5 bg-blue-300 px-3 py-2.5 rounded-2xl font-bold">+</button>
+            </div>
+            <button type="submit" class="absolute bottom-10 left-[45%] bg-blue-300 px-5 py-2.5 rounded-2xl font-bold">Submit</button>
+        </div>
+        <!--Right Column-->
+        <div class="px-10 py-8">
+            <div class="bg-green-800 text-white  h-full rounded-2xl">
+                <h2 class="text-2xl text-white px-2 py-1 text-center font-bold">Log</h2>
+                {{ form.content }}
+                 {% if form.content.errors %}
+                    <p class="text-red-500 text-sm mt-1">
+                        {% for error in form.content.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+
+        </div>
+    </div>
+</div>
+</form>
+{% endblock %}

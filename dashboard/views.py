@@ -65,4 +65,5 @@ def newBoard(request):
 @login_required
 def boardPage(request, id):
     board = Board.objects.get(id=id)
-    return render(request, 'dashboard/boardPage.html', {'board' : board})
+    logs = board.logs.all().order_by('-dateAdded')
+    return render(request, 'dashboard/boardPage.html', {'board' : board, 'logs' : logs})
