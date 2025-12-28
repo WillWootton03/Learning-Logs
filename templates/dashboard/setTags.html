@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static tailwind_tags %}
 {% block content %}
+    <meta name="csrf_token" content="{{ csrf_token }}">
     <!--Section for all tags-->
     <div id="page-wrapper" class="flex flex-box mx-auto pt-24 justify-center h-[calc(100vh-3rem)] w-[60%] transition-all duration-200">
         <div class="px-6 py-8 relative h-full w-full flex flex-col items-center">
@@ -12,28 +13,24 @@
                 </div>
                 <!--Acts as the box for all concept tags-->
                 <div class="h-full w-full flex flex-col items-center gap-y-3 ">
+                    <!--Section for all tags selected on a concepts-->
                     <div class="h-64 w-[90%] bg-green-400 flex flex-col">
                         <h2 class="text-2xl text-white text-center">Selected Tags</h2>
                         <div class="bg-gray-500 h-full w-full overflow-y-auto">
-                            <div class="grid grid-cols-4 gap-x-2 gap-y-3 m-1">
-                            {% for tag in concept.tags.all %}
-                                <button class="bg-blue-200 rounded-2xl w-full h-8">{{ tag.name }}</button>
-                            {% endfor %}
+                            <div id="concept-tags" class="grid grid-cols-4 gap-x-2 gap-y-3 m-1">
                             </div>
                         </div>
                     </div>
+                    <!--Section for all tags in the board that arent already on the concept-->
                     <div class="h-64 w-[90%] mb-2 bg-blue-400 flex flex-col">
                         <h2 class="text-2xl text-white text-center">Available Tags</h2>
-                        <div class="bg-gray-500 h-full w-full overflow-y-auto">
-                            <div class="grid grid-cols-4 gap-x-2 gap-y-3 m-1">
-                                {% for tag in board.tags.all %}
-                                    <button class="bg-blue-200 rounded-2xl w-full h-8">{{ tag.name }}</button>
-                                {% endfor%}
+                        <div  class="bg-gray-500 h-full w-full overflow-y-auto">
+                            <div id="available-tags" class="grid grid-cols-4 gap-x-2 gap-y-3 m-1">
                             </div>
                         </div>
                     </div>
                 </div>
-                <button id="new-tag" class="bg-blue-300 font-bold px-20 py-2 text-2xl rounded-2xl mb-3 flex flex-col">Create A New Tag</button>
+                <button id="create-tag" class="bg-blue-300 font-bold px-20 py-2 text-2xl rounded-2xl mb-3 flex flex-col">Create A New Tag</button>
             </div>
                 <button class="bg-gray-600 px-20 py-3 text-2xl rounded-2xl mt-3 flex flex-col">Submit</button>
         </div>
@@ -43,7 +40,7 @@
     <div id="tag-backdrop" class="hidden fixed inset-0 z-90 bg-black/50 backdrop-blur-sm"></div>
     <!--Main modal for adding a tag-->
     <div id="new-tag-modal" class="hidden flex flex-row fixed inset-x-[25%] inset-y-[40%] w-[50%] h-[5vw] rounded-2xl bg-gray-500 z-100">
-        <form method="POST" action="{% url 'setTags' board_id=board.id concept_id=concept.id%}" class="flex flex-row h-full w-full">
+        <form id="tag-form" method="POST" action="{% url 'setTags' board_id=board.id concept_id=concept.id %}" class="flex flex-row h-full w-full">
             {% csrf_token %}
             <!--Tag Title-->
             <div class="bg-white rounded-2xl p-3 w-[45%] h-[80%] shadow-xl m-2 content-center">
@@ -60,6 +57,8 @@
             <button type="button" id="close-tag-modal" class="absolute top-3 right-3 bg-red-600 rounded-2xl px-2.5 py-1">X</button>
         </form>
     </div>
+    {{ conceptTags|json_script:"concept-tags-data" }}
+    {{ availableTags|json_script:"available-tags-data"}}
     <script>
         const pageWrapper = document.getElementById('page-wrapper');
         const tagBackdrop = document.getElementById('tag-backdrop');
@@ -67,12 +66,38 @@
 
         const closeTag = document.getElementById('close-tag-modal');
 
-        const newTag = document.getElementById('new-tag');
+        const createTag = document.getElementById('create-tag');
+
+        const tagForm = document.getElementById('tag-form');
+
+        const availableTags = document.getElementById('available-tags');
+        const conceptTags = document.getElementById('concept-tags');
+
+        const csrfToken = document.querySelector('meta[name=csrf_token]').getAttribute('content');
+
+        const boardId = "{{ board.id }}";
+        const conceptId = "{{ concept.id }}";
+
 
         function openModal() {
             pageWrapper.classList.add('blur-sm', 'pointer-events-none')
             newTagModal.classList.remove('hidden')
             tagBackdrop.classList.remove('hidden')
+        }
+
+        function deleteTag(id){
+                fetch(`/tag/${id}/delete/`, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken' : csrfToken }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success) {
+                        document.querySelector(`[data-id="${id}"]`)?.remove();
+                    } else {
+                        alert('Failed to delete tag: ' + data.error);
+                    }
+                });
         }
 
         function closeModal() {
@@ -81,19 +106,106 @@
             tagBackdrop.classList.add('hidden')
         }
 
+          function createTagButton(tag, isConceptTag = false) {
+            const button = document.createElement('button');
+            button.className = isConceptTag ? 'conceptTag bg-blue-200 rounded-2xl w-full h-8 relative'
+                                            : 'availableTag bg-blue-200 rounded-2xl w-full h-8 relative';
+            button.dataset.id = tag.id;
+            button.textContent = tag.name;
+
+            const removeTagButton = document.createElement('button');
+            removeTagButton.textContent = 'X';
+            removeTagButton.className = 'absolute right-1 top-1 bg-red-500 text-white text-xs px-1 rounded';
+            removeTagButton.onclick = () => deleteTag(tag.id);
+
+            button.appendChild(removeTagButton);
+
+            return button;
+        }
+
         // Event Listener to the Create new tag button
-        newTag.addEventListener('click', () => {
+        createTag.addEventListener('click', () => {
             openModal();
         });
         // Event Listener to the X button inside the modal
         closeTag.addEventListener('click', () => {
             closeModal();
-        })
+        });
         // Event Listener to trigger closing the modal when clicking outside of the modal
         tagBackdrop.addEventListener('click', () => {
             if(!tagBackdrop.classList.contains('hidden')){
                 closeModal();
             }
-        })
+        });
+
+        // Sets the ability for the form to be processed using JS await meaning updating Available tags box without reloading page when creating new tag
+        tagForm.addEventListener('submit', (e) => {
+            e.preventDefault(); // Stop page from reloading
+
+            const formData = new FormData(tagForm);
+
+            fetch(tagForm.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.availableTags) {
+                    availableTags.innerHTML = "";
+
+                    data.availableTags.forEach(tag => {
+                        const button = createTagButton(tag, false);
+                        availableTags.appendChild(button);
+                    });
+                    tagForm.reset()
+                    closeModal();
+                }
+            });
+        });
+
+
+        document.addEventListener('click', (e) => {
+            if(e.target.classList.contains('conceptTag') || e.target.classList.contains('availableTag')){
+                const tagId = e.target.dataset.id;
+
+                fetch(`/board/${boardId}/${conceptId}/${tagId}/toggle/`, {
+                    method : 'POST',
+                    headers : { 'X-CSRFToken' : csrfToken }
+                })
+                .then(res => res.json())
+                .then(data => {
+
+                    conceptTags.innerHTML = ''
+                    data.conceptTags.forEach(tag => {
+                        const button = createTagButton(tag, true);
+                        conceptTags.appendChild(button);
+                    });
+
+                    availableTags.innerHTML = ''
+                    data.availableTags.forEach(tag => {
+                        const button = createTagButton(tag, false);
+                        availableTags.appendChild(button);
+                    });
+                });
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const conceptTagsData = JSON.parse(document.getElementById('concept-tags-data').textContent);
+            const availableTagsData = JSON.parse(document.getElementById('available-tags-data').textContent);
+
+            conceptTags.innerHTML = '';
+            availableTags.innerHTML = '';
+            conceptTagsData.forEach(tag => {
+                conceptTags.appendChild(createTagButton(tag, true));
+            });
+            availableTagsData.forEach(tag => {
+                availableTags.appendChild(createTagButton(tag, false));
+            });
+        });
+
     </script>
 {% endblock %}

@@ -17,7 +17,7 @@ class Tag(models.Model):
     id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     board = models.ForeignKey(Board, on_delete=models.CASCADE, related_name='tags')
     
-    name = models.CharField(max_length=60)
+    name = models.CharField(max_length=60, unique=True)
 
 class Concept(models.Model):
     id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)

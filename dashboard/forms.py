@@ -56,6 +56,7 @@ class SetTags(forms.ModelForm):
             'name' : forms.TextInput(attrs={
                 'placeholder' : 'New Tag',
                 'id' : 'tag-name',
+                'name' : 'name',
                 'required' : True,
                 'class' : "text-2xl font-bold h-full w-full",
             })
