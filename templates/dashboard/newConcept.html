@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% load static tailwind_tags %}
+
+{% block content %}
+<div class="flex flex-box mx-5 pt-24 justify-center h-[calc(100vh-3rem)] transition-all duration-200">
+    <form method="POST" class="w-[70%] px-6 py-8 relative flex flex-col items-center gap-y-12">
+        {% csrf_token %}
+        {{ form.answer }}
+        {{ form.definition }}
+        {{ form.hint }}
+        <button type="submit" class="bg-gray-400 text-white text-2xl font-bold p-3 rounded-2xl">Submit</button>
+    </form>
+</div>
+
+{% endblock %}

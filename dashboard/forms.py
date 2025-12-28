@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Board
+from .models import Board, Tag, Concept
 
 
 class NewBoard(forms.ModelForm):
@@ -22,4 +22,42 @@ class NewBoard(forms.ModelForm):
             }),
 
         }
-        
+
+class NewConcept(forms.ModelForm):
+    class Meta:
+        model = Concept
+        fields = ['answer', 'definition', 'hint']
+        widgets = {
+            'answer' : forms.TextInput(attrs={
+                'placeholder' : 'Concept Answer',
+                'id' : 'answer',
+                'required' : True,
+                'class' : "text-2xl text-white bg-green-700 text-center py-1 rounded-3xl font-bold w-[80%]"
+            }),
+            'definition' : forms.Textarea(attrs={
+                'placeholder' : 'Concept Definition',
+                'id' : 'description',
+                'required' : True,
+                 "class" : "resize-none h-[55%] w-[90%] bg-green-700 focus:bg-green-900 px-4 py-4 text-center"
+            }),
+            'hint' : forms.Textarea(attrs={
+                'placeholder' : "Concept Hint",
+                'id' : 'hint',
+                'required' : True,
+                "class" : "resize-none h-[30%] w-[90%] bg-green-700 focus:bg-green-900 px-4 py-4 text-center"
+            })
+        }
+
+class SetTags(forms.ModelForm):
+    class Meta:
+        model = Tag
+        fields = ['name']
+        widgets = {
+            'name' : forms.TextInput(attrs={
+                'placeholder' : 'New Tag',
+                'id' : 'tag-name',
+                'name' : 'name',
+                'required' : True,
+                'class' : "text-2xl font-bold h-full w-full",
+            })
+        }
