@@ -26,7 +26,7 @@ class Concept(models.Model):
     definition = models.TextField()
     hint = models.TextField(default=None)
     known = models.BooleanField(default=False)
-    unknown = models.BooleanField(default=False)
+    unknown = models.BooleanField(default=True)
     count = models.IntegerField(default=0)
     maxCount = models.IntegerField(default=0)
     tags = models.ManyToManyField(Tag, blank=True, related_name='concepts')

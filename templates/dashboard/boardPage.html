@@ -60,9 +60,21 @@
         <!--Is the larger card for Concepts-->
         <div class="w-full h-full flex flex-col bg-amber-100 rounded-2xl relative">
             <h2 class="text-3xl font-bold my-2 text-center">My Concepts</h2>
-            <div class="flex flex-col w-[18%]">
+            <div id="concept-grid" class="grid grid-cols-6 w-full h-full auto-rows-min gap-2 p-2">
                 {% for concept in board.concepts.all %}
-                <a href="{% url 'setTags' board_id=board.id concept_id=concept.id%}" class="bg-blue-400 rounded-2xl py-1 font-medium mx-2 my-2">{{ concept.answer }}</a>
+                    {% if concept.known %}
+                        <a id="{{ concept.id }}" href="{% url 'setTags' board_id=board.id concept_id=concept.id%}" class="bg-green-600 rounded-2xl py-1 justify-items-center">
+                            <h2 class="font-medium mx-2 my-2">{{ concept.answer }}</h2>
+                        </a>
+                    {% elif concept.unknown %}
+                        <a id="{{ concept.id }}" href="{% url 'setTags' board_id=board.id concept_id=concept.id%}" class="bg-red-500 rounded-2xl py-1 justify-items-center">
+                            <h2 class="font-medium mx-2 my-2">{{ concept.answer }}</h2>
+                        </a>
+                    {% else %}
+                        <a id="{{ concept.id }}" href="{% url 'setTags' board_id=board.id concept_id=concept.id%}" class="bg-yellow-300 rounded-2xl py-1 justify-items-center">
+                            <h2 class="font-medium mx-2 my-2">{{ concept.answer }}</h2>
+                        </a>
+                    {% endif %}
                 {% endfor %}
             </div>
 
@@ -71,6 +83,7 @@
     </div>
 </div>
 <script>
+
     document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.local-time').forEach(span => {
             const UTCDate = new Date(span.dataset.time);
@@ -83,6 +96,7 @@
             });
         });
     });
+
 </script>
 {% endblock %}
 

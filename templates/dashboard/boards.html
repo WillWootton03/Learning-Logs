@@ -2,9 +2,9 @@
 {% block content %}
     <div class="flex flex-box mx-5 pt-24 justify-center align-items-center h-[calc(100vh-3rem)]">
         {% if boards is not None %}
-        <div class="grid grid-cols-3 gap-2 w-full h-full">
+        <div class="grid grid-cols-4 gap-x-10 gap-y-4 w-full h-full items-center auto-rows-min">
             {% for board in boards %}
-            <a href="{% url 'boardPage' board.id %}" class="w-96 h-64 bg-purple-800 rounded-2xl flex flex-col hover:bg-purple-950">
+            <a href="{% url 'boardPage' board.id %}" class="w-full h-fit bg-purple-800 rounded-2xl flex flex-col hover:bg-purple-950">
                 <div class="text-2xl text-amber-50 text-center py-2">{{ board.title }}</div>
                 <div class="bg-purple-600 drop-shadow-lg flex-1 mx-4 mb-3 overflow-auto rounded-lg">
                     <div class="">

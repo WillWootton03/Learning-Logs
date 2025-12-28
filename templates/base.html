@@ -27,12 +27,20 @@
                 <a href="{% url 'dashboard' %}">
                     <h1 class="text-2xl text-purple-300">My Boards</h1>
                 </a>
-                <a href="/concepts">
+                {% if board %}
+                <a href="{% url 'boardPage' board.id %}">
+                    <h1 class="text-2xl text-purple-300">{{ board.title }}</h1>
+                </a>
+                <a href="#">
+                    <h1 class="text-2xl text-purple-300">Study Sessions</h1>
+                </a>
+                <a href="#">
                     <h1 class="text-2xl text-purple-300">Concepts</h1>
                 </a>
-                <a href="logs">
+                <a href="#">
                     <h1 class="text-2xl text-purple-300">Logs</h1>
                 </a>
+                {% endif %}
             </div>
             <div class="flex items-center gap-4 pr-4">
                 <a href="/study">
