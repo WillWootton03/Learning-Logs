@@ -62,7 +62,7 @@
             <h2 class="text-3xl font-bold my-2 text-center">My Concepts</h2>
             <div class="flex flex-col w-[18%]">
                 {% for concept in board.concepts.all %}
-                <button class="bg-blue-400 rounded-2xl py-1 font-medium mx-2 my-2">{{ concept.answer }}</button>
+                <a href="{% url 'setTags' board_id=board.id concept_id=concept.id%}" class="bg-blue-400 rounded-2xl py-1 font-medium mx-2 my-2">{{ concept.answer }}</a>
                 {% endfor %}
             </div>
 

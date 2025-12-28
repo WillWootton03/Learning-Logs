@@ -1,11 +1,14 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 
-from .models import Board, Concept
+from .models import Board, Concept, Tag
 from user_logs.models import Log
 from study_session.models import Session
 
-from .forms import NewBoard
+from .forms import NewBoard, SetTags, NewConcept
 
 
 # Create your views here.
@@ -66,7 +69,76 @@ def newBoard(request):
 def newConcept(request, id):
     board = Board.objects.get(id=id)
 
-    return render(request, 'dashboard/newConcept.html')
+    if request.method == 'POST':
+        form = NewConcept(request.POST)
+        if form.is_valid():
+            concept = form.save(commit=False)
+            concept.board = board
+            concept.save()
+
+            return redirect('setTags', board_id = board.id, concept_id=concept.id)
+    else:
+        form = NewConcept()
+
+    return render(request, 'dashboard/newConcept.html', {'board' : board, 'form' : form})
+
+@login_required
+def setTags(request, board_id, concept_id):
+    board = Board.objects.get(id=board_id)
+    concept = Concept.objects.get(id=concept_id)
+
+    if request.method == 'POST':
+        form = SetTags(request.POST)
+        if form.is_valid():
+            tag = form.save(commit=False)
+            tag.board = board
+            tag.concept = None
+            tag.save()
+            
+            # Updates values for availableTags and conceptTags when returning Json Response
+            availableTags_qs = board.tags.exclude(id__in=concept.tags.values_list('id', flat=True))
+            availableTags = list(availableTags_qs.values('id','name'))
+            conceptTags = list(concept.tags.values("id", "name"))
+            
+            return JsonResponse({'availableTags' : availableTags})
+        else:
+            return JsonResponse({'errors': form.errors}, status=400)
+    else:
+        form = SetTags()
+    
+    # Used to get values for initial render of the page
+    availableTags_qs = board.tags.exclude(id__in=concept.tags.all().values_list('id', flat=True))
+    availableTags = list(availableTags_qs.values('id','name'))
+    conceptTags = list(concept.tags.values("id", "name"))
+
+    return render(request, 'dashboard/setTags.html', {'form' : form, 'board' : board, 'concept' : concept, 'availableTags' : availableTags, 'conceptTags' : conceptTags})
+
+@login_required
+def toggleTags(request, board_id, concept_id, tag_id):
+    board = Board.objects.get(id=board_id)
+    concept = Concept.objects.get(id=concept_id)
+    tag = Tag.objects.get(id=tag_id)
+
+    if tag in concept.tags.all():
+        concept.tags.remove(tag)
+    else:
+        concept.tags.add(tag)
+
+    #Updates tag boxes
+    conceptTags = list(concept.tags.values('id', 'name'))
+    availableTags = list(board.tags.exclude(id__in=concept.tags.all().values_list('id', flat=True)).values('id','name'))
+
+    return JsonResponse({'conceptTags' : conceptTags, 'availableTags' : availableTags})
+
+@require_POST
+@login_required
+def deleteTag(request, tag_id):
+    try:
+        tag = Tag.objects.get(id=tag_id)
+        tag.delete()
+        return JsonResponse({'success' : True})
+    except Tag.DoesNotExist:
+        return JsonResponse({'success' : False, 'error' : 'Tag not found'}, status=404)
 
 @login_required
 def boardPage(request, id):

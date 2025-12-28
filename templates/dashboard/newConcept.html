@@ -2,62 +2,14 @@
 {% load static tailwind_tags %}
 
 {% block content %}
-<div class="flex flex-box mx-5 pt-24 h-[calc(100vh-3rem)]">
-    <div class="grid grid-cols-[2fr_1fr] w-full gap-x-4 justify-center">
-        <!--Left Column for Concept Details-->
-        <div class=" w-[90%]px-6 py-8 relative w-full flex flex-col items-center gap-y-12">
-            <input placeholder="Concept Answer" class="text-2xl text-white bg-green-700 text-center py-1 rounded-3xl font-bold w-[80%]"></input>
-            <textarea placeholder="Concept Description" class="resize-none h-[55%] w-[90%] bg-green-700 focus:bg-green-900 px-4 py-4 text-center"></textarea>
-            <textarea placeholder="Concept Hint"  class="resize-none h-[30%] w-[90%] bg-green-700 focus:bg-green-900 px-4 py-4 text-center"></textarea>
-        </div>
-        <!--Right Column for Tag Details-->
-        <div >
-            <div class="px-6 py-8 relative h-full w-full flex flex-col items-center ">
-                <div class="h-[100%] w-[90%] bg-amber-200 flex flex-col items-center gap-y-4">
-                    <!--Acts as the Concept tag headers with search-->
-                    <div class="flex flex-col items-center gap-y-4 w-[70%]">
-                        <h1 class="py-2  text-black text-2xl font-bold">Concept Tags</h1>
-                        <input id="tag-search" placeholder="Search Tag" class="w-[80%] h-8 text-lg text-center bg-green-700 border-2 border-black" />
-                    </div>
-                    <!--Acts as the box for all concept tags-->
-                    <div class="h-full w-full flex flex-col items-center gap-y-4 ">
-                        <div class="h-[50%] w-[90%] bg-green-400 flex flex-col">
-                            <h2 class="text-2xl text-white text-center">Selected Concepts</h2>
-                            <div class="bg-gray-500 h-full w-full overflow-y-auto">
-                                <div class="grid grid-cols-4 gap-x-2 gap-y-4 m-1">
-                                    <button class="bg-blue-200 rounded-2xl w-full h-8">concept</button>
-                                    <button class="bg-blue-200 rounded-2xl w-full h-8">concept</button>
-                                    <button class="bg-blue-200 rounded-2xl w-full h-8">concept</button>
-                                    <button class="bg-blue-200 rounded-2xl w-full h-8">concept</button>
-                                    <button class="bg-blue-200 rounded-2xl w-full h-8">concept</button>
-                                    <button class="bg-blue-200 rounded-2xl w-full h-8">concept</button>
-                                    <button class="bg-blue-200 rounded-2xl w-full h-8">concept</button>
-                                    <button class="bg-blue-200 rounded-2xl w-full h-8">concept</button>
-                                    <button class="bg-blue-200 rounded-2xl w-full h-8">concept</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="h-[50%] w-[90%] mb-4 bg-blue-400 flex flex-col">
-                            <h2 class="text-2xl text-white text-center">Unselected Concepts</h2>
-                            <div class="bg-gray-500 h-full w-full overflow-y-auto">
-                                <div class="grid grid-cols-4 gap-x-2 gap-y-4 m-1">
-                                    <button class="bg-blue-200 rounded-2xl w-full h-8">concept</button>
-                                    <button class="bg-blue-200 rounded-2xl w-full h-8">concept</button>
-                                    <button class="bg-blue-200 rounded-2xl w-full h-8">concept</button>
-                                    <button class="bg-blue-200 rounded-2xl w-full h-8">concept</button>
-                                    <button class="bg-blue-200 rounded-2xl w-full h-8">concept</button>
-                                    <button class="bg-blue-200 rounded-2xl w-full h-8">concept</button>
-                                    <button class="bg-blue-200 rounded-2xl w-full h-8">concept</button>
-                                    <button class="bg-blue-200 rounded-2xl w-full h-8">concept</button>
-                                    <button class="bg-blue-200 rounded-2xl w-full h-8">concept</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <button class="bg-gray-600 px-3 py-3 text-2xl rounded-2xl mb-2">Submit</button>
-                </div>
-            </div>
-        </div>
-    </div>  
+<div class="flex flex-box mx-5 pt-24 justify-center h-[calc(100vh-3rem)] transition-all duration-200">
+    <form method="POST" class="w-[70%] px-6 py-8 relative flex flex-col items-center gap-y-12">
+        {% csrf_token %}
+        {{ form.answer }}
+        {{ form.definition }}
+        {{ form.hint }}
+        <button type="submit" class="bg-gray-400 text-white text-2xl font-bold p-3 rounded-2xl">Submit</button>
+    </form>
 </div>
+
 {% endblock %}
