@@ -20,7 +20,7 @@ from django.contrib.auth.views import LogoutView
 
 from accounts.views import home
 from accounts.views import signIn, register
-from dashboard.views import home, boards, newBoard, boardPage, newConcept
+from dashboard.views import home, boards, newBoard, boardPage, newConcept, setTags
 from user_logs.views import newLog
 
 urlpatterns = [
@@ -38,6 +38,7 @@ urlpatterns = [
     path('newBoard/', newBoard, name='newBoard'),
     path('board/<uuid:id>/', boardPage, name='boardPage'),
     path('board/<uuid:id>/newConcept/', newConcept, name='newConcept'),
+    path('board/<uuid:board_id>/<uuid:concept_id>/setTags/', setTags, name='setTags'),
 
     #All Logs URLs
     path('board/<uuid:id>/newLog/', newLog, name='newLog'),

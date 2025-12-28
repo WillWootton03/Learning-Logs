@@ -5,7 +5,7 @@ from .models import Board, Concept
 from user_logs.models import Log
 from study_session.models import Session
 
-from .forms import NewBoard
+from .forms import NewBoard, SetTags, NewConcept
 
 
 # Create your views here.
@@ -66,7 +66,36 @@ def newBoard(request):
 def newConcept(request, id):
     board = Board.objects.get(id=id)
 
-    return render(request, 'dashboard/newConcept.html')
+    if request.method == 'POST':
+        form = NewConcept(request.POST)
+        if form.is_valid():
+            concept = form.save(commit=False)
+            concept.board = board
+            concept.save()
+
+            return redirect('setTags', board_id = board.id, concept_id=concept.id)
+    else:
+        form = NewConcept()
+
+    return render(request, 'dashboard/newConcept.html', {'board' : board, 'form' : form})
+
+@login_required
+def setTags(request, board_id, concept_id):
+    board = Board.objects.get(id=board_id)
+    concept = Concept.objects.get(id=concept_id)
+    if request.method == 'POST':
+        form = SetTags(request.POST)
+        if form.is_valid():
+            tag = form.save(commit=False)
+            tag.board = board
+            tag.concept = None
+            tag.save()
+            #CHANGE TO CONCEPT PAGE FOR SPECIFIC CONCEPT
+            return redirect('setTags', board_id=board.id, concept_id=concept.id)
+    else:
+        form = SetTags()
+
+    return render(request, 'dashboard/setTags.html', {'form' : form, 'board' : board, 'concept' : concept})
 
 @login_required
 def boardPage(request, id):

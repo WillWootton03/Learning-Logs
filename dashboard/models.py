@@ -13,6 +13,12 @@ class Board(models.Model):
     def __str__(self):
         return self.title
 
+class Tag(models.Model):
+    id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
+    board = models.ForeignKey(Board, on_delete=models.CASCADE, related_name='tags')
+    
+    name = models.CharField(max_length=60)
+
 class Concept(models.Model):
     id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     board = models.ForeignKey(Board, on_delete=models.CASCADE, related_name='concepts')
@@ -23,6 +29,7 @@ class Concept(models.Model):
     unknown = models.BooleanField(default=False)
     count = models.IntegerField(default=0)
     maxCount = models.IntegerField(default=0)
+    tags = models.ManyToManyField(Tag, blank=True, related_name='concepts')
 
     def __str__(self):
         return self.answer
