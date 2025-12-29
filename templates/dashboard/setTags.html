@@ -8,56 +8,56 @@
             <div class="flex flex-col gap-4 px-4 pt-1 pb-2  align-items-center">
                 <div class="flex-row h-fit w-full bg-purple-950 justify-items-center px-5 pt-1 pb-2 rounded-2xl text-xl shadow-md shadow-black">
                     <input type="text" id="concept-answer" placeholder="{{ concept.answer }}" value="{{ concept.answer }}"
-                            class="text-2xl font-bold text-white h-full w-full bg-transparent text-center">
+                            class="text-2xl font-bold text-white h-full w-full bg-transparent text-center focus:outline-none">
                 </div>
-                <div class="flex-row h-full w-full border-4 border-purple-900 bg-gray-800 justify-items-center px-5 py-3 rounded-2xl">
-                    <h2 class="text-2xl font-bold text-white bg-purple-950 px-3 py-2 rounded-2xl shadow-md shadow-black mb-3">Concept Definition</h2>
+                <div class="flex-row h-full w-full border-4 border-purple-900 bg-gray-800 justify-items-center px-5 py-3 rounded-2xl ">
+                    <h2 class="text-2xl font-bold text-white bg-purple-950 px-3 py-2 rounded-2xl shadow-md shadow-black mb-3 cursor-default">Concept Definition</h2>
                     <div class="h-[75%] w-full">
                         <input type="text" id="concept-definition" placeholder="{{ concept.definition }}" value="{{ concept.definition }}" 
-                                class="text-lg text-white h-full w-full bg-transparent justify-items-center">
+                                class="text-lg text-white h-full w-full bg-transparent justify-items-center focus:outline-none">
                     </div>
                 </div>
                 <div class="flex-row h-[50%] w-full border-4 border-purple-900 bg-gray-800 justify-items-center px-5 py-3 rounded-2xl ">
-                    <h2 class="text-2xl font-bold text-white bg-purple-950 mb-3 px-3 py-2 rounded-2xl shadow-md shadow-black">Concept Hint</h2>
+                    <h2 class="text-2xl font-bold text-white bg-purple-950 mb-3 px-3 py-2 rounded-2xl shadow-md shadow-black cursor-default">Concept Hint</h2>
                     <div class="h-[70%] w-full">
                         <input type="text" id="concept-hint" placeholder="{{ concept.hint }}" value="{{ concept.hint }}" 
-                                class="text-lg font-medium text-white h-full w-full bg-transparent justify-items-center">
+                                class="text-lg font-medium text-white h-full w-full bg-transparent justify-items-center text-center placeholder:justify-items-center focus:outline-none">
                     </div>
                 </div>
             </div>
             <!--Right side of the screen for adding and removing tags-->
             <div class="relative h-full w-full flex flex-col items-center">
-                <div class="h-full w-[90%] bg-gray-800 flex flex-col items-center gap-y-6">
+                <div class="h-full w-[90%] bg-gray-800 flex flex-col items-center gap-y-6 rounded-2xl">
                     <!--Acts as the Concept tag headers with search-->
                     <div class="flex flex-col items-center gap-y-2 w-[70%]">
-                        <h1 class="py-1  text-purple-600 text-2xl font-bold">{{ concept.answer }} Tags</h1>
-                        <input id="tag-search" placeholder="Search Tag" class="w-[80%] h-8 text-lg text-center bg-gradient-to-r from-purple-950 via-purple-900 to-purple-800 border-1 border-black" />
+                        <h1 class="py-1  text-white text-2xl font-bold">{{ concept.answer }} Tags</h1>
+                        <input id="tag-search" placeholder="Search Tag" class="w-[80%] h-8 text-lg text-center bg-gray-600 border border-black" />
                     </div>
                     <!--Acts as the box for all concept tags-->
                     <div class="h-full w-full flex flex-col items-center gap-y-5 ">
                         <!--Section for all tags selected on a concepts-->
                         <div class="h-64 w-[90%] flex flex-col">
-                            <h2 class="text-2xl bg-green-500 text-white text-center">Selected Tags</h2>
+                            <h2 class="text-2xl bg-purple-500 text-black font-medium text-center">Selected Tags</h2>
                             <div class="bg-gray-500 h-full w-full overflow-y-auto pt-2">
                                 <div id="concept-tags" class="grid grid-cols-4 gap-x-2 gap-y-3 m-1">
                                 </div>
                             </div>
                         </div>
                         <!--Section for all tags in the board that arent already on the concept-->
-                        <div class="h-64 w-[90%] flex flex-col">
-                            <h2 class="text-2xl bg-blue-400  text-white text-center">Available Tags</h2>
-                            <div class="bg-gray-500 h-full w-full overflow-y-auto pt-2">
+                        <div class="h-64 w-[90%] flex flex-col bg-gray-600">
+                            <h2 class="text-2xl bg-red-400  text-white text-center">Available Tags</h2>
+                            <div class="h-full w-full overflow-y-auto pt-2">
                                 <div id="available-tags" class="grid grid-cols-4 gap-x-2 gap-y-3 m-1">
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <button id="create-tag" class="bg-blue-300 font-bold px-20 py-2 text-2xl rounded-2xl mb-3 flex flex-col">Create A New Tag</button>
+                    <button id="create-tag" class="text-center bg-gray-700 text-white px-10 py-3 hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-blue-600 hover:bg-gray-900 font-bold text-2xl rounded-2xl mb-3 flex flex-col">Create A New Tag</button>
                 </div>
                     <div class="grid grid-cols-3 w-[90%] h-fit gap-2 py-2">
-                        <a href="{% url 'boardPage' board.id %}" id="submit-button" class="bg-blue-400 py-2 text-2xl rounded-xl text-center">Submit</a>
-                        <a href="{% url 'boardPage' board.id %}"class="bg-orange-500 text-2xl rounded-xl py-2 text-center">Cancel</a>
-                        <button id="delete-button" class="bg-red-500 text-2xl rounded-xl py-2 text-center">Delete</button>
+                        <a href="{% url 'boardPage' board.id %}" id="submit-button" class="py-2 text-center bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-900 hover:bg-gray-800">Submit</a>
+                        <a href="{% url 'boardPage' board.id %}"class="py-2 text-center bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-orange-500 hover:bg-gray-800">Cancel</a>
+                        <button id="delete-button" class="py-2 text-center bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-red-500 hover:bg-gray-800">Delete</button>
                     </div>
             </div>
         </div>
@@ -65,37 +65,37 @@
     <!--Acts as the blurred background to cover main page-->
     <div id="modal-backdrop" class="hidden fixed inset-0 z-90 bg-black/50 backdrop-blur-sm"></div>
     <!--Main modal for adding a tag-->
-    <div id="new-tag-modal" class="hidden flex flex-row fixed inset-x-[25%] inset-y-[40%] w-[50%] h-[5vw] rounded-2xl bg-gray-500 z-100">
-        <form id="tag-form" method="POST" action="{% url 'setTags' board_id=board.id concept_id=concept.id %}" class="flex flex-row h-full w-full">
+    <div id="new-tag-modal" class="hidden flex flex-row fixed inset-x-[25%] inset-y-[40%] w-[50%] h-[6vw] rounded-2xl bg-gray-500 z-100 align-content-center">
+        <form id="tag-form" method="POST" action="{% url 'setTags' board_id=board.id concept_id=concept.id %}" class="flex flex-row h-full w-full py-2 px-3 gap-x-14 align-items-center">
             {% csrf_token %}
-            <!--Tag Title-->
-            <div class="bg-white rounded-2xl p-3 w-[45%] h-[80%] shadow-xl m-2 content-center">
-                {{ form.name }}
-            </div>
             <!--Icon Capability for tags-->
-            <div class="bg-white rounded-2xl p-3 w-[10%] h-[80%] shadow-xl m-2 content-center">
+            <div class="bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-500 cursor-pointer hover:bg-gray-800">
                 <h2 class="text-2xl font-bold">Img</h2>
             </div>
+            <!--Tag Title-->
+            <div class="bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-500 hover:bg-gray-800">
+                {{ form.name }}
+            </div>
             <!--Confirm and Add the tag to list of tags-->
-            <button type="submit" class="bg-white rounded-2xl p-3 w-[30%] h-[80%] shadow-xl m-2 content-center text-2xl font-bold">
+            <button type="submit" class="justify-self-end bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-green-500 hover:bg-gray-800  absolute right-16">
                 Confirm
             </button>
-            <button type="button" id="close-tag-modal" class="absolute top-3 right-3 bg-red-600 rounded-2xl px-2.5 py-1">X</button>
+            <button type="button" id="close-tag-modal" class="absolute top-3.5 right-2 bg-red-600 rounded-xl px-3 py-3 hover:bg-red-800">X</button>
         </form>
     </div>
     <!--Permanently Delete Tag Modal Popup-->
-    <div id="delete-tag-confirm" class="hidden flex flex-col fixed inset-x-[25%] inset-y-[40%] w-[50%] h-[5vw] rounded-2xl bg-gray-700 z-100 justify-content-center align-items-center">
+    <div id="delete-tag-confirm" class="hidden flex flex-col fixed inset-x-[25%] inset-y-[40%] w-[50%] h-[6vw] rounded-2xl bg-gray-700 z-100 justify-content-center align-items-center">
         <h2 class="text-2xl text-white text-center pb-3">Do you want to permanently delete this tag?</h2>
-        <button id="confirm-delete" class="bg-red-500 py-1 rounded w-fit h-fit text-lg font-bold px-4">Delete</button>
-        <button id="cancel-delete-modal" class="absolute top-2 right-2 bg-red-600 rounded px-2 text-white">X</button>
+        <button id="confirm-delete" class="bg-red-500 py-1 rounded w-fit h-fit text-lg font-bold px-4 hover:bg-red-800">Delete</button>
+        <button id="cancel-delete-modal" class="absolute top-2 right-2 bg-red-600 rounded px-2 text-white hover:bg-red-800">X</button>
     </div>
     <!--Permanently Delete Concept Modal Popup-->
-    <div id="delete-concept-confirm" class="hidden flex flex-col fixed inset-x-[25%] inset-y-[40%] w-[50%] h-[5vw] rounded-2xl bg-gray-700 z-100 justify-content-center align-items-center">
+    <div id="delete-concept-confirm" class="hidden flex flex-col fixed inset-x-[25%] inset-y-[40%] w-[50%] h-[6vw] rounded-2xl bg-gray-700 z-100 justify-content-center align-items-center">
         <h2 class="text-2xl text-white text-center pb-3">Do you want to permanently delete this concept?</h2>
         <form method="POST" action="{% url 'deleteConcept' concept.id %}">
-            <button type="submit" class="bg-red-500 py-1 rounded w-fit h-fit text-lg font-bold px-4">Delete</button>
+            <button type="submit" class="bg-red-500 py-1 rounded w-fit h-fit text-lg font-bold px-4 hover:bg-red-800">Delete</button>
          </form>
-        <button onclick="closeDeleteConceptModal()" class="absolute top-2 right-2 bg-red-600 rounded px-2 text-white">X</button>
+        <button onclick="closeDeleteConceptModal()" class="absolute top-2 right-2 bg-red-600 rounded px-2 text-white hover:bg-red-800">X</button>
     </div>
     {{ conceptTags|json_script:"concept-tags-data" }}
     {{ availableTags|json_script:"available-tags-data"}}
@@ -172,8 +172,8 @@
 
           function createTagButton(tag, isConceptTag = false) {
             const button = document.createElement('button');
-            button.className = isConceptTag ? 'conceptTag bg-blue-200 rounded-2xl w-full h-8 relative'
-                                            : 'availableTag bg-blue-200 rounded-2xl w-full h-8 relative';
+            button.className = isConceptTag ? 'conceptTag text-center bg-gray-700 text-white rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-900 hover:bg-gray-800 rounded-2xl w-full h-8 relative'
+                                            : 'availableTag text-center bg-gray-700 text-white rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-900 hover:bg-gray-800 rounded-2xl w-full h-8 relative';
             button.dataset.id = tag.id;
             button.textContent = tag.name;
 

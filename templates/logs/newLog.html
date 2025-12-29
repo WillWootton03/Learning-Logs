@@ -9,7 +9,10 @@
     <div class="grid grid-cols-2 w-full h-full gap-x-4">
         <!--Left Column-->
         <div class="px-10 py-8 relative">
-            {{ form.title }}
+            <div class="bg-gray-700 text-white text-center w-full rounded-2xl shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-700 focus-within:shadow-purple-700 focus-within:shadow-[0_0px_15px_rgba(0,0,0,0.9)]">
+                {{ form.title }}
+            </div>
+
             {% if form.title.errors %}
                 <p class="text-red-500 text-sm mt-1">
                     {% for error in form.title.errors %}
@@ -21,11 +24,11 @@
                 <h2 class="text-2xl text-white px-2 py-3 text-center font-bold">Log Tags</h2>      
                 <button class="absolute top-2.5 right-2.5 bg-blue-300 px-3 py-2.5 rounded-2xl font-bold">+</button>
             </div>
-            <button type="submit" class="absolute bottom-10 left-[45%] bg-blue-300 px-5 py-2.5 rounded-2xl font-bold">Submit</button>
+            <button type="submit" class="absolute bottom-10 left-[45%] bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-900 hover:bg-gray-800">Submit</button>
         </div>
         <!--Right Column-->
-        <div class="px-10 py-8">
-            <div class="bg-green-800 text-white  h-full rounded-2xl">
+        <div class="px-24 py-8">
+            <div class="bg-gray-700 text-white h-full rounded-2xl shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-700 focus-within:shadow-purple-700 focus-within:shadow-[0_0px_15px_rgba(0,0,0,0.9)]" >
                 <h2 class="text-2xl text-white px-2 py-1 text-center font-bold">Log</h2>
                 {{ form.content }}
                  {% if form.content.errors %}
@@ -36,8 +39,6 @@
                     </p>
                 {% endif %}
             </div>
-        </div>
-
         </div>
     </div>
 </div>

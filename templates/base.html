@@ -25,11 +25,11 @@
                     <img src="{% static 'icons/LearningLogsLogo.png' %}" class="h-14 w-14 object-contain">
                 </a>
                 <a href="{% url 'dashboard' %}">
-                    <h1 class="text-2xl text-purple-300">My Boards</h1>
+                    <h1 class="text-2xl text-white hover:text-purple-800">My Boards</h1>
                 </a>
                 {% if board %}
                 <a href="{% url 'boardPage' board.id %}">
-                    <h1 class="text-2xl text-purple-300">{{ board.title }}</h1>
+                    <h1 class="text-2xl text-white">{{ board.title }}</h1>
                 </a>
                 <a href="#">
                     <h1 class="text-2xl text-purple-300">Study Sessions</h1>
