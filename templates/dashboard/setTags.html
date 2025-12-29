@@ -3,41 +3,67 @@
 {% block content %}
     <meta name="csrf_token" content="{{ csrf_token }}">
     <!--Section for all tags-->
-    <div id="page-wrapper" class="flex flex-box mx-auto pt-24 justify-center h-[calc(100vh-3rem)] w-[60%] transition-all duration-200">
-        <div class="px-6 py-8 relative h-full w-full flex flex-col items-center">
-            <div class="h-full w-[90%] bg-amber-200 flex flex-col items-center gap-y-2">
-                <!--Acts as the Concept tag headers with search-->
-                <div class="flex flex-col items-center gap-y-2 w-[70%]">
-                    <h1 class="py-1  text-black text-2xl font-bold">Concept Tags</h1>
-                    <input id="tag-search" placeholder="Search Tag" class="w-[80%] h-8 text-lg text-center bg-green-700 border-2 border-black" />
+    <div id="page-wrapper" class="flex flex-box mx-auto pt-24 justify-center h-[calc(100vh-3rem)] w-[90%] transition-all duration-200">
+        <div class="grid grid-cols-2 gap-2 h-full w-full">
+            <div class="flex flex-col gap-4 px-4 pt-1 pb-2  align-items-center">
+                <div class="flex-row h-fit w-full bg-purple-950 justify-items-center px-5 pt-1 pb-2 rounded-2xl text-xl shadow-md shadow-black">
+                    <input type="text" id="concept-answer" placeholder="{{ concept.answer }}" value="{{ concept.answer }}"
+                            class="text-2xl font-bold text-white h-full w-full bg-transparent text-center">
                 </div>
-                <!--Acts as the box for all concept tags-->
-                <div class="h-full w-full flex flex-col items-center gap-y-3 ">
-                    <!--Section for all tags selected on a concepts-->
-                    <div class="h-64 w-[90%] bg-green-400 flex flex-col">
-                        <h2 class="text-2xl text-white text-center">Selected Tags</h2>
-                        <div class="bg-gray-500 h-full w-full overflow-y-auto">
-                            <div id="concept-tags" class="grid grid-cols-4 gap-x-2 gap-y-3 m-1">
-                            </div>
-                        </div>
-                    </div>
-                    <!--Section for all tags in the board that arent already on the concept-->
-                    <div class="h-64 w-[90%] mb-2 bg-blue-400 flex flex-col">
-                        <h2 class="text-2xl text-white text-center">Available Tags</h2>
-                        <div  class="bg-gray-500 h-full w-full overflow-y-auto">
-                            <div id="available-tags" class="grid grid-cols-4 gap-x-2 gap-y-3 m-1">
-                            </div>
-                        </div>
+                <div class="flex-row h-full w-full border-4 border-purple-900 bg-gray-800 justify-items-center px-5 py-3 rounded-2xl">
+                    <h2 class="text-2xl font-bold text-white bg-purple-950 px-3 py-2 rounded-2xl shadow-md shadow-black mb-3">Concept Definition</h2>
+                    <div class="h-[75%] w-full">
+                        <input type="text" id="concept-definition" placeholder="{{ concept.definition }}" value="{{ concept.definition }}" 
+                                class="text-lg text-white h-full w-full bg-transparent justify-items-center">
                     </div>
                 </div>
-                <button id="create-tag" class="bg-blue-300 font-bold px-20 py-2 text-2xl rounded-2xl mb-3 flex flex-col">Create A New Tag</button>
+                <div class="flex-row h-[50%] w-full border-4 border-purple-900 bg-gray-800 justify-items-center px-5 py-3 rounded-2xl ">
+                    <h2 class="text-2xl font-bold text-white bg-purple-950 mb-3 px-3 py-2 rounded-2xl shadow-md shadow-black">Concept Hint</h2>
+                    <div class="h-[70%] w-full">
+                        <input type="text" id="concept-hint" placeholder="{{ concept.hint }}" value="{{ concept.hint }}" 
+                                class="text-lg font-medium text-white h-full w-full bg-transparent justify-items-center">
+                    </div>
+                </div>
             </div>
-                <a href="{% url 'boardPage' board.id %}" class="bg-gray-600 px-20 py-3 text-2xl rounded-2xl mt-3 flex flex-col">Submit</a>
+            <!--Right side of the screen for adding and removing tags-->
+            <div class="relative h-full w-full flex flex-col items-center">
+                <div class="h-full w-[90%] bg-gray-800 flex flex-col items-center gap-y-6">
+                    <!--Acts as the Concept tag headers with search-->
+                    <div class="flex flex-col items-center gap-y-2 w-[70%]">
+                        <h1 class="py-1  text-purple-600 text-2xl font-bold">{{ concept.answer }} Tags</h1>
+                        <input id="tag-search" placeholder="Search Tag" class="w-[80%] h-8 text-lg text-center bg-gradient-to-r from-purple-950 via-purple-900 to-purple-800 border-1 border-black" />
+                    </div>
+                    <!--Acts as the box for all concept tags-->
+                    <div class="h-full w-full flex flex-col items-center gap-y-5 ">
+                        <!--Section for all tags selected on a concepts-->
+                        <div class="h-64 w-[90%] flex flex-col">
+                            <h2 class="text-2xl bg-green-500 text-white text-center">Selected Tags</h2>
+                            <div class="bg-gray-500 h-full w-full overflow-y-auto pt-2">
+                                <div id="concept-tags" class="grid grid-cols-4 gap-x-2 gap-y-3 m-1">
+                                </div>
+                            </div>
+                        </div>
+                        <!--Section for all tags in the board that arent already on the concept-->
+                        <div class="h-64 w-[90%] flex flex-col">
+                            <h2 class="text-2xl bg-blue-400  text-white text-center">Available Tags</h2>
+                            <div class="bg-gray-500 h-full w-full overflow-y-auto pt-2">
+                                <div id="available-tags" class="grid grid-cols-4 gap-x-2 gap-y-3 m-1">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="create-tag" class="bg-blue-300 font-bold px-20 py-2 text-2xl rounded-2xl mb-3 flex flex-col">Create A New Tag</button>
+                </div>
+                    <div class="grid grid-cols-3 w-[90%] h-fit gap-2 py-2">
+                        <a href="{% url 'boardPage' board.id %}" id="submit-button" class="bg-blue-400 py-2 text-2xl rounded-xl text-center">Submit</a>
+                        <a href="{% url 'boardPage' board.id %}"class="bg-orange-500 text-2xl rounded-xl py-2 text-center">Cancel</a>
+                        <button id="delete-button" class="bg-red-500 text-2xl rounded-xl py-2 text-center">Delete</button>
+                    </div>
+            </div>
         </div>
     </div>
-
     <!--Acts as the blurred background to cover main page-->
-    <div id="tag-backdrop" class="hidden fixed inset-0 z-90 bg-black/50 backdrop-blur-sm"></div>
+    <div id="modal-backdrop" class="hidden fixed inset-0 z-90 bg-black/50 backdrop-blur-sm"></div>
     <!--Main modal for adding a tag-->
     <div id="new-tag-modal" class="hidden flex flex-row fixed inset-x-[25%] inset-y-[40%] w-[50%] h-[5vw] rounded-2xl bg-gray-500 z-100">
         <form id="tag-form" method="POST" action="{% url 'setTags' board_id=board.id concept_id=concept.id %}" class="flex flex-row h-full w-full">
@@ -57,11 +83,25 @@
             <button type="button" id="close-tag-modal" class="absolute top-3 right-3 bg-red-600 rounded-2xl px-2.5 py-1">X</button>
         </form>
     </div>
+    <!--Permanently Delete Tag Modal Popup-->
+    <div id="delete-tag-confirm" class="hidden flex flex-col fixed inset-x-[25%] inset-y-[40%] w-[50%] h-[5vw] rounded-2xl bg-gray-700 z-100 justify-content-center align-items-center">
+        <h2 class="text-2xl text-white text-center pb-3">Do you want to permanently delete this tag?</h2>
+        <button id="confirm-delete" class="bg-red-500 py-1 rounded w-fit h-fit text-lg font-bold px-4">Delete</button>
+        <button id="cancel-delete-modal" class="absolute top-2 right-2 bg-red-600 rounded px-2 text-white">X</button>
+    </div>
+    <!--Permanently Delete Concept Modal Popup-->
+    <div id="delete-concept-confirm" class="hidden flex flex-col fixed inset-x-[25%] inset-y-[40%] w-[50%] h-[5vw] rounded-2xl bg-gray-700 z-100 justify-content-center align-items-center">
+        <h2 class="text-2xl text-white text-center pb-3">Do you want to permanently delete this concept?</h2>
+        <form method="POST" action="{% url 'deleteConcept' concept.id %}">
+            <button type="submit" class="bg-red-500 py-1 rounded w-fit h-fit text-lg font-bold px-4">Delete</button>
+         </form>
+        <button onclick="closeDeleteConceptModal()" class="absolute top-2 right-2 bg-red-600 rounded px-2 text-white">X</button>
+    </div>
     {{ conceptTags|json_script:"concept-tags-data" }}
     {{ availableTags|json_script:"available-tags-data"}}
     <script>
         const pageWrapper = document.getElementById('page-wrapper');
-        const tagBackdrop = document.getElementById('tag-backdrop');
+        const modalBackdrop = document.getElementById('modal-backdrop');
         const newTagModal = document.getElementById('new-tag-modal');
 
         const closeTag = document.getElementById('close-tag-modal');
@@ -75,35 +115,59 @@
 
         const csrfToken = document.querySelector('meta[name=csrf_token]').getAttribute('content');
 
+        const deleteTagConfirm = document.getElementById('delete-tag-confirm');
+        const confirmDeleteBtn = document.getElementById('confirm-delete');
+
+        const deleteConceptModal = document.getElementById('delete-concept-confirm');
+        const cancelDeleteModal = document.getElementById('cancel-delete-modal');
+
+        const conceptAnswer = document.getElementById('concept-answer');
+        const conceptDefinition = document.getElementById('concept-definition');
+        const conceptHint = document.getElementById('concept-hint');
+
+        const submitBtn = document.getElementById('submit-button');
+        const deleteBtn = document.getElementById('delete-button');
+
+        let stagedTags = [];
+
         const boardId = "{{ board.id }}";
         const conceptId = "{{ concept.id }}";
 
 
         function openModal() {
-            pageWrapper.classList.add('blur-sm', 'pointer-events-none')
-            newTagModal.classList.remove('hidden')
-            tagBackdrop.classList.remove('hidden')
-        }
-
-        function deleteTag(id){
-                fetch(`/tag/${id}/delete/`, {
-                    method: 'POST',
-                    headers: { 'X-CSRFToken' : csrfToken }
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if(data.success) {
-                        document.querySelector(`[data-id="${id}"]`)?.remove();
-                    } else {
-                        alert('Failed to delete tag: ' + data.error);
-                    }
-                });
+            pageWrapper.classList.add('blur-sm', 'pointer-events-none');
+            newTagModal.classList.remove('hidden');
+            modalBackdrop.classList.remove('hidden');
         }
 
         function closeModal() {
-            pageWrapper.classList.remove('blur-sm', 'pointer-events-none')
-            newTagModal.classList.add('hidden')
-            tagBackdrop.classList.add('hidden')
+            pageWrapper.classList.remove('blur-sm', 'pointer-events-none');
+            newTagModal.classList.add('hidden');
+            modalBackdrop.classList.add('hidden');
+        }
+
+        function openDeleteModal(tagId) {
+            pageWrapper.classList.add('blur-sm', 'pointer-events-none');
+            modalBackdrop.classList.remove('hidden');
+            deleteTagConfirm.dataset.tagId = tagId;
+            deleteTagConfirm.classList.remove('hidden');
+        }
+
+        function closeDeleteModal(tagId) {
+            pageWrapper.classList.remove('blur-sm', 'pointer-events-none');
+            deleteTagConfirm.classList.add('hidden');
+            modalBackdrop.classList.add('hidden');
+            deleteTagConfirm.dataset.tagId = '';
+        }
+        function openDeleteConceptModal() {
+            pageWrapper.classList.add('blur-sm', 'pointer-events-none');
+            deleteConceptModal.classList.remove('hidden');
+            modalBackdrop.classList.remove('hidden');
+        }
+            function closeDeleteConceptModal() {
+            pageWrapper.classList.remove('blur-sm', 'pointer-events-none');
+            deleteConceptModal.classList.add('hidden');
+            modalBackdrop.classList.add('hidden');
         }
 
           function createTagButton(tag, isConceptTag = false) {
@@ -115,13 +179,43 @@
 
             const removeTagButton = document.createElement('button');
             removeTagButton.textContent = 'X';
-            removeTagButton.className = 'absolute right-1 top-1 bg-red-500 text-white text-xs px-1 rounded';
-            removeTagButton.onclick = () => deleteTag(tag.id);
+            removeTagButton.className = 'absolute right-2 top-2 bg-red-500 text-white text-xs px-1 rounded';
+            removeTagButton.onclick = (e) => { 
+                e.stopPropagation();
+                openDeleteModal(tag.id);
+            }
 
             button.appendChild(removeTagButton);
 
             return button;
         }
+
+        submitBtn.addEventListener('click', () => {
+            const answerValue = conceptAnswer.value.trim() || conceptAnswer.placeholder;
+            const definitionValue = conceptDefinition.value.trim() || conceptDefinition.placeholder;
+            const hintValue = conceptHint.value.trim() || conceptHint.placeholder;
+
+            fetch(`/concept/update/${conceptId}/`, {
+                    method : "POST",
+                    headers : {
+                        'X-CSRFToken' : csrfToken,
+                        'Content-Type' : 'application/json'
+                    },
+                    body : JSON.stringify({answer : answerValue, definition : definitionValue, hint : hintValue, tags : stagedTags})
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log('Updated', data);
+                conceptAnswer.placeholder = answerValue;
+                conceptDefinition.placeholder = definitionValue;
+                conceptHint.placeholder = hintValue;
+
+                conceptAnswer.value = answerValue;
+                conceptDefinition.value = definitionValue;
+                conceptHint.value = hintValue;
+            })
+            .catch(err => console.error('Update failed', err));
+        });
 
         // Event Listener to the Create new tag button
         createTag.addEventListener('click', () => {
@@ -132,12 +226,41 @@
             closeModal();
         });
         // Event Listener to trigger closing the modal when clicking outside of the modal
-        tagBackdrop.addEventListener('click', () => {
-            if(!tagBackdrop.classList.contains('hidden')){
+        modalBackdrop.addEventListener('click', () => {
+            if(!modalBackdrop.classList.contains('hidden')){
                 closeModal();
+                closeDeleteModal();
+                closeDeleteConceptModal();
             }
         });
+        // Closes the delete modal popup
+        cancelDeleteModal.addEventListener('click', () => {
+            closeDeleteModal();
+        })
+        // Opens the delete concept modal
+        deleteBtn.addEventListener('click', () => {
+            openDeleteConceptModal();
+        });
+        // Event listener to handle fully deleting a tag after confirm delete popup
+        confirmDeleteBtn.addEventListener('click', () => {
+            const tagId = deleteTagConfirm.dataset.tagId;
+            if(!tagId) return;
 
+                fetch(`/tag/${tagId}/delete/`, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken' : csrfToken }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success) {
+                        document.querySelector(`[data-id="${tagId}"]`)?.remove();
+                        closeDeleteModal();
+                    } else {
+                        alert('Failed to delete tag: ' + data.error);
+                    }
+                });
+        });
+    
         // Sets the ability for the form to be processed using JS await meaning updating Available tags box without reloading page when creating new tag
         tagForm.addEventListener('submit', (e) => {
             e.preventDefault(); // Stop page from reloading
@@ -167,35 +290,32 @@
         });
 
 
+
         document.addEventListener('click', (e) => {
-            if(e.target.classList.contains('conceptTag') || e.target.classList.contains('availableTag')){
-                const tagId = e.target.dataset.id;
+            if(e.target.classList.contains('conceptTag') || e.target.classList.contains('availableTag')) {
+                const button = e.target.closest('button');
+                const tagId = button.dataset.id;
+                const isConceptTag = button.classList.contains('conceptTag');
 
-                fetch(`/board/${boardId}/${conceptId}/${tagId}/toggle/`, {
-                    method : 'POST',
-                    headers : { 'X-CSRFToken' : csrfToken }
-                })
-                .then(res => res.json())
-                .then(data => {
+                if(!isConceptTag){
+                    stagedTags.push(tagId);
+                } else {
+                    stagedTags = stagedTags.filter(id => id !== tagId);
+                }
 
-                    conceptTags.innerHTML = ''
-                    data.conceptTags.forEach(tag => {
-                        const button = createTagButton(tag, true);
-                        conceptTags.appendChild(button);
-                    });
-
-                    availableTags.innerHTML = ''
-                    data.availableTags.forEach(tag => {
-                        const button = createTagButton(tag, false);
-                        availableTags.appendChild(button);
-                    });
-                });
+                button.classList.toggle('conceptTag');
+                button.classList.toggle('availableTag');
+                const parent = button.parentElement.id === 'concept-tags' ? availableTags : conceptTags;
+                parent.appendChild(button);
             }
         });
 
+        // Used to dynamically load tag button when the dom is loaded, easy to implement deletion button methodology compared to an html forloop 
         document.addEventListener('DOMContentLoaded', () => {
             const conceptTagsData = JSON.parse(document.getElementById('concept-tags-data').textContent);
             const availableTagsData = JSON.parse(document.getElementById('available-tags-data').textContent);
+
+            stagedTags = conceptTagsData.map(tag => String(tag.id))
 
             conceptTags.innerHTML = '';
             availableTags.innerHTML = '';

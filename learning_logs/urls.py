@@ -20,20 +20,20 @@ from django.contrib.auth.views import LogoutView
 
 from accounts.views import home
 from accounts.views import signIn, register
-from dashboard.views import home, boards, newBoard, boardPage, newConcept, setTags, toggleTags, deleteTag
-from user_logs.views import newLog
+from dashboard.views import home, boards, newBoard, boardPage, newConcept, setTags, toggleTags, deleteTag, updateConcept, deleteConcept
+from user_logs.views import newLog, logBreakdown
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     
     path('', home, name='home'),
 
-    #All Authentication URLs
+    # All Authentication URLs
     path('signIn/', signIn, name='signIn'),
     path('register/', register, name='register'),
     path('logout/', LogoutView.as_view(), name='logout'),
 
-    #All Dashboards URLs
+    # All Dashboards URLs
     path('dashboard/', boards, name='dashboard'),
     path('newBoard/', newBoard, name='newBoard'),
     path('board/<uuid:id>/', boardPage, name='boardPage'),
@@ -42,10 +42,15 @@ urlpatterns = [
     path('board/<uuid:board_id>/<uuid:concept_id>/<uuid:tag_id>/toggle/', toggleTags, name='toggleTags'),
     path('tag/<uuid:tag_id>/delete/', deleteTag, name='deleteTag'),
 
-    #All Logs URLs
-    path('board/<uuid:id>/newLog/', newLog, name='newLog'),
+    # All Concept URLs
+    path('concept/update/<uuid:concept_id>/', updateConcept, name='updateConcept'),
+    path('concept/delete/<uuid:concept_id>/', deleteConcept, name='deleteConcept'),
 
-    #Used to auto reload browser
+    # All Logs URLs
+    path('logs/newLog/<uuid:id>/', newLog, name='newLog'),
+    path('logs/logBreakdown/<uuid:id>', logBreakdown, name='logBreakdown'),
+
+    # Used to auto reload browser
     path('__reload__/', include('django_browser_reload.urls')),
 
 

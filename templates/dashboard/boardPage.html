@@ -9,12 +9,12 @@
         <div class="w-full h-full flex flex-col bg-amber-100 rounded-2xl relative">
             <h2 class="text-3xl font-bold mt-2 mb-4 text-center">My Logs</h2>
             {% for log in logs %}
-                <button class="bg-blue-300 w-[90%] h-14 rounded-2xl ml-[5%] my-2 flex justify-between items-center">
+                <a href="{% url 'logBreakdown' log.id %}" class="bg-blue-300 w-[90%] h-14 rounded-2xl ml-[5%] my-2 flex justify-between items-center">
                     <p class="text-left px-4">{{ log.title }}</p>
                     <p class="text-right px-4">
                         <span class='local-time' data-time="{{ log.dateAdded|date:'c' }}"></span>
                     </p>
-                </button>
+                </a>
             {% endfor %}
             <a href="{% url 'newLog' board.id %}" class="absolute top-1.5 right-1.5 bg-purple-500 text-black rounded-full shadow-2xl px-3.5 py-2">+</a>
         </div>
@@ -49,10 +49,10 @@
         <div class="w-full h-full flex flex-col bg-amber-100 rounded-2xl relative">
             <h2 class="text-3xl font-bold mt-2 mb-4 text-center">My Study Sessions</h2>
             {% for session in board.sessions.all %}
-                <button class="bg-blue-300 w-[90%] h-14 rounded-2xl ml-[5%] my-2 flex justify-between items-center">
+                <a href="#" class="bg-blue-300 w-[90%] h-14 rounded-2xl ml-[5%] my-2 flex justify-between items-center">
                     <p class="text-left px-4">{{ session.title }}</p>
                     <p class="text-right px-4">{{ session.dateAdded }}</p>
-                </button>
+                </a>
                 {% endfor %}
             <a href="#" class="absolute top-1.5 right-1.5 bg-purple-500 text-black rounded-full shadow-2xl px-3.5 py-2">+</a>
         </div>
@@ -77,10 +77,10 @@
                     {% endif %}
                 {% endfor %}
             </div>
-
             <a href="{% url 'newConcept' board.id %}" class="absolute top-1.5 right-1.5 bg-purple-500 text-black rounded-full shadow-2xl px-3.5 py-2">+</a>
         </div>
     </div>
+
 </div>
 <script>
 

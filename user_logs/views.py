@@ -5,6 +5,7 @@ from dashboard.models import Board
 from dashboard.views import boardPage
 
 from .forms import NewLog
+from .models import Log
 
 # Create your views here.
 @login_required
@@ -24,3 +25,8 @@ def newLog(request, id):
         form = NewLog()
 
     return render(request, 'logs/newLog.html', {'form' : form, 'board' : board})
+
+@login_required
+def logBreakdown(request, id):
+    log = Log.objects.get(id=id)
+    return render(request, 'logs/logBreakdown.html', {'log' : log, 'board' : log.board })

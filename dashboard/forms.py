@@ -47,7 +47,7 @@ class NewConcept(forms.ModelForm):
                 "class" : "resize-none h-[30%] w-[90%] bg-green-700 focus:bg-green-900 px-4 py-4 text-center"
             })
         }
-
+        
 class SetTags(forms.ModelForm):
     class Meta:
         model = Tag

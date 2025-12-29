@@ -1,8 +1,10 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+
+import json
 
 from .models import Board, Concept, Tag
 from user_logs.models import Log
@@ -94,15 +96,15 @@ def setTags(request, board_id, concept_id):
             tag.board = board
             tag.concept = None
             tag.save()
-            
+
             # Updates values for availableTags and conceptTags when returning Json Response
             availableTags_qs = board.tags.exclude(id__in=concept.tags.values_list('id', flat=True))
             availableTags = list(availableTags_qs.values('id','name'))
             conceptTags = list(concept.tags.values("id", "name"))
-            
+
             return JsonResponse({'availableTags' : availableTags})
         else:
-            return JsonResponse({'errors': form.errors}, status=400)
+            return JsonResponse({'errors' : form.errors}, status=400)
     else:
         form = SetTags()
     
@@ -139,6 +141,41 @@ def deleteTag(request, tag_id):
         return JsonResponse({'success' : True})
     except Tag.DoesNotExist:
         return JsonResponse({'success' : False, 'error' : 'Tag not found'}, status=404)
+
+@csrf_exempt
+@login_required
+def updateConcept(request, concept_id):
+    if request.method == 'POST':
+            data = json.loads(request.body)
+            concept = Concept.objects.get(id=concept_id)
+            board = concept.board
+
+            if 'answer' in data:
+                concept.answer = data['answer']
+            if 'definition' in data:
+                concept.definition = data['definition']
+            if 'hint' in data:
+                concept.hint = data['hint']
+            concept.save()
+
+            if 'tags' in data:
+                tags = Tag.objects.filter(id__in=data['tags'])
+                concept.tags.set(tags)
+                board.tags.set(board.tags.exclue(id__in=concept.tags.all().values()))
+
+
+            return JsonResponse({'success' : True})
+
+@require_POST
+@login_required
+@csrf_exempt
+def deleteConcept(request, concept_id):
+    concept = get_object_or_404(Concept, id=concept_id)
+
+    boardId = concept.board.id
+    concept.delete()
+
+    return redirect('boardPage', boardId)
 
 @login_required
 def boardPage(request, id):
