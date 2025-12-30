@@ -182,6 +182,15 @@
             return button;
         }
 
+        newTagModal.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+        deleteTagConfirm.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+        deleteConceptModal.addEventListener('click', (e) => {
+            e.stopPropagation();
+        })
         createTagBtn.addEventListener('click', () => {
             fetch(`/board/${boardId}/tags/createTag/`, {
                 method : 'POST',
