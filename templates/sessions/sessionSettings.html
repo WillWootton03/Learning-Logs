@@ -1,0 +1,350 @@
+{% extends 'base.html' %}
+{% load static tailwind_tags %}
+{% block content %}
+<meta name="csrf_token" content="{{ csrf_token }}">
+
+<div id="page-wrapper" class="flex flex-box mx-auto pt-24 justify-center h-[calc(100vh-3rem)] w-[90%] transition-all duration-200">
+    <div class="h-full w-[95%] bg-gray-800 rounded-2xl shadow-md shadow-black">
+        <div class="w-full h-full flex-1 flex flex-col min-w-0 align-items-center justify-content-center gap-y-4 py-2">
+            <!--Input for Setting the Sessions Title-->
+            <div class="bg-green-800 h-fit w-[90%] rounded-2xl">
+                <input id="session-title" placeholder="{% if sessionSettings %}{{ sessionSettings.title }}{% else %}Session Title{% endif %}" value="{% if sessionSettings %}{{ sessionSettings.title }}{% else %}{% endif %}" class=" bg-transparent w-full h-full focus:outline-none text-white text-2xl font-bold text-center px-2 py-3" />
+            </div>
+            <!--Sets all tags for the current session-->
+            <div class="w-[90%] h-[80%] flex flex-col gap-y-2  justify-content-center align-items-center">
+                <!--Header for Tag Filter-->
+                <div class="bg-gray-600 w-full h-fit rounded-2xl">
+                    <h2 class="text-white text-2xl font-bold text-center px-2 py-3 ">Tag Filter</h2>
+                </div>
+                <div class="h-full w-full bg-gray-900 rounded-2xl flex flex-row gap-x-3 p-3">
+                    <!--Add Tags from left-->
+                    <div class="h-full w-full bg-gray-800 rounded-2xl flex flex-col gap-y-6">
+                        <!--Header Section-->
+                        <div class="h-fit w-full  px-1 py-2 gap-y-2 flex flex-col align-items-center">   
+                            <h2 class="text-xl text-white font-bold text-center cursor-default">Add Tags</h2>
+                            <input placeholder="Search" class="bg-green-800 w-[90%] text-lg text-center rounded border">
+                            <div class="flex flex-row shrink-0 justify-content-center gap-x-2 w-[90%]">
+                            <button id="create-tag" class="bg-blue-400 w-full py-2 rounded">Create Tag</button>
+                                <button class="w-full py-2 bg-blue-500 rounded">Select All</button>
+                                <button class="w-full py-2 bg-red-500 rounded">Deselect All</button>
+                            </div>
+                        </div>
+                        <!--Section for all Tags-->
+                        <div class="flex-1 overflow-y-auto w-full">
+                            <div id="available-tags" class="grid grid-cols-2 gap-x-2 gap-y-3 py-1 px-2 h-fit w-full">
+                            </div>
+                        </div>
+                    </div>
+                    <!--Current Added Tags-->
+                    <div class="h-full w-full bg-gray-800 rounded-2xl flex flex-col">
+                        <div class="h-fit w-full px-1 py-2 gap-y-2 flex flex-col align-items-center">   
+                            <h2 class="text-xl text-white font-bold text-center cursor-default">Current Tags</h2>
+                            <input placeholder="Search" class="bg-green-800 w-[90%] text-lg text-center rounded border">
+                            <div class="flex flex-row w-[90%] shrink-0 justify-content-center gap-x-2">
+                                <button id="exclusive" class="w-full py-2 bg-gray-500 rounded">Exclusive</button>
+                                <button class="w-full py-2 bg-blue-500 rounded">Select All</button>
+                                <button class="w-full py-2 bg-red-500 rounded">Deselect All</button>
+                            </div>
+                        </div>
+                        <!--Section for current added Tags-->
+                        <div class="flex-1 overflow-y-auto w-full">
+                            <div id="session-tags" class="grid grid-cols-2 gap-x-4 gap-y-4 py-1 px-2 h-fit w-full">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                <div class="flex flex-row gap-x-2">
+                <a href="{% url 'boardPage' board.id %}"  class="bg-orange-500 px-4 py-2 text-2xl text-white font-bold rounded-2xl">Return</a>
+                <button id="save-button" class="bg-blue-500 px-4 py-2 text-2xl text-white font-bold rounded-2xl">Save</button>
+                {% if sessionSettings %}
+                <button id="start-session" onclick="startSessionFunc()" class="bg-green-500 px-12 py-2 text-2xl text-white font-bold rounded-2xl">Start Session</button> 
+                <button id="delete-session-settings" class="bg-red-500 px-4 py-2 text-2xl text-white font-bold rounded-2xl">Delete</button>  
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<!--Acts as the blurred background to cover main page-->
+<div id="modal-backdrop" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm">
+    <!--Main modal for adding a tag-->
+    <div id="new-tag-modal" class="hidden flex flex-row fixed inset-x-[25%] inset-y-[40%] w-[50%] h-[6vw] rounded-2xl bg-gray-500 z-100 align-content-center">
+        <div class="flex flex-row h-full w-full py-2 px-3 gap-x-14 align-items-center">
+            <!--Icon Capability for tags-->
+            <div class="bg-gray-700 text-white p-3 rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-500 cursor-pointer hover:bg-gray-800 text-2xl font-bold">Img</div>
+            <input id="tag-name" placeholder="Tag Name" class="bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-500 hover:bg-gray-800" />
+            <button id="confirm-create-tag" class="justify-self-end bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-green-500 hover:bg-gray-800 absolute right-16">Confirm</button>
+            <button onclick="closeNewTagModal()" class="absolute top-3.5 right-2 bg-red-600 rounded-xl px-3 py-3 hover:bg-red-800">X</button>
+        </div>
+    </div>
+    <!--Permanently Delete SessionSettings Modal Popup-->
+    {% if sessionSettings %}
+    <div id="delete-session-settings-confirm" class="hidden flex flex-col fixed inset-x-[25%] inset-y-[40%] w-[50%] h-[6vw] rounded-2xl bg-gray-700 z-100 justify-content-center align-items-center">
+        <h2 class="text-2xl text-white text-center pb-3">Do you want to permanently delete these Session Settings?</h2>
+        <form method="POST" action="{% url 'deleteSessionSettings' board.id sessionSettings.id %}">
+            {% csrf_token %}
+            <button type="submit" class="bg-red-500 py-1 rounded  text-lg font-bold px-4 hover:bg-red-800">Delete</button>
+        </form>
+        <button id="cancel-delete-modal" class="absolute top-2 right-2 bg-red-600 rounded px-2 text-white hover:bg-red-800">X</button>
+    </div>
+    {% endif %}
+    <!--Permanently Delete Tag Modal Popup-->
+    <div id="delete-tag-confirm" class="hidden flex flex-col fixed inset-x-[25%] inset-y-[40%] w-[50%] h-[6vw] rounded-2xl bg-gray-700 z-100 justify-content-center align-items-center">
+        <h2 class="text-2xl text-white text-center pb-3">Do you want to permanently delete this tag?</h2>
+        <button id="confirm-delete" class="bg-red-500 py-1 rounded w-fit h-fit text-lg font-bold px-4 hover:bg-red-800">Delete</button>
+        <button id="cancel-delete-modal" class="absolute top-2 right-2 bg-red-600 rounded px-2 text-white hover:bg-red-800">X</button>
+    </div>
+</div>
+{% if sessionSettingsTags %}
+    {{ sessionSettingsTags|json_script:"session-settings-tags-data" }}
+{% endif %}
+{{ availableTags|json_script:"available-tags-data"}}
+<script>
+    const csrfToken = document.querySelector('meta[name=csrf_token]').getAttribute('content');
+
+    const sessionTags = document.getElementById('session-tags');
+    const availableTags = document.getElementById('available-tags');
+
+    const saveButton = document.getElementById('save-button');
+
+    const sessionTitleData = document.getElementById('session-title');
+
+    const modalBackdrop = document.getElementById('modal-backdrop');
+    const deleteSessionSettings = document.getElementById('delete-session-settings');
+    const deleteSessionSettingsConfirm = document.getElementById('delete-session-settings-confirm');
+
+    const deleteTagConfirm = document.getElementById('delete-tag-confirm');
+    const cancelDeleteModal = document.getElementById('cancel-delete-modal');
+    const confirmDeleteBtn = document.getElementById('confirm-delete');
+
+    const newTagModal = document.getElementById('new-tag-modal');
+    const createTag = document.getElementById('create-tag')
+    const createTagBtn = document.getElementById('confirm-create-tag');
+    const newTagName = document.getElementById('tag-name');
+
+    const startSession = document.getElementById('start-session');
+    
+    const exclusiveBtn = document.getElementById('exclusive');
+
+    let stagedTags = [];
+
+    const boardId = "{{ board.id }}";
+    const sessionSettingsId = "{{ sessionSettings.id }}";
+
+
+
+    function createTagButton(tag, isSessionTag = false) {
+            const button = document.createElement('button');
+            button.className = isSessionTag ? 'sessionTag text-center bg-gray-700 text-white rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-900 hover:bg-gray-800 rounded-2xl w-full h-8 relative'
+                                            : 'availableTag text-center bg-gray-700 text-white rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-900 hover:bg-gray-800 rounded-2xl w-full h-8 relative';
+            button.dataset.id = tag.id;
+            button.textContent = tag.name;
+
+            const removeTagButton = document.createElement('button');
+            removeTagButton.textContent = 'X';
+            removeTagButton.className = 'absolute right-2 top-2 bg-red-500 text-white text-xs px-1 rounded';
+            removeTagButton.onclick = (e) => { 
+                e.stopPropagation();
+                openDeleteModal(tag.id);
+            }
+
+            button.appendChild(removeTagButton);
+
+            return button;
+    }
+    function openDeleteModal(tagId) {
+        modalBackdrop.classList.remove('hidden');
+        deleteTagConfirm.dataset.tagId = tagId;
+        deleteTagConfirm.classList.remove('hidden');
+    }
+
+    function closeDeleteModal(tagId) {
+        deleteTagConfirm.classList.add('hidden');
+        modalBackdrop.classList.add('hidden');
+        deleteTagConfirm.dataset.tagId = '';
+    }
+
+    function openNewTagModal() {
+        newTagModal.classList.remove('hidden');
+        modalBackdrop.classList.remove('hidden');
+    }
+
+    function closeNewTagModal() {
+        newTagModal.classList.add('hidden');
+        modalBackdrop.classList.add('hidden');
+    }
+
+    modalBackdrop.addEventListener('click', (e) => {
+        modalBackdrop.classList.add('hidden');
+        if(deleteSessionSettings) deleteSessionSettingsConfirm.classList.add('hidden');
+        if(newTagModal){ 
+            newTagModal.classList.add('hidden');}
+    });
+
+    if(sessionSettingsId){
+        deleteSessionSettings.addEventListener('click', () => {
+            modalBackdrop.classList.remove('hidden');
+            deleteSessionSettingsConfirm.classList.remove('hidden');
+        });
+    }
+
+    newTagModal.addEventListener('click', (e) => {
+        e.stopPropagation();
+    });
+    deleteSessionSettingsConfirm.addEventListener('click', (e) => {
+        e.stopPropagation();
+    })
+    deleteTagConfirm.addEventListener('click', (e) => {
+        e.stopPropagation();
+    });
+
+    // Closes the delete modal popup
+    cancelDeleteModal.addEventListener('click', () => {
+        closeDeleteModal();
+    });
+
+    createTag.addEventListener('click', () => {
+        openNewTagModal();
+    });
+
+    exclusiveBtn.addEventListener('click', () => {
+        if(exclusiveBtn.classList.contains('bg-gray-500')){
+            exclusiveBtn.classList.remove('bg-gray-500');
+            exclusiveBtn.classList.add('bg-green-500');
+        } else {
+            exclusiveBtn.classList.remove('bg-green-500');
+            exclusiveBtn.classList.add('bg-gray-500');
+        }
+    });
+
+        function startSessionFunc(){
+            const sessionBtns = document.querySelectorAll('.sessionTag');
+            let addTags = Array.from(sessionBtns).map(btn => btn.dataset.id);
+            let exclusive = false;
+            if(exclusiveBtn.classList.contains('bg-green-500')) {
+                exclusive = true;
+            }
+            
+            fetch(`/board/${boardId}/sessions/sessionStart/`, {
+                method : 'POST',
+                headers : {
+                    'X-CSRFToken' :csrfToken,
+                    'Content-Type' : 'application/json'
+                },
+                body : JSON.stringify({ tags : addTags, isExclusive : exclusive  })
+            })
+            .then(res => res.json())
+            .then(data => {
+            })
+        }
+   
+        createTagBtn.addEventListener('click', () => {
+                fetch(`/board/${boardId}/tags/createTag/`, {
+                    method : 'POST',
+                    headers : {
+                        'X-CSRFToken' : csrfToken,
+                        'Content-Type' : 'application/json'
+                    },
+                    body : JSON.stringify({name : newTagName.value })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    console.log('Added Tag', data);
+                    availableTags.append(createTagButton(data, false));
+                    newTagName.value = '';
+                    closeNewTagModal();
+                })
+                .catch(err => console.error('Tag Failed', err));
+            });
+        
+
+    // Event listener to handle fully deleting a tag after confirm delete popup
+    confirmDeleteBtn.addEventListener('click', () => {
+        const tagId = deleteTagConfirm.dataset.tagId;
+        if(!tagId) return;
+            fetch(`/tag/${tagId}/delete/`, {
+                method: 'POST',
+                headers: { 'X-CSRFToken' : csrfToken }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    document.querySelector(`[data-id="${tagId}"]`)?.remove();
+                    closeDeleteModal();
+                } else {
+                    alert('Failed to delete tag: ' + data.error);
+                }
+            });
+    });
+
+    saveButton.addEventListener('click', () => {
+        const sessionTitle = sessionTitleData.value.trim() || sessionTitleData.placeholder;
+        let fetchLink = '';
+        if(sessionSettingsId){
+            fetchLink = `/board/${boardId}/sessions/${sessionSettingsId}/update/`;
+        } else {
+            fetchLink = `/board/${boardId}/sessions/newSessionSettings/`;
+        }
+        fetch(fetchLink, {
+            method : 'POST',
+            headers : {
+                'X-CSRFToken' : csrfToken,
+                'Content-Type' : 'application/json'
+            },
+            body : JSON.stringify({title : sessionTitle, tags : stagedTags})
+        })
+        .then(res => res.json())
+        .then(data => {
+            sessionTitleData.placeholder = sessionTitle;
+            sessionTitleData.value = sessionTitle;
+            if(data.success) {
+                window.location.href = data.redirect_url;
+            }
+        })
+        .catch(err => console.error('Submit Failed', err))
+    });
+
+    document.addEventListener('click', (e) => {
+        if(e.target.classList.contains('sessionTag') || e.target.classList.contains('availableTag')) {
+            const button = e.target.closest('button');
+            const tagId = button.dataset.id;
+            const isSessionTag = button.classList.contains('sessionTag');
+
+            if(!isSessionTag){
+                stagedTags.push(tagId);
+            } else {
+                stagedTags = stagedTags.filter(id => id !== tagId);
+            }
+
+            button.classList.toggle('sessionTag');
+            button.classList.toggle('availableTag');
+            const parent = button.parentElement.id === 'session-tags' ? availableTags : sessionTags;
+            parent.appendChild(button);
+        }
+    });
+
+    // Used to dynamically load tag button when the dom is loaded, easy to implement deletion button methodology compared to an html forloop 
+    document.addEventListener('DOMContentLoaded', () => {
+        const availableTagsData = JSON.parse(document.getElementById('available-tags-data').textContent);
+        
+        availableTags.innerHTML = '';
+        availableTagsData.forEach(tag => {
+            availableTags.appendChild(createTagButton(tag, false));
+        });
+
+        try { 
+            const sessionSettingsTagsData = JSON.parse(document.getElementById('session-settings-tags-data').textContent);
+            sessionTags.innerHTML = '';
+            if(sessionSettingsTagsData) {
+                sessionSettingsTagsData.forEach(tag => {
+                    sessionTags.appendChild(createTagButton(tag, true))
+                    stagedTags.push(tag.id)
+                });
+            }
+        } catch(error){}
+
+
+    });
+
+</script>
+{% endblock %}

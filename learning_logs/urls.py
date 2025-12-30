@@ -20,8 +20,9 @@ from django.contrib.auth.views import LogoutView
 
 from accounts.views import home
 from accounts.views import signIn, register
-from dashboard.views import home, boards, newBoard, boardPage, newConcept, setTags, toggleTags, deleteTag, updateConcept, deleteConcept
-from user_logs.views import newLog, logBreakdown
+from dashboard.views import home, boards, newBoard, boardPage, newConcept, conceptPage, conceptToggleTags, deleteTag, updateConcept, deleteConcept, createTag
+from user_logs.views import newLog, logBreakdown, deleteLog
+from study_session.views import sessionSettingsToggleTags, newSessionSettings, updateSessionSettings, deleteSessionSettings, sessionStart
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -36,19 +37,32 @@ urlpatterns = [
     # All Dashboards URLs
     path('dashboard/', boards, name='dashboard'),
     path('newBoard/', newBoard, name='newBoard'),
-    path('board/<uuid:id>/', boardPage, name='boardPage'),
-    path('board/<uuid:id>/newConcept/', newConcept, name='newConcept'),
-    path('board/<uuid:board_id>/<uuid:concept_id>/setTags/', setTags, name='setTags'),
-    path('board/<uuid:board_id>/<uuid:concept_id>/<uuid:tag_id>/toggle/', toggleTags, name='toggleTags'),
+    path('board/<uuid:board_id>/', boardPage, name='boardPage'),
+    path('board/<uuid:board_id>/newConcept/', newConcept, name='newConcept'),
+
+    # All Tag URLs
+    path('board/<uuid:board_id>/<uuid:concept_id>/<uuid:tag_id>/toggle/', conceptToggleTags, name='toggleTags'),
     path('tag/<uuid:tag_id>/delete/', deleteTag, name='deleteTag'),
+    path('board/<uuid:board_id>/tags/createTag/', createTag, name='createTag'),
 
     # All Concept URLs
+    path('board/<uuid:board_id>/concepts/<uuid:concept_id>/', conceptPage, name='conceptPage'),
     path('concept/update/<uuid:concept_id>/', updateConcept, name='updateConcept'),
     path('concept/delete/<uuid:concept_id>/', deleteConcept, name='deleteConcept'),
 
     # All Logs URLs
-    path('logs/newLog/<uuid:id>/', newLog, name='newLog'),
-    path('logs/logBreakdown/<uuid:id>', logBreakdown, name='logBreakdown'),
+    path('logs/newLog/<uuid:board_id>/', newLog, name='newLog'),
+    path('logs/logBreakdown/<uuid:log_id>/', logBreakdown, name='logBreakdown'),
+    path('logs/delete/<uuid:log_id>/', deleteLog, name='deleteLog'),
+
+    # All Session URLs
+    # Session Settings
+    path('board/<uuid:board_id>/sessions/newSessionSettings/', newSessionSettings, name='newSessionSettings'),
+    path('board/<uuid:board_id>/sessions/<uuid:sessionSettings_id>/update/', updateSessionSettings, name='updateSessionSettings'),
+    path('board/<uuid:board_id>/sessions/<uuid:sessionSettings_id>/delete/', deleteSessionSettings, name='deleteSessionSettings'),
+    path('board/<uuid:board_id>/sessions/<uuid:sessionSettings_id>/<uuid:tag_id>/toggle/', sessionSettingsToggleTags, name='sessionSettingsToggleTags'),
+    # Sessions
+    path('board/<uuid:board_id>/sessions/sessionStart/', sessionStart, name='sessionStart'),
 
     # Used to auto reload browser
     path('__reload__/', include('django_browser_reload.urls')),

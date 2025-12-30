@@ -6,18 +6,18 @@
     <div id="page-wrapper" class="flex flex-box mx-auto pt-24 justify-center h-[calc(100vh-3rem)] w-[90%] transition-all duration-200">
         <div class="grid grid-cols-2 gap-2 h-full w-full">
             <div class="flex flex-col gap-4 px-4 pt-1 pb-2  align-items-center">
-                <div class="flex-row h-fit w-full bg-purple-950 justify-items-center px-5 pt-1 pb-2 rounded-2xl text-xl shadow-md shadow-black">
+                <div class="flex-row h-fit w-full bg-purple-950 justify-items-center px-5 pt-1 pb-2 rounded-2xl text-xl shadow-md shadow-black focus-within:shadow-[0_0px_15px_rgba(0,0,0,0.9)] focus-within:shadow-purple-500">
                     <input type="text" id="concept-answer" placeholder="{{ concept.answer }}" value="{{ concept.answer }}"
                             class="text-2xl font-bold text-white h-full w-full bg-transparent text-center focus:outline-none">
                 </div>
-                <div class="flex-row h-full w-full border-4 border-purple-900 bg-gray-800 justify-items-center px-5 py-3 rounded-2xl ">
+                <div class="flex-row h-full w-full border-4 border-purple-900 bg-gray-800 justify-items-center px-5 py-3 rounded-2xl focus-within:shadow-[0_0px_15px_rgba(0,0,0,0.9)] focus-within:shadow-purple-500">
                     <h2 class="text-2xl font-bold text-white bg-purple-950 px-3 py-2 rounded-2xl shadow-md shadow-black mb-3 cursor-default">Concept Definition</h2>
                     <div class="h-[75%] w-full">
                         <input type="text" id="concept-definition" placeholder="{{ concept.definition }}" value="{{ concept.definition }}" 
                                 class="text-lg text-white h-full w-full bg-transparent justify-items-center focus:outline-none">
                     </div>
                 </div>
-                <div class="flex-row h-[50%] w-full border-4 border-purple-900 bg-gray-800 justify-items-center px-5 py-3 rounded-2xl ">
+                <div class="flex-row h-[50%] w-full border-4 border-purple-900 bg-gray-800 justify-items-center px-5 py-3 rounded-2xl focus-within:shadow-[0_0px_15px_rgba(0,0,0,0.9)] focus-within:shadow-purple-500">
                     <h2 class="text-2xl font-bold text-white bg-purple-950 mb-3 px-3 py-2 rounded-2xl shadow-md shadow-black cursor-default">Concept Hint</h2>
                     <div class="h-[70%] w-full">
                         <input type="text" id="concept-hint" placeholder="{{ concept.hint }}" value="{{ concept.hint }}" 
@@ -56,46 +56,38 @@
                 </div>
                     <div class="grid grid-cols-3 w-[90%] h-fit gap-2 py-2">
                         <a href="{% url 'boardPage' board.id %}" id="submit-button" class="py-2 text-center bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-900 hover:bg-gray-800">Submit</a>
-                        <a href="{% url 'boardPage' board.id %}"class="py-2 text-center bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-orange-500 hover:bg-gray-800">Cancel</a>
+                        <a href="{% url 'boardPage' board.id %}"class="py-2 text-center bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-yellow-700 hover:bg-gray-800">Cancel</a>
                         <button id="delete-button" class="py-2 text-center bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-red-500 hover:bg-gray-800">Delete</button>
                     </div>
             </div>
         </div>
     </div>
     <!--Acts as the blurred background to cover main page-->
-    <div id="modal-backdrop" class="hidden fixed inset-0 z-90 bg-black/50 backdrop-blur-sm"></div>
-    <!--Main modal for adding a tag-->
-    <div id="new-tag-modal" class="hidden flex flex-row fixed inset-x-[25%] inset-y-[40%] w-[50%] h-[6vw] rounded-2xl bg-gray-500 z-100 align-content-center">
-        <form id="tag-form" method="POST" action="{% url 'setTags' board_id=board.id concept_id=concept.id %}" class="flex flex-row h-full w-full py-2 px-3 gap-x-14 align-items-center">
-            {% csrf_token %}
-            <!--Icon Capability for tags-->
-            <div class="bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-500 cursor-pointer hover:bg-gray-800">
-                <h2 class="text-2xl font-bold">Img</h2>
+    <div id="modal-backdrop" class="hidden fixed inset-0 z-90 bg-black/50 backdrop-blur-sm">
+        <!--Main modal for adding a tag-->
+        <div id="new-tag-modal" class="hidden flex flex-row fixed inset-x-[25%] inset-y-[40%] w-[50%] h-[6vw] rounded-2xl bg-gray-500 z-100 align-content-center">
+            <div class="flex flex-row h-full w-full py-2 px-3 gap-x-14 align-items-center">
+                <!--Icon Capability for tags-->
+                <div class="bg-gray-700 text-white p-3 rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-500 cursor-pointer hover:bg-gray-800 text-2xl font-bold">Img</div>
+                <input id="tag-name" placeholder="Tag Name" class="bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-500 hover:bg-gray-800" />
+                <button id="confirm-create-tag" class="justify-self-end bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-green-500 hover:bg-gray-800 absolute right-16">Confirm</button>
+                <button id="close-tag-modal" class="absolute top-3.5 right-2 bg-red-600 rounded-xl px-3 py-3 hover:bg-red-800">X</button>
             </div>
-            <!--Tag Title-->
-            <div class="bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-500 hover:bg-gray-800">
-                {{ form.name }}
-            </div>
-            <!--Confirm and Add the tag to list of tags-->
-            <button type="submit" class="justify-self-end bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-green-500 hover:bg-gray-800  absolute right-16">
-                Confirm
-            </button>
-            <button type="button" id="close-tag-modal" class="absolute top-3.5 right-2 bg-red-600 rounded-xl px-3 py-3 hover:bg-red-800">X</button>
-        </form>
-    </div>
-    <!--Permanently Delete Tag Modal Popup-->
-    <div id="delete-tag-confirm" class="hidden flex flex-col fixed inset-x-[25%] inset-y-[40%] w-[50%] h-[6vw] rounded-2xl bg-gray-700 z-100 justify-content-center align-items-center">
-        <h2 class="text-2xl text-white text-center pb-3">Do you want to permanently delete this tag?</h2>
-        <button id="confirm-delete" class="bg-red-500 py-1 rounded w-fit h-fit text-lg font-bold px-4 hover:bg-red-800">Delete</button>
-        <button id="cancel-delete-modal" class="absolute top-2 right-2 bg-red-600 rounded px-2 text-white hover:bg-red-800">X</button>
-    </div>
-    <!--Permanently Delete Concept Modal Popup-->
-    <div id="delete-concept-confirm" class="hidden flex flex-col fixed inset-x-[25%] inset-y-[40%] w-[50%] h-[6vw] rounded-2xl bg-gray-700 z-100 justify-content-center align-items-center">
-        <h2 class="text-2xl text-white text-center pb-3">Do you want to permanently delete this concept?</h2>
-        <form method="POST" action="{% url 'deleteConcept' concept.id %}">
-            <button type="submit" class="bg-red-500 py-1 rounded w-fit h-fit text-lg font-bold px-4 hover:bg-red-800">Delete</button>
-         </form>
-        <button onclick="closeDeleteConceptModal()" class="absolute top-2 right-2 bg-red-600 rounded px-2 text-white hover:bg-red-800">X</button>
+        </div>
+        <!--Permanently Delete Tag Modal Popup-->
+        <div id="delete-tag-confirm" class="hidden flex flex-col fixed inset-x-[25%] inset-y-[40%] w-[50%] h-[6vw] rounded-2xl bg-gray-700 z-100 justify-content-center align-items-center">
+            <h2 class="text-2xl text-white text-center pb-3">Do you want to permanently delete this tag?</h2>
+            <button id="confirm-delete" class="bg-red-500 py-1 rounded w-fit h-fit text-lg font-bold px-4 hover:bg-red-800">Delete</button>
+            <button id="cancel-delete-modal" class="absolute top-2 right-2 bg-red-600 rounded px-2 text-white hover:bg-red-800">X</button>
+        </div>
+        <!--Permanently Delete Concept Modal Popup-->
+        <div id="delete-concept-confirm" class="hidden flex flex-col fixed inset-x-[25%] inset-y-[40%] w-[50%] h-[6vw] rounded-2xl bg-gray-700 z-100 justify-content-center align-items-center">
+            <h2 class="text-2xl text-white text-center pb-3">Do you want to permanently delete this concept?</h2>
+            <form method="POST" action="{% url 'deleteConcept' concept.id %}">
+                <button type="submit" class="bg-red-500 py-1 rounded w-fit h-fit text-lg font-bold px-4 hover:bg-red-800">Delete</button>
+            </form>
+            <button onclick="closeDeleteConceptModal()" class="absolute top-2 right-2 bg-red-600 rounded px-2 text-white hover:bg-red-800">X</button>
+        </div>
     </div>
     {{ conceptTags|json_script:"concept-tags-data" }}
     {{ availableTags|json_script:"available-tags-data"}}
@@ -106,9 +98,9 @@
 
         const closeTag = document.getElementById('close-tag-modal');
 
-        const createTag = document.getElementById('create-tag');
-
-        const tagForm = document.getElementById('tag-form');
+        const createTag = document.getElementById('create-tag')
+        const createTagBtn = document.getElementById('confirm-create-tag');
+        const newTagName = document.getElementById('tag-name');
 
         const availableTags = document.getElementById('available-tags');
         const conceptTags = document.getElementById('concept-tags');
@@ -190,6 +182,25 @@
             return button;
         }
 
+        createTagBtn.addEventListener('click', () => {
+            fetch(`/board/${boardId}/tags/createTag/`, {
+                method : 'POST',
+                headers : {
+                    'X-CSRFToken' : csrfToken,
+                    'Content-Type' : 'application/json'
+                },
+                body : JSON.stringify({name : newTagName.value })
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log('Added Tag', data);
+                availableTags.append(createTagButton(data, false));
+                newTagName.value = '';
+                closeModal();
+            })
+            .catch(err => console.error('Tag Failed', err));
+        });
+
         submitBtn.addEventListener('click', () => {
             const answerValue = conceptAnswer.value.trim() || conceptAnswer.placeholder;
             const definitionValue = conceptDefinition.value.trim() || conceptDefinition.placeholder;
@@ -245,7 +256,6 @@
         confirmDeleteBtn.addEventListener('click', () => {
             const tagId = deleteTagConfirm.dataset.tagId;
             if(!tagId) return;
-
                 fetch(`/tag/${tagId}/delete/`, {
                     method: 'POST',
                     headers: { 'X-CSRFToken' : csrfToken }
@@ -260,36 +270,6 @@
                     }
                 });
         });
-    
-        // Sets the ability for the form to be processed using JS await meaning updating Available tags box without reloading page when creating new tag
-        tagForm.addEventListener('submit', (e) => {
-            e.preventDefault(); // Stop page from reloading
-
-            const formData = new FormData(tagForm);
-
-            fetch(tagForm.action, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': csrfToken
-                },
-                body: formData
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.availableTags) {
-                    availableTags.innerHTML = "";
-
-                    data.availableTags.forEach(tag => {
-                        const button = createTagButton(tag, false);
-                        availableTags.appendChild(button);
-                    });
-                    tagForm.reset()
-                    closeModal();
-                }
-            });
-        });
-
-
 
         document.addEventListener('click', (e) => {
             if(e.target.classList.contains('conceptTag') || e.target.classList.contains('availableTag')) {

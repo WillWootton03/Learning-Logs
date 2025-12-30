@@ -48,7 +48,7 @@ class NewConcept(forms.ModelForm):
             })
         }
 
-class SetTags(forms.ModelForm):
+class CreateTag(forms.ModelForm):
     class Meta:
         model = Tag
         fields = ['name']

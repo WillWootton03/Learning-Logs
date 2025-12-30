@@ -31,5 +31,6 @@ class Concept(models.Model):
     maxCount = models.IntegerField(default=0)
     tags = models.ManyToManyField(Tag, blank=True, related_name='concepts')
 
+
     def __str__(self):
         return self.answer
