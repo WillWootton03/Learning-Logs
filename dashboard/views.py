@@ -184,7 +184,14 @@ def deleteConcept(request, concept_id):
 def boardPage(request, board_id):
     board = Board.objects.get(id=board_id)
     logs = board.logs.all().order_by('-dateAdded')
-    return render(request, 'dashboard/boardPage.html', {'board' : board, 'logs' : logs})
+
+
+    knownConcepts=Concept.objects.filter(board=board, known=True)
+    unknownConcepts=Concept.objects.filter(board=board, unknown=True)
+    learningConcepts=Concept.objects.filter(board=board, known=False, unknown=False)
+    
+
+    return render(request, 'dashboard/boardPage.html', {'board' : board, 'logs' : logs, 'knownConcepts' : knownConcepts, 'unknownConcepts' : unknownConcepts, 'learningConcepts' : learningConcepts })
 
 import csv
 import io

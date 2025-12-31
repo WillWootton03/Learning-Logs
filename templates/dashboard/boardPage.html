@@ -73,20 +73,20 @@
             <div class="w-full h-full flex flex-col bg-gray-700 rounded-2xl relative shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-700">
                 <h2 class="text-3xl font-bold my-2 text-center text-white cursor-default drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">My Concepts</h2>
                 <div id="concept-grid" class="grid grid-cols-6 w-full h-full auto-rows-min gap-2 p-2 overflow-y-auto">
-                    {% for concept in board.concepts.all %}
-                        {% if concept.known %}
+                    {% for concept in knownConcepts %}
                             <a id="{{ concept.id }}" href="{% url 'conceptPage' board_id=board.id concept_id=concept.id%}" class="bg-green-600 rounded-2xl py-1 justify-items-center border text-white text-lg border-black shadow-md shadow-black hover:bg-green-800">
                                 <h2 class="font-medium mx-2 my-2">{{ concept.answer }}</h2>
                             </a>
-                        {% elif concept.unknown %}
-                            <a id="{{ concept.id }}" href="{% url 'conceptPage' board_id=board.id concept_id=concept.id%}" class="bg-red-500 rounded-2xl py-1 justify-items-center border text-white text-lg border-black shadow-md shadow-black hover:bg-red-800">
-                                <h2 class="font-medium mx-2 my-2">{{ concept.answer }}</h2>
-                            </a>
-                        {% else %}
-                            <a id="{{ concept.id }}" href="{% url 'conceptPage' board_id=board.id concept_id=concept.id%}" class="bg-yellow-700 rounded-2xl py-1 justify-items-center border text-white text-lg border-black shadow-md shadow-black hover:bg-yellow-900">
-                                <h2 class="font-medium mx-2 my-2">{{ concept.answer }}</h2>
-                            </a>
-                        {% endif %}
+                    {% endfor %}
+                    {% for concept in learningConcepts %}
+                        <a id="{{ concept.id }}" href="{% url 'conceptPage' board_id=board.id concept_id=concept.id%}" class="bg-yellow-700 rounded-2xl py-1 justify-items-center border text-white text-lg border-black shadow-md shadow-black hover:bg-yellow-900">
+                            <h2 class="font-medium mx-2 my-2">{{ concept.answer }}</h2>
+                        </a>
+                    {% endfor %}
+                    {% for concept in unknownConcepts %}
+                        <a id="{{ concept.id }}" href="{% url 'conceptPage' board_id=board.id concept_id=concept.id%}" class="bg-red-500 rounded-2xl py-1 justify-items-center border text-white text-lg border-black shadow-md shadow-black hover:bg-red-800">
+                            <h2 class="font-medium mx-2 my-2">{{ concept.answer }}</h2>
+                        </a>
                     {% endfor %}
                 </div>
                 <button id="toggle-new-concept" class="absolute top-2 right-2 bg-purple-500 text-black rounded-full px-3.5 py-2 shadow-md shadow-black hover:bg-purple-700">+</button>

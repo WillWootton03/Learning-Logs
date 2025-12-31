@@ -134,5 +134,15 @@
             canSubmitAnswer = true;
         }
     });
+
+    // Allows to make sure when reloading the page you are redirected back to the main page and cant continue that learning session
+    window.addEventListener('load', () => {
+        const navigationEntries = performance.getEntriesByType('navigation');
+        const type = navigationEntries.length > 0 ? navigationEntries[0].type : null
+        if(type === 'reload'){
+            window.location.href = `/board/${boardId}/`;
+        }
+    });
+
 </script>
 {% endblock %}
