@@ -70,27 +70,36 @@
             </div>
 
             <!--Is the larger card for Concepts-->
-            <div class="w-full h-full flex flex-col bg-gray-700 rounded-2xl relative shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-700">
-                <h2 class="text-3xl font-bold my-2 text-center text-white cursor-default drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">My Concepts</h2>
+            <div class="w-full h-full flex flex-col bg-gray-700 rounded-2xl py-2 relative shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-700">
+                <div class="flex flex-row h-[15%] relative px-3 gap-x-8 align-items-center">
+                    <div class="h-full w-fit align-content-center pb-2">
+                        <button id="known-concepts-button" class="bg-gray-500 px-2 text-xl text-green-300 font-bold py-2 rounded hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-green-500 hover:bg-gray-500 hover:text-green-500 active:border-green-500 border-4 border-transparent">Known</button>
+                        <button id="learning-concepts-button" class="bg-gray-500 px-2 text-xl text-yellow-200 font-bold py-2 rounded hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-yellow-500 hover:bg-gray-500 hover:text-yellow-300 active:border-yellow-500 border-4 border-transparent">Learning</button>
+                        <button id="unknown-concepts-button" class="bg-gray-500 px-2 text-xl text-red-300 font-bold py-2 rounded hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-red-500 hover:bg-gray-500 hover:text-red-500 active:border-red-500 border-4 border-transparent">Unknown</button>
+                        <button id="clear-concepts-button" class="bg-gray-500 px-2 text-xl text-blue-300 font-bold py-2 rounded hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-blue-500 hover:bg-gray-500 hover:text-blue-500 active:border-blue-500 border-4 border-transparent">Clear</button>
+                    </div>
+                    <h2 class="text-3xl font-bold text-center text-white cursor-default drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] flex-1 flex justify-center ">My Concepts</h2>
+                    <input id="concept-search" placeholder="Search" class="text-xl text-center h-fit bg-gray-500 text-white w-[30%] py-1 rounded" />
+                    <button id="toggle-new-concept" class="bg-purple-500 text-black rounded-full px-3.5 py-2 shadow-md shadow-black flex-7 hover:bg-purple-700">+</button>
+                </div>
                 <div id="concept-grid" class="grid grid-cols-6 w-full h-full auto-rows-min gap-2 p-2 overflow-y-auto">
                     {% for concept in knownConcepts %}
-                            <a id="{{ concept.id }}" href="{% url 'conceptPage' board_id=board.id concept_id=concept.id%}" class="bg-green-600 rounded-2xl py-1 justify-items-center border text-white text-lg border-black shadow-md shadow-black hover:bg-green-800">
+                            <a id="{{ concept.id }}" data-answer="{{ concept.answer }}" data-definition="{{ concept.definition }}" href="{% url 'conceptPage' board_id=board.id concept_id=concept.id%}" class="conceptButton knownConcept bg-green-600 rounded-2xl py-1 justify-items-center border text-white text-lg border-black shadow-md shadow-black hover:bg-green-800">
                                 <h2 class="font-medium mx-2 my-2">{{ concept.answer }}</h2>
                             </a>
                     {% endfor %}
                     {% for concept in learningConcepts %}
-                        <a id="{{ concept.id }}" href="{% url 'conceptPage' board_id=board.id concept_id=concept.id%}" class="bg-yellow-700 rounded-2xl py-1 justify-items-center border text-white text-lg border-black shadow-md shadow-black hover:bg-yellow-900">
+                        <a id="{{ concept.id }}" data-answer="{{ concept.answer }}" data-definition="{{ concept.definition }}" href="{% url 'conceptPage' board_id=board.id concept_id=concept.id%}" class="conceptButton learningConcept bg-yellow-700 rounded-2xl py-1 justify-items-center border text-white text-lg border-black shadow-md shadow-black hover:bg-yellow-900">
                             <h2 class="font-medium mx-2 my-2">{{ concept.answer }}</h2>
                         </a>
                     {% endfor %}
                     {% for concept in unknownConcepts %}
-                        <a id="{{ concept.id }}" href="{% url 'conceptPage' board_id=board.id concept_id=concept.id%}" class="bg-red-500 rounded-2xl py-1 justify-items-center border text-white text-lg border-black shadow-md shadow-black hover:bg-red-800">
+                        <a id="{{ concept.id }}" data-answer="{{ concept.answer }}" data-definition="{{ concept.definition }}" href="{% url 'conceptPage' board_id=board.id concept_id=concept.id%}" class="conceptButton unknownConcept bg-red-500 rounded-2xl py-1 justify-items-center border text-white text-lg border-black shadow-md shadow-black hover:bg-red-800">
                             <h2 class="font-medium mx-2 my-2">{{ concept.answer }}</h2>
                         </a>
                     {% endfor %}
                 </div>
-                <button id="toggle-new-concept" class="absolute top-2 right-2 bg-purple-500 text-black rounded-full px-3.5 py-2 shadow-md shadow-black hover:bg-purple-700">+</button>
-                <div id="new-concept-dropdown" class="hidden absolute flex flex-col top-8 right-7 bg-gray-800 gap-y-2 py-2 px-2 w-fit h-fit rounded shadow-md shadow-black"> 
+                <div id="new-concept-dropdown" class="hidden absolute flex flex-col top-9 right-8 bg-gray-800 gap-y-2 py-2 px-2 w-fit h-fit rounded shadow-md shadow-black"> 
                     <a href="{% url 'newConcept' board.id %}" class="bg-gray-600 px-2 py-1 text-white text-md font-bold rounded hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-700 hover:bg-gray-500">Create New Concept</a>
                     <form id="upload-csv" method="POST" enctype="multipart/form-data" action="{% url 'uploadConceptsCSV' board.id %}">
                         {% csrf_token %}
@@ -129,6 +138,62 @@
         const conceptCSVInput = document.getElementById('concept-file');
         const uploadCSVForm = document.getElementById('upload-csv');
 
+        const knownConceptsButton = document.getElementById('known-concepts-button');
+        const learningConceptsButton = document.getElementById('learning-concepts-button');
+        const unknownConceptsButton = document.getElementById('unknown-concepts-button');
+        const clearConceptsButton = document.getElementById('clear-concepts-button');
+        const conceptButtons = document.querySelectorAll('.conceptButton');
+        const knownConcepts = document.querySelectorAll('.knownConcept');
+        const learningConcepts = document.querySelectorAll('.learningConcept');
+        const unknownConcepts = document.querySelectorAll('.unknownConcept');
+        const conceptSearch = document.getElementById('concept-search');
+
+        knownConceptsButton.addEventListener('click', () => {
+            learningConcepts.forEach(btn => {
+                btn.classList.add('hidden');
+            });
+            unknownConcepts.forEach(btn => {
+                btn.classList.add('hidden');
+            });
+            knownConcepts.forEach(btn => {
+                btn.classList.remove('hidden');
+            });
+        });
+        learningConceptsButton.addEventListener('click', () => {
+            unknownConcepts.forEach(btn => {
+                btn.classList.add('hidden');
+            });
+            knownConcepts.forEach(btn => {
+                btn.classList.add('hidden');
+            });
+            learningConcepts.forEach(btn => {
+                btn.classList.remove('hidden');
+            });
+        });
+        unknownConceptsButton.addEventListener('click', () => {
+            learningConcepts.forEach(btn => {
+                btn.classList.add('hidden');
+            });
+            knownConcepts.forEach(btn => {
+                btn.classList.add('hidden');
+            });
+            unknownConcepts.forEach(btn => {
+                btn.classList.remove('hidden');
+            });
+        });
+        clearConceptsButton.addEventListener('click', () => {
+            unknownConcepts.forEach(btn => {
+                btn.classList.remove('hidden');
+            });
+           learningConcepts.forEach(btn => {
+                btn.classList.remove('hidden');
+            });
+            knownConcepts.forEach(btn => {
+                btn.classList.remove('hidden');
+            });
+        });
+
+
         conceptCSVInput.addEventListener('change', () => {
             if(conceptCSVInput.files.length) {
                 uploadCSVForm.submit();
@@ -161,6 +226,22 @@
                 modalBackdrop.classList.add('hidden');
             }
         });
+
+    conceptSearch.addEventListener('input', (e) => {
+        const normalize = str => str.normalize('NFKC');
+        const searchVal = normalize(e.target.value.toLowerCase());
+        conceptButtons.forEach(btn => {
+            console.log(btn.dataset.answer, btn.dataset.definition);
+            const answer = normalize(btn.dataset.answer || '').toLowerCase();
+            const definition = normalize(btn.dataset.definition || '').toLowerCase();
+            if(!answer.includes(searchVal) && !definition.includes(searchVal)) {
+                btn.classList.add('hidden');
+            } else {
+                btn.classList.remove('hidden');
+            }
+        });
+    });
+ 
 
 
         document.addEventListener('DOMContentLoaded', () => {
