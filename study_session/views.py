@@ -164,7 +164,6 @@ def submitAnswer(request, board_id, session_id):
                     concept.known = False
                 concept.save()
                 session.save()
-                print(session.correctAnswers, session.incorrectAnswers, concept.count)
                 return JsonResponse({'success' : True, 'result' : result, 'answer' : concept.definition })
         except:
             return JsonResponse({'success' : False})

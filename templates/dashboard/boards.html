@@ -8,10 +8,10 @@
                 <div class="text-2xl text-amber-50 text-center py-2">{{ board.title }}</div>
                 <div class="bg-purple-600 drop-shadow-lg flex-1 mx-4 mb-3 overflow-auto rounded-lg">
                     <div class="">
-                        <h2 class="text-2xl mx-2 mt-2.5 text-gray-300 text-center">Known Concepts : </h2>
-                        <h2 class="text-2xl mx-2 my-2.5 text-gray-300 text-center">Unknown Concepts : </h2>
-                        <h2 class="text-2xl mx-2 my-2.5 text-gray-300 text-center">Learning Concepts : </h2>
-                        <h2 class="text-2xl mx-2 my-2.5 text-gray-300 text-center">Log Count : </h2>
+                        <h2 class="text-2xl mx-2 mt-2.5 text-gray-300 text-center">Known Concepts :  {{ board.knownCount }} </h2>
+                        <h2 class="text-2xl mx-2 my-2.5 text-gray-300 text-center">Unknown Concepts : {{ board.unknownCount }} </h2>
+                        <h2 class="text-2xl mx-2 my-2.5 text-gray-300 text-center">Learning Concepts : {{ board.learningCount }} </h2>
+                        <h2 class="text-2xl mx-2 my-2.5 text-gray-300 text-center">Log Count : {{ board.logCount }} </h2>
                     </div>
                 </div>
             </a>

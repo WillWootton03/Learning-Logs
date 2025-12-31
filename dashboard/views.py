@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.urls import reverse
+from django.db.models import Count, Q
 
 import json
 
@@ -28,12 +29,19 @@ def home(request):
 @login_required
 def boards(request):
     user = request.user
-    boards = user.boards.all()
-    if not boards.exists():
-        boards = None
+    # Makes it so only one query is used when searching for counts instead of using for loop
+    # VERY IMPORTANT makes lookup time scale better
+    boards = Board.objects.filter(user=request.user).annotate(
+        knownCount=Count('concepts', filter=Q(concepts__known=True), distinct=True),
+        unknownCount=Count('concepts', filter=Q(concepts__unknown=True), distinct=True),
+        learningCount=Count('concepts', filter=Q(concepts__known=False, concepts__unknown=False), distinct=True),
+        logCount=Count('logs', distinct=True),
+    )
+        
+
     context = {
         'user' : user,
-        'boards' : boards,
+        'boards' : boards
     }
     return render(request, 'dashboard/boards.html', context=context)
 
