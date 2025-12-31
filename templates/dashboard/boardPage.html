@@ -46,14 +46,22 @@
             </div>
 
             <!--Is the small card for Study Sessions-->
-            <div class="w-full h-full flex flex-col bg-gray-700 rounded-2xl relative shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-700">
+            <div class="w-full h-full flex flex-col bg-gray-700 rounded-2xl relative shadow-md overflow-y-auto shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-700">
                 <h2 class="text-3xl font-bold mt-2 mb-4 text-center text-white cursor-default drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">My Study Sessions</h2>
-                {% for session in board.sessions.all %}
-                    <a href="#" class="bg-blue-300 w-[90%] h-14 rounded-2xl ml-[5%] my-2 flex justify-between items-center">
-                        <p class="text-left px-4">{{ session.title }}</p>
-                        <p class="text-right px-4">{{ session.dateAdded }}</p>
+                <div class="w-full h-full flex flex-col overflow-y-auto auto-rows-min justify-between">
+                {% for session in board.sessions.all|slice:"::-1" %}
+                    <a href="#" data-id="{{ session.id }}" class="bg-blue-300 w-[90%] h-[10%] rounded-2xl ml-[5%] my-2 flex justify-between items-center px-6">
+                        <p class="text-right px-4 ">
+                            <span class='local-time' data-time="{{ session.dateAdded|date:'c' }}"></span>
+                        </p>
+                        <div class="grid grid-cols-2 w-[30%] gap-1">
+                            <p class="px-2 text-white bg-green-600 rounded text-center">{{ session.correctAnswers }}</p>
+                            <p class="px-2 text-white bg-red-600 rounded text-center">{{ session.incorrectAnswers }}</p>
+                        </div>
+                        
                     </a>
                     {% endfor %}
+                </div>
                 <button id="toggle-sessions-settings" class="absolute top-2 right-2 bg-purple-500 text-black rounded-full px-3.5 py-2 shadow-md shadow-black hover:bg-purple-700">+</button>
                 <div id="sessions-settings-dropdown" class="hidden absolute flex flex-col top-8 right-7 bg-gray-800 gap-y-2 py-2 px-2 w-fit h-fit rounded shadow-md shadow-black"> 
                     <a href="{% url 'newSessionSettings' board.id %}" class="bg-gray-600 px-2 py-1 text-white text-md font-bold rounded hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-700 hover:bg-gray-500">New Session Settings</a>
@@ -64,7 +72,7 @@
             <!--Is the larger card for Concepts-->
             <div class="w-full h-full flex flex-col bg-gray-700 rounded-2xl relative shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-700">
                 <h2 class="text-3xl font-bold my-2 text-center text-white cursor-default drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">My Concepts</h2>
-                <div id="concept-grid" class="grid grid-cols-6 w-full h-full auto-rows-min gap-2 p-2">
+                <div id="concept-grid" class="grid grid-cols-6 w-full h-full auto-rows-min gap-2 p-2 overflow-y-auto">
                     {% for concept in board.concepts.all %}
                         {% if concept.known %}
                             <a id="{{ concept.id }}" href="{% url 'conceptPage' board_id=board.id concept_id=concept.id%}" class="bg-green-600 rounded-2xl py-1 justify-items-center border text-white text-lg border-black shadow-md shadow-black hover:bg-green-800">
@@ -75,22 +83,32 @@
                                 <h2 class="font-medium mx-2 my-2">{{ concept.answer }}</h2>
                             </a>
                         {% else %}
-                            <a id="{{ concept.id }}" href="{% url 'conceptPage' board_id=board.id concept_id=concept.id%}" class="bg-yellow-300 rounded-2xl py-1 justify-items-center border text-white text-lg border-black shadow-md shadow-black hover:bg-yellow-500">
+                            <a id="{{ concept.id }}" href="{% url 'conceptPage' board_id=board.id concept_id=concept.id%}" class="bg-yellow-700 rounded-2xl py-1 justify-items-center border text-white text-lg border-black shadow-md shadow-black hover:bg-yellow-900">
                                 <h2 class="font-medium mx-2 my-2">{{ concept.answer }}</h2>
                             </a>
                         {% endif %}
                     {% endfor %}
                 </div>
-                <a href="{% url 'newConcept' board.id %}" class="absolute top-2 right-2 bg-purple-500 text-black rounded-full px-3.5 py-2 shadow-md shadow-black hover:bg-purple-700">+</a>
+                <button id="toggle-new-concept" class="absolute top-2 right-2 bg-purple-500 text-black rounded-full px-3.5 py-2 shadow-md shadow-black hover:bg-purple-700">+</button>
+                <div id="new-concept-dropdown" class="hidden absolute flex flex-col top-8 right-7 bg-gray-800 gap-y-2 py-2 px-2 w-fit h-fit rounded shadow-md shadow-black"> 
+                    <a href="{% url 'newConcept' board.id %}" class="bg-gray-600 px-2 py-1 text-white text-md font-bold rounded hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-700 hover:bg-gray-500">Create New Concept</a>
+                    <form id="upload-csv" method="POST" enctype="multipart/form-data" action="{% url 'uploadConceptsCSV' board.id %}">
+                        {% csrf_token %}
+                        <div class="bg-gray-600 justify-items-center px-2 py-1 text-white text-md font-bold rounded hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-700 hover:bg-gray-500 flex-row justify-between ">
+                            <label for="concept-file" class="cursor-pointer">Upload Concept CSV</label>
+                            <input type="file" id="concept-file" name="concept-file" accept=".csv" class="hidden" />
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
     <!--Background wrapper to make bg blurry when choosing which settings to load-->
     <div id="modal-backdrop" class="hidden fixed inset-0 z-90 bg-black/50 backdrop-blur-sm"></div>
-    <div id="load-settings-modal" class="hidden fixed inset-x-96 inset-y-20 mt-10 z-100 p-3 bg-gray-800 grid grid-cols-2 auto-rows-min gap-4 rounded-2xl shadow-md shadow-black">
+    <div id="load-settings-modal" class="hidden fixed inset-x-96 inset-y-20 mt-10 z-100 p-3 bg-gray-800 grid grid-cols-2  auto-rows-min gap-4 rounded-2xl shadow-md shadow-black">
         {% for sessionSettings in board.sessionSettings.all %} 
             <!--Href link For Each Button of board session settings so bring you to edit session settings to start a new session -->
-            <a href="{% url 'updateSessionSettings' board.id sessionSettings.id %}" class="bg-gray-700 w-full h-fit rounded-2xl shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-500 hover:bg-gray-600">
+            <a href="{% url 'updateSessionSettings' board.id sessionSettings.id %}" data-id="" class="bg-gray-700 w-full h-fit rounded-2xl shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-500 hover:bg-gray-600">
                     <div class="flex flex-row justify-between align-items-center gap-4 py-3 px-3">
                         <h2 class="text-2xl text-white font-bold text-left">{{ sessionSettings.title }}</h2>
                         <h2 class="text-2xl text-white text-right">Length : {{ sessionSettings.numQuestions }}</h2>
@@ -98,7 +116,6 @@
             </a>
         {% endfor %}
     </div>
-
     <script>
 
         const sessionsSettingsDropdown = document.getElementById('sessions-settings-dropdown')
@@ -106,6 +123,17 @@
         const modalBackdrop = document.getElementById('modal-backdrop');
         const loadSessionsSettings = document.getElementById('load-sessions-settings');
         const loadSettingsModal = document.getElementById('load-settings-modal');
+        const toggleNewConceptBtn = document.getElementById('toggle-new-concept');
+        const newConceptDropdown = document.getElementById('new-concept-dropdown');
+
+        const conceptCSVInput = document.getElementById('concept-file');
+        const uploadCSVForm = document.getElementById('upload-csv');
+
+        conceptCSVInput.addEventListener('change', () => {
+            if(conceptCSVInput.files.length) {
+                uploadCSVForm.submit();
+            }
+        });
         
         loadSessionsSettings.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -114,14 +142,21 @@
         })
 
         toggleSessionsSettingsDropdown.addEventListener('click', (e) => {
-            e.stopPropagation();
             sessionsSettingsDropdown.classList.toggle('hidden');
         });
+
+        toggleNewConceptBtn.addEventListener('click', (e) => {
+            newConceptDropdown.classList.toggle('hidden')
+        })
         
         document.addEventListener('click', (e) => {
-            if(!sessionsSettingsDropdown.classList.contains('hidden') && !sessionsSettingsDropdown.contains(e.target)){
-                sessionsSettingsDropdown.classList.add('hidden');
-            } if (e.target === modalBackdrop) {
+            if(!newConceptDropdown.contains(e.target) && !newConceptDropdown.classList.contains('hidden') && !toggleNewConceptBtn.contains(e.target)){
+                newConceptDropdown.classList.add('hidden');
+            } 
+            if(!sessionsSettingsDropdown.contains(e.target) && !sessionsSettingsDropdown.classList.contains('hidden') && !toggleSessionsSettingsDropdown.contains(e.target)) {
+                sessionsSettingsDropdown.classList.add('hidden')
+            }
+            if (e.target === modalBackdrop) {
                 loadSettingsModal.classList.add('hidden');
                 modalBackdrop.classList.add('hidden');
             }

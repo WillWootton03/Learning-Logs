@@ -10,28 +10,35 @@
                     <input type="text" id="concept-answer" placeholder="{{ concept.answer }}" value="{{ concept.answer }}"
                             class="text-2xl font-bold text-white h-full w-full bg-transparent text-center focus:outline-none">
                 </div>
-                <div class="flex-row h-full w-full border-4 border-purple-900 bg-gray-800 justify-items-center px-5 py-3 rounded-2xl focus-within:shadow-[0_0px_15px_rgba(0,0,0,0.9)] focus-within:shadow-purple-500">
+                <div class="flex-row h-full w-full border-4 border-purple-900 bg-gray-800 justify-items-center px-5 py-3 rounded-2xl shadow-md shadow-black focus-within:shadow-[0_0px_15px_rgba(0,0,0,0.9)] focus-within:shadow-purple-500">
                     <h2 class="text-2xl font-bold text-white bg-purple-950 px-3 py-2 rounded-2xl shadow-md shadow-black mb-3 cursor-default">Concept Definition</h2>
                     <div class="h-[75%] w-full">
                         <input type="text" id="concept-definition" placeholder="{{ concept.definition }}" value="{{ concept.definition }}" 
                                 class="text-lg text-white h-full w-full bg-transparent justify-items-center focus:outline-none">
                     </div>
                 </div>
-                <div class="flex-row h-[50%] w-full border-4 border-purple-900 bg-gray-800 justify-items-center px-5 py-3 rounded-2xl focus-within:shadow-[0_0px_15px_rgba(0,0,0,0.9)] focus-within:shadow-purple-500">
-                    <h2 class="text-2xl font-bold text-white bg-purple-950 mb-3 px-3 py-2 rounded-2xl shadow-md shadow-black cursor-default">Concept Hint</h2>
-                    <div class="h-[70%] w-full">
-                        <input type="text" id="concept-hint" placeholder="{{ concept.hint }}" value="{{ concept.hint }}" 
-                                class="text-lg font-medium text-white h-full w-full bg-transparent justify-items-center text-center placeholder:justify-items-center focus:outline-none">
+                <div class="h-[50%] w-full flex flex-row gap-x-2">
+                    <div class="flex-[2] flex-row h-full border-4 border-purple-900 bg-gray-800 justify-items-center px-5 py-3 rounded-2xl shadow-md shadow-black focus-within:shadow-[0_0px_15px_rgba(0,0,0,0.9)] focus-within:shadow-purple-500">
+                        <h2 class="text-2xl font-bold text-white bg-purple-950 mb-3 px-3 py-2 rounded-2xl shadow-md shadow-black cursor-default">Concept Hint</h2>
+                        <div class="h-[70%] w-full">
+                            <input type="text" id="concept-hint" placeholder="{{ concept.hint }}" value="{{ concept.hint }}" 
+                                    class="text-lg font-medium text-white h-full w-full bg-transparent justify-items-center text-center placeholder:justify-items-center focus:outline-none">
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-y-3 h-full flex-[1.5] border-4 border-purple-900 bg-gray-800 justify-items-center px-2 py-3 rounded-2xl shadow-md shadow-black items-center">
+                        <h2 class="text-xl font-bold text-white text-center bg-purple-950 mb-3 px-3 py-2 rounded shadow-md shadow-black cursor-default">Concept Stats</h2>
+                        <h2 class=" w-fit h-fit px-3 py-2 text-lg font-bold text-center rounded text-white {% if concept.known %}bg-green-700 {% elif concept.unknown %}bg-red-600 {% else %}bg-yellow-800 {% endif %}">{% if concept.known %}Known{% elif concept.unknown %}Unknown{% else %}Learning{% endif %}</h2>
+                        <h2 class="w-fit h-fit px-3 py-2 text-white text-lg font-bold text-center rounded">Count: {{ concept.count }}</h2>
                     </div>
                 </div>
             </div>
             <!--Right side of the screen for adding and removing tags-->
             <div class="relative h-full w-full flex flex-col items-center">
-                <div class="h-full w-[90%] bg-gray-800 flex flex-col items-center gap-y-6 rounded-2xl">
+                <div class="h-full w-[90%] bg-gray-800 flex flex-col items-center gap-y-6 rounded-2xl shadow-md shadow-black">
                     <!--Acts as the Concept tag headers with search-->
                     <div class="flex flex-col items-center gap-y-2 w-[70%]">
                         <h1 class="py-1  text-white text-2xl font-bold">{{ concept.answer }} Tags</h1>
-                        <input id="tag-search" placeholder="Search Tag" class="w-[80%] h-8 text-lg text-center bg-gray-600 border border-black" />
+                        <input id="tag-search" placeholder="Search Tag" class="w-[80%] h-8 text-lg text-center bg-gray-600 border-2 shadow-md shadow-black border-black focus:outline-purple-700 focus:shadow-[0_0px_15px_rgba(0,0,0,0.9)] focus:shadow-purple-500" />
                     </div>
                     <!--Acts as the box for all concept tags-->
                     <div class="h-full w-full flex flex-col items-center gap-y-5 ">
@@ -52,12 +59,12 @@
                             </div>
                         </div>
                     </div>
-                    <button id="create-tag" class="text-center bg-gray-700 text-white px-10 py-3 hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-blue-600 hover:bg-gray-900 font-bold text-2xl rounded-2xl mb-3 flex flex-col">Create A New Tag</button>
+                    <button id="create-tag" class="text-center bg-gray-700 text-white px-10 py-3 shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-blue-600 hover:bg-gray-900 font-bold text-2xl rounded-2xl mb-3 flex flex-col">Create A New Tag</button>
                 </div>
                     <div class="grid grid-cols-3 w-[90%] h-fit gap-2 py-2">
-                        <a href="{% url 'boardPage' board.id %}" id="submit-button" class="py-2 text-center bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-900 hover:bg-gray-800">Submit</a>
-                        <a href="{% url 'boardPage' board.id %}"class="py-2 text-center bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-yellow-700 hover:bg-gray-800">Cancel</a>
-                        <button id="delete-button" class="py-2 text-center bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-red-500 hover:bg-gray-800">Delete</button>
+                        <a href="{% url 'boardPage' board.id %}" id="submit-button" class="py-2 text-center bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-900 hover:bg-gray-800">Submit</a>
+                        <a href="{% url 'boardPage' board.id %}"class="py-2 text-center bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-yellow-700 hover:bg-gray-800">Cancel</a>
+                        <button id="delete-button" class="py-2 text-center bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-red-500 hover:bg-gray-800">Delete</button>
                     </div>
             </div>
         </div>
@@ -120,6 +127,8 @@
         const submitBtn = document.getElementById('submit-button');
         const deleteBtn = document.getElementById('delete-button');
 
+        const tagSearch = document.getElementById('tag-search');
+
         let stagedTags = [];
 
         const boardId = "{{ board.id }}";
@@ -164,8 +173,8 @@
 
           function createTagButton(tag, isConceptTag = false) {
             const button = document.createElement('button');
-            button.className = isConceptTag ? 'conceptTag text-center bg-gray-700 text-white rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-900 hover:bg-gray-800 rounded-2xl w-full h-8 relative'
-                                            : 'availableTag text-center bg-gray-700 text-white rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-900 hover:bg-gray-800 rounded-2xl w-full h-8 relative';
+            button.className = isConceptTag ? 'conceptTag text-center bg-gray-700 text-white rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] shadow-md shadow-black hover:shadow-purple-900 hover:bg-gray-800 rounded-2xl w-full h-8 relative'
+                                            : 'availableTag text-center bg-gray-700 text-white rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] shadow-md shadow-black hover:shadow-purple-900 hover:bg-gray-800 rounded-2xl w-full h-8 relative';
             button.dataset.id = tag.id;
             button.textContent = tag.name;
 
@@ -181,6 +190,25 @@
 
             return button;
         }
+
+    tagSearch.addEventListener('input', (e) => { 
+        const conceptTagBtns = document.querySelectorAll('.conceptTag');
+        conceptTagBtns.forEach(btn => {
+            if(!btn.textContent.toLowerCase().startsWith(e.target.value.toLowerCase())) {
+                btn.classList.add('hidden'); 
+            } else {
+                btn.classList.remove('hidden');  
+            }
+        });
+        const availableTagBtns = document.querySelectorAll('.availableTag');
+        availableTagBtns.forEach(btn => {
+            if(!btn.textContent.toLowerCase().startsWith(e.target.value.toLowerCase())) {
+                btn.classList.add('hidden');    
+            } else {
+                btn.classList.remove('hidden');  
+            }
+        });
+    });
 
         newTagModal.addEventListener('click', (e) => {
             e.stopPropagation();

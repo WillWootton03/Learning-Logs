@@ -20,9 +20,9 @@ from django.contrib.auth.views import LogoutView
 
 from accounts.views import home
 from accounts.views import signIn, register
-from dashboard.views import home, boards, newBoard, boardPage, newConcept, conceptPage, conceptToggleTags, deleteTag, updateConcept, deleteConcept, createTag
+from dashboard.views import home, boards, newBoard, boardPage, newConcept, conceptPage, conceptToggleTags, deleteTag, updateConcept, deleteConcept, createTag, uploadConceptsCSV
 from user_logs.views import newLog, logBreakdown, deleteLog
-from study_session.views import sessionSettingsToggleTags, newSessionSettings, updateSessionSettings, deleteSessionSettings, sessionStart
+from study_session.views import sessionSettingsToggleTags, newSessionSettings, updateSessionSettings, deleteSessionSettings, sessionStart, sessionPage, submitAnswer, newQuestion
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -49,6 +49,7 @@ urlpatterns = [
     path('board/<uuid:board_id>/concepts/<uuid:concept_id>/', conceptPage, name='conceptPage'),
     path('concept/update/<uuid:concept_id>/', updateConcept, name='updateConcept'),
     path('concept/delete/<uuid:concept_id>/', deleteConcept, name='deleteConcept'),
+    path('board/<uuid:board_id>/uploadConcepts/', uploadConceptsCSV, name='uploadConceptsCSV'),
 
     # All Logs URLs
     path('logs/newLog/<uuid:board_id>/', newLog, name='newLog'),
@@ -56,13 +57,18 @@ urlpatterns = [
     path('logs/delete/<uuid:log_id>/', deleteLog, name='deleteLog'),
 
     # All Session URLs
+
     # Session Settings
     path('board/<uuid:board_id>/sessions/newSessionSettings/', newSessionSettings, name='newSessionSettings'),
     path('board/<uuid:board_id>/sessions/<uuid:sessionSettings_id>/update/', updateSessionSettings, name='updateSessionSettings'),
     path('board/<uuid:board_id>/sessions/<uuid:sessionSettings_id>/delete/', deleteSessionSettings, name='deleteSessionSettings'),
     path('board/<uuid:board_id>/sessions/<uuid:sessionSettings_id>/<uuid:tag_id>/toggle/', sessionSettingsToggleTags, name='sessionSettingsToggleTags'),
+
     # Sessions
-    path('board/<uuid:board_id>/sessions/sessionStart/', sessionStart, name='sessionStart'),
+    path('board/<uuid:board_id>/sessions/<uuid:sessionSettings_id>/sessionStart/', sessionStart, name='sessionStart'),
+    path('board/<uuid:board_id>/sessions/<uuid:session_id>/sessionPage/', sessionPage, name='sessionPage'),
+    path('board/<uuid:board_id>/sessions/<uuid:session_id>/submitAnswer/', submitAnswer, name='submitAnswer'),
+    path('board/<uuid:board_id>/sessions/<uuid:session_id>/newQuestion/', newQuestion, name='newQuestion'),
 
     # Used to auto reload browser
     path('__reload__/', include('django_browser_reload.urls')),

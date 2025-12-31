@@ -177,3 +177,44 @@ def boardPage(request, board_id):
     board = Board.objects.get(id=board_id)
     logs = board.logs.all().order_by('-dateAdded')
     return render(request, 'dashboard/boardPage.html', {'board' : board, 'logs' : logs})
+
+import csv
+import io
+@login_required
+@require_POST
+def uploadConceptsCSV(request, board_id):
+    board = Board.objects.get(id=board_id)
+    if request.method == 'POST' and request.FILES.get('concept-file'):
+        uploadedFile = io.TextIOWrapper(request.FILES['concept-file'].file, encoding='utf-8')
+        reader = csv.DictReader(uploadedFile)
+        if reader:
+            print('reader')
+        #Only Appends New Concepts to Concept Model
+        for row in reader:
+            if not any(row):
+                continue
+            answer = row['Answer']
+            definition = row['Definition']
+            hint = row['Hint']
+            tags = [tag.strip() for tag in row['Tags'].split(',') if tag.strip()] 
+            print(answer)
+
+            existingTags = {tag.name: tag for tag in Tag.objects.all()}
+
+            tagObjects = []
+            for tagName in tags:
+                if tagName in existingTags:
+                    tagObjects.append(existingTags[tagName])
+                else:
+                    newTag = Tag.objects.create(name=tagName, board=board)        
+                    existingTags[tagName] = newTag
+                    tagObjects.append(newTag)
+
+            if not Concept.objects.filter(answer=answer, definition=definition, hint=hint).exists():
+                print(answer)
+                concept = Concept.objects.create(board=board, answer=answer, definition=definition, hint=hint)
+                concept.tags.set(tagObjects)
+
+        return redirect('boardPage', board_id)
+
+    return redirect('boardPage', board_id)

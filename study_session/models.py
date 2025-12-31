@@ -18,5 +18,6 @@ class SessionSettings(models.Model):
     title = models.CharField(max_length=200)
     board = models.ForeignKey(Board, on_delete=models.CASCADE, related_name='sessionSettings')
     tags = models.ManyToManyField(Tag, blank=True, related_name='sessions')
+    isExclusive = models.BooleanField(default=False)
     numQuestions = models.IntegerField(default=0)
     dateAdded = models.DateTimeField(auto_now_add=True)

@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load static tailwind_tags %}
+{% block content %}
+<div id="page-wrapper" class="flex flex-box mx-auto pt-24 justify-center h-[calc(100vh-3rem)] w-[90%] transition-all duration-200">
+    <div class="h-full w-[95%] bg-gray-800 rounded-2xl shadow-md shadow-black flex flex-col gap-y-12 px-20 justify-center text-center items-center relative">
+            <h2 id="question-answer" class="bg-gray-700 px-3 py-3 max-h-[40vh] max-w-[80vw] rounded text-white font-bold text-center flex items-center justify-center shadow-[0_0px_15px_rgba(0,0,0,0.9)] shadow-purple-600 cursor-default">{{ question.answer }}</h2>
+            <form method="POST" id="answer-form" action="{% url 'submitAnswer' board.id session.id %}" class="flex flex-col gap-y-4" >
+                {% csrf_token %}
+                <input id="answer-input" required name="answer-input" autocomplete="off" 
+                class="bg-gray-600 text-2xl py-2 focus:shadow-[0_0px_15px_rgba(0,0,0,0.9)] shadow-md shadow-black focus:shadow-purple-600 focus:border-purple-800 focus:outline-0 text-center rounded border-3 border-purple-950 text-white" 
+                placeholder="Answer" />
+                <h2 id="correct-answer" class="hidden text-2xl text-white"></h2>
+                <button id="submit-button" type="submit" class="text-center bg-blue-800 text-white px-10 py-3 shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-blue-600 hover:bg-blue-600 font-bold text-2xl rounded-2xl mb-3 flex flex-col">Submit</button>
+                <input type="hidden" name="question_id" value="{{ question.id }}" />
+            </form>
+            <a href="{% url 'boardPage' board.id %}" class="absolute top-4 right-4 px-3 py-2 bg-red-600 rounded-3xl text-lg text-white shadow-md shadow-black">X</a>
+    </div>
+</div>
+
+    <!--Fitty to help text sizing-->
+    <script src="https://unpkg.com/fitty/dist/fitty.min.js"></script>
+<script>
+
+
+    const boardId = '{{ board.id }}' 
+    const sessionId = '{{ session.id }}'
+    const csrf_token = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    const answerForm = document.getElementById('answer-form');
+    const answerInput = document.getElementById('answer-input');
+    const questionAnswer = document.getElementById('question-answer');
+    const questionId = answerForm.querySelector('[name="question_id"]');
+    const submitButton = document.getElementById('submit-button');
+    const correctAnswer = document.getElementById('correct-answer');
+
+    let canSubmitAnswer = true;
+
+    const questionFitty = fitty('#question-answer', {
+        maxSize: 92,
+        minSize: 18
+    });
+
+    async function submitAnswer() {
+        const formData = new FormData(answerForm);
+        const answerValue = answerInput.value.trim();
+        if(!answerValue){
+            alert('No Answer Given');
+            return;
+        }
+
+        const response = await fetch(answerForm.action, {
+            method : 'POST',
+            body : formData,
+            headers : {
+                'X-CSRFToken' : formData.get('csrfmiddlewaretoken')
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            submitButton.textContent = 'Next';
+            submitButton.classList.remove('bg-blue-800', 'hover:bg-blue-600', 'hover:shadow-blue-600');
+            submitButton.classList.add('bg-green-600', 'hover:bg-green-600', 'hover:shadow-green-600');
+            canSubmitAnswer = false;
+            if(data.result) {
+                questionAnswer.classList.add('shadow-green-600');
+                answerInput.classList.remove('shadow-md');
+                answerInput.classList.add('shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'border-green-500', 'shadow-green-500', 'focus:border-green-500', 'focus:shadow-green-500');
+            } else {
+                questionAnswer.classList.add('shadow-red-600');
+                answerInput.classList.remove('shadow-md');
+                answerInput.classList.add('shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'border-red-500', 'shadow-red-500', 'focus:border-red-500', 'focus:shadow-red-500');
+                correctAnswer.classList.remove('hidden');
+                correctAnswer.textContent = data.answer;
+            }
+        } else {
+            alert('Something Went Wrong');
+        }
+    }
+    // Works To submit and get data for next question
+    async function nextQuestion () {
+        const currentQuestionId = questionId.value;
+
+        const response = await fetch(`/board/${boardId}/sessions/${sessionId}/newQuestion/`, {
+            method: 'POST',
+            headers : {
+                'Content-Type' : 'application/json',
+                'X-CSRFToken' : csrf_token
+            },
+            body : JSON.stringify({ questionId : currentQuestionId })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            questionAnswer.textContent = data.questionAnswer;
+            questionFitty[0].fit();
+            questionId.value = data.questionId;
+            submitButton.textContent = 'Submit';
+            submitButton.classList.remove('bg-green-600', 'hover:bg-green-600', 'hover:shadow-green-600');
+            submitButton.classList.add('bg-blue-800', 'hover:bg-blue-600', 'hover:shadow-blue-600');
+            questionAnswer.classList.remove('shadow-green-600', 'shadow-red-600');
+            questionAnswer.classList.add('shadow-purple-600');
+            answerInput.classList.remove('shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'shadow','border-green-500', 'shadow-green-500', 'focus:border-green-500', 'focus:shadow-green-500');
+            answerInput.classList.remove('shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'border-red-500', 'shadow-red-500', 'focus:border-red-500', 'focus:shadow-red-500');
+            answerInput.classList.add('shadow-md');
+            if(!correctAnswer.classList.contains('hidden')) correctAnswer.classList.add('hidden');
+            answerForm.reset();
+            canSubmitAnswer = true;
+        } else {
+            alert('Fail');
+        }
+    }
+
+    answerInput.addEventListener('keydown', async (e) => {
+        if(e.key === 'Enter'){
+            e.preventDefault();
+            if(canSubmitAnswer) {
+                await submitAnswer();
+            } else {
+                await nextQuestion();
+                canSubmitAnswer = true;
+            }
+        }
+    });
+
+    submitButton.addEventListener('click', async (e) => {
+        e.preventDefault();
+        if(canSubmitAnswer){
+            await submitAnswer();
+        } else {
+            await nextQuestion();
+            canSubmitAnswer = true;
+        }
+    });
+</script>
+{% endblock %}
