@@ -5,8 +5,11 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.urls import reverse
 from django.db.models import Count, Q
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
-import json
+import json, io, base64, urllib
 
 from .models import Board, Concept, Tag
 from user_logs.models import Log
@@ -189,9 +192,31 @@ def boardPage(request, board_id):
     knownConcepts=Concept.objects.filter(board=board, known=True)
     unknownConcepts=Concept.objects.filter(board=board, unknown=True)
     learningConcepts=Concept.objects.filter(board=board, known=False, unknown=False)
-    
 
-    return render(request, 'dashboard/boardPage.html', {'board' : board, 'logs' : logs, 'knownConcepts' : knownConcepts, 'unknownConcepts' : unknownConcepts, 'learningConcepts' : learningConcepts })
+    graphLabels = ['Known Concepts', 'Learning Concepts', 'Unknown Concepts']
+    graphValues = [knownConcepts.count(), learningConcepts.count(), unknownConcepts.count()]
+    barColors = ['#22d628','#d6c722','#bf2424']
+
+    fig, ax = plt.subplots(figsize=(6, 4))
+    ax.bar(graphLabels, graphValues, color=barColors)
+
+    for tick in ax.get_xticklabels():
+        tick.set_fontsize(10)
+        tick.set_fontweight('bold')
+    fig.patch.set_alpha(0.0)
+    ax.set_facecolor('none')
+
+    plt.tight_layout()
+
+    buf = io.BytesIO()
+    fig.savefig(buf, format='png')
+    plt.close(fig)
+    buf.seek(0)
+    string = base64.b64encode(buf.read())
+    uri = "data:image/png;base64," + urllib.parse.quote(string)
+
+
+    return render(request, 'dashboard/boardPage.html', {'board' : board, 'logs' : logs, 'knownConcepts' : knownConcepts, 'unknownConcepts' : unknownConcepts, 'learningConcepts' : learningConcepts, 'chart' : uri })
 
 import csv
 import io
@@ -233,3 +258,12 @@ def uploadConceptsCSV(request, board_id):
         return redirect('boardPage', board_id)
 
     return redirect('boardPage', board_id)
+
+@login_required
+@require_POST
+def deleteBoard(request):
+    boardId= request.POST.get('board_id')
+    board = Board.objects.get(id=boardId)
+    if board:
+        board.delete()
+    return redirect('dashboard')

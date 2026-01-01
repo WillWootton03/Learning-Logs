@@ -4,20 +4,23 @@
         {% if boards is not None %}
         <div class="grid grid-cols-4 gap-x-10 gap-y-4 w-full h-full items-center auto-rows-min">
             {% for board in boards %}
-            <a href="{% url 'boardPage' board.id %}" class="w-full h-fit bg-purple-800 rounded-2xl flex flex-col hover:bg-purple-950 shadow-md shadow-black">
-                <div class="text-2xl text-amber-50 text-center py-2">{{ board.title }}</div>
-                <div class="bg-purple-600 drop-shadow-lg flex-1 mx-4 mb-3 overflow-auto rounded-lg">
-                    <div class="">
-                        <h2 class="text-2xl mx-2 mt-2.5 text-gray-300 text-center">Known Concepts :  {{ board.knownCount }} </h2>
-                        <h2 class="text-2xl mx-2 my-2.5 text-gray-300 text-center">Unknown Concepts : {{ board.unknownCount }} </h2>
-                        <h2 class="text-2xl mx-2 my-2.5 text-gray-300 text-center">Learning Concepts : {{ board.learningCount }} </h2>
-                        <h2 class="text-2xl mx-2 my-2.5 text-gray-300 text-center">Log Count : {{ board.logCount }} </h2>
+            <div class="h-full w-full relative">
+                <a href="{% url 'boardPage' board.id %}" class="w-full h-fit bg-purple-800 rounded-2xl flex flex-col hover:bg-purple-950 shadow-md shadow-black">
+                    <div class="text-2xl text-amber-50 text-center py-2 relative">{{ board.title }}</div>
+                    <div class="bg-purple-600 drop-shadow-lg flex-1 mx-4 mb-3 overflow-auto rounded-lg">
+                        <div class="">
+                            <h2 class="text-2xl mx-2 mt-2.5 text-gray-300 text-center">Known Concepts :  {{ board.knownCount }} </h2>
+                            <h2 class="text-2xl mx-2 my-2.5 text-gray-300 text-center">Unknown Concepts : {{ board.unknownCount }} </h2>
+                            <h2 class="text-2xl mx-2 my-2.5 text-gray-300 text-center">Learning Concepts : {{ board.learningCount }} </h2>
+                            <h2 class="text-2xl mx-2 my-2.5 text-gray-300 text-center">Log Count : {{ board.logCount }} </h2>
+                        </div>
                     </div>
-                </div>
-            </a>
+                </a>
+                <button data-id="{{ board.id }}" class="deleteBoardBtn absolute top-2 right-2 bg-red-600 rounded-2xl px-1 text-sm text-white hover:bg-red-800">X</button>
+            </div>
             {% endfor %}
         </div>
-        <a href="{% url 'newBoard' %}" class="fixed bottom-6 right-6 bg-yellow-300 text-black px-8 py-4 rounded-full shadow-2xl hover:bg-yellow-500">+</a>
+        <a href="{% url 'newBoard' %}" class="fixed bottom-6 right-6 text-3xl font-bold bg-yellow-300 text-black px-6 py-3 rounded-full shadow-2xl hover:bg-yellow-500">+</a>
         {% else %}
             <div class="text-center space-y-2 ">
                 <h1 class="text-2xl text-amber-50">You have no boards</h1>
@@ -25,4 +28,53 @@
             </div>
         {% endif %}
     </div>
+        <!--Acts as the blurred background to cover main page-->
+    <div id="modal-backdrop" class="hidden fixed inset-0 z-90 bg-black/50 backdrop-blur-sm"></div>
+    <!--Permanently Delete Board Modal Popup-->
+    <div id="delete-board-confirm" class="hidden flex flex-col fixed inset-x-[25%] inset-y-[40%] w-[50%] h-[6vw] rounded-2xl bg-gray-700 z-100 justify-content-center align-items-center">
+        <h2 class="text-2xl text-white text-center pb-3">Do you want to permanently delete this Board?</h2>
+        <form method="POST" action="{% url 'deleteBoard' %}">
+            {% csrf_token %}
+            <input type="hidden" id="modal-board-id" name="board_id">
+            <button type="submit" class="bg-red-500 py-1 rounded w-fit h-fit text-lg font-bold px-4 hover:bg-red-800">Delete</button>
+        </form>
+        <button onclick="closeDeleteBoard()" class="absolute top-2 right-2 bg-red-600 rounded px-2 text-white hover:bg-red-800">X</button>
+    </div>
+    <script>
+        const deleteBoardBtn = document.querySelectorAll('.deleteBoardBtn');
+        const confirmDeleteBoard = document.getElementById('delete-board-confirm');
+        const confirmDelete = document.getElementById('confirm-delete');
+        const modalBoardId = document.getElementById('modal-board-id');
+        const modalBackdrop = document.getElementById('modal-backdrop');
+
+        function closeDeleteBoard(){
+            if(!confirmDeleteBoard.classList.contains('hidden')) {
+                confirmDeleteBoard.classList.add('hidden')
+                modalBackdrop.classList.add('hidden');
+            }
+        }
+
+        modalBackdrop.addEventListener('click', () => {
+            if(!modalBackdrop.classList.contains('hidden')) {
+                modalBackdrop.classList.add('hidden');
+                confirmDeleteBoard.classList.add('hidden');
+            }
+        })
+
+        deleteBoardBtn.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                modalBoardId.value = btn.dataset.id
+                console.log(modalBoardId);
+                if(confirmDeleteBoard.classList.contains('hidden')){
+                    confirmDeleteBoard.classList.remove('hidden');
+                    modalBackdrop.classList.remove('hidden');
+                }
+            });
+        });
+
+
+
+    </script>
 {% endblock %}

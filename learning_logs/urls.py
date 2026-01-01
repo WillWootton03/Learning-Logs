@@ -20,7 +20,7 @@ from django.contrib.auth.views import LogoutView
 
 from accounts.views import home
 from accounts.views import signIn, register
-from dashboard.views import home, boards, newBoard, boardPage, newConcept, conceptPage, conceptToggleTags, deleteTag, updateConcept, deleteConcept, createTag, uploadConceptsCSV
+from dashboard.views import home, boards, newBoard, boardPage, newConcept, conceptPage, conceptToggleTags, deleteTag, updateConcept, deleteConcept, createTag, uploadConceptsCSV, deleteBoard
 from user_logs.views import newLog, logBreakdown, deleteLog
 from study_session.views import sessionSettingsToggleTags, newSessionSettings, updateSessionSettings, deleteSessionSettings, sessionStart, sessionPage, submitAnswer, newQuestion
 
@@ -38,7 +38,7 @@ urlpatterns = [
     path('dashboard/', boards, name='dashboard'),
     path('newBoard/', newBoard, name='newBoard'),
     path('board/<uuid:board_id>/', boardPage, name='boardPage'),
-    path('board/<uuid:board_id>/newConcept/', newConcept, name='newConcept'),
+    path('board/delete/', deleteBoard, name='deleteBoard'),
 
     # All Tag URLs
     path('board/<uuid:board_id>/<uuid:concept_id>/<uuid:tag_id>/toggle/', conceptToggleTags, name='toggleTags'),
@@ -46,6 +46,7 @@ urlpatterns = [
     path('board/<uuid:board_id>/tags/createTag/', createTag, name='createTag'),
 
     # All Concept URLs
+    path('board/<uuid:board_id>/newConcept/', newConcept, name='newConcept'),
     path('board/<uuid:board_id>/concepts/<uuid:concept_id>/', conceptPage, name='conceptPage'),
     path('concept/update/<uuid:concept_id>/', updateConcept, name='updateConcept'),
     path('concept/delete/<uuid:concept_id>/', deleteConcept, name='deleteConcept'),

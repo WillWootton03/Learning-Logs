@@ -8,8 +8,8 @@
 <div class="flex flex-box mx-20 pt-24 h-[calc(100vh-3rem)]">
     <div class="grid grid-cols-2 w-full h-full gap-x-4">
         <!--Left Column-->
-        <div class="px-10 py-8 relative">
-            <div class="bg-gray-700 text-white text-center w-full rounded-2xl shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-700 focus-within:shadow-purple-700 focus-within:shadow-[0_0px_15px_rgba(0,0,0,0.9)]">
+        <div class="px-10 py-8 relative flex flex-col justify-between">
+            <div class=" bg-gray-700 text-white text-center w-full rounded-2xl shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-700 focus-within:shadow-purple-700 focus-within:shadow-[0_0px_15px_rgba(0,0,0,0.9)]">
                 {{ form.title }}
             </div>
 
@@ -24,7 +24,10 @@
                 <h2 class="text-2xl text-white px-2 py-3 text-center font-bold">Log Tags</h2>      
                 <button class="absolute top-2.5 right-2.5 bg-blue-300 px-3 py-2.5 rounded-2xl font-bold">+</button>
             </div>
-            <button type="submit" class="absolute bottom-10 left-[45%] bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-900 hover:bg-gray-800">Submit</button>
+            <div class="mt-auto mx-auto">
+                <a href="{% url 'boardPage' board.id %}" class="bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-red-600 hover:bg-gray-800">Cancel</a>
+                <button type="submit" class=" bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-900 hover:bg-gray-800">Submit</button>
+            </div>
         </div>
         <!--Right Column-->
         <div class="px-24 py-8">
