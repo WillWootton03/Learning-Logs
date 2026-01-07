@@ -90,7 +90,7 @@ def newConcept(request, board_id):
             concept.board = board
             concept.save()
 
-            return redirect('boardPage', board_id = board.id)
+            return redirect('conceptPage', board_id = board.id, concept_id= concept.id)
     else:
         form = NewConcept()
 
@@ -198,6 +198,8 @@ def boardPage(request, board_id):
     knownConcepts=Concept.objects.filter(board=board, known=True)
     unknownConcepts=Concept.objects.filter(board=board, unknown=True)
     learningConcepts=Concept.objects.filter(board=board, known=False, unknown=False)
+    conceptsCount = len(Concept.objects.filter(board=board))
+    tagsCount = len(Tag.objects.filter(board=board))
 
     graphLabels = ['Known Concepts', 'Learning Concepts', 'Unknown Concepts']
     graphValues = [knownConcepts.count(), learningConcepts.count(), unknownConcepts.count()]
@@ -222,7 +224,7 @@ def boardPage(request, board_id):
     uri = "data:image/png;base64," + urllib.parse.quote(string)
 
 
-    return render(request, 'dashboard/boardPage.html', {'board' : board, 'logs' : logs, 'knownConcepts' : knownConcepts, 'unknownConcepts' : unknownConcepts, 'learningConcepts' : learningConcepts, 'chart' : uri, 'sessions' : sessions })
+    return render(request, 'dashboard/boardPage.html', {'board' : board, 'logs' : logs, 'knownConcepts' : knownConcepts, 'unknownConcepts' : unknownConcepts, 'learningConcepts' : learningConcepts, 'chart' : uri, 'sessions' : sessions, 'conceptsCount' : conceptsCount, 'tagsCount' : tagsCount })
 
 
 @login_required
@@ -234,10 +236,11 @@ def loadConceptsCSV(request, board_id):
             loadTags = request.POST.getlist('newTags') 
 
             tagObjects = [Tag.objects.create(name=name, board=board) for name in loadTags]
+            allTags = Tag.objects.filter(board=board)
 
             for concept in loadConcepts:
                 conceptObject = Concept.objects.create(answer=concept['answer'], definition=concept['definition'], hint=concept['hint'], board=board)
-                conceptObject.tags.set(tag for tag in tagObjects if tag.name in concept['tags'])
+                conceptObject.tags.set(tag for tag in allTags if tag.name in concept['tags'])
 
             return JsonResponse({'success' : True})
 
@@ -295,3 +298,15 @@ def deleteBoard(request):
     if board:
         board.delete()
     return redirect('dashboard')
+
+@login_required
+def deleteAllConcepts(request, board_id):
+    board = Board.objects.get(id=board_id)
+    board.concepts.all().delete()
+    return redirect('boardPage', board_id)
+
+@login_required
+def deleteAllTags(request, board_id):
+    board = Board.objects.get(id=board_id)
+    board.tags.all().delete()
+    return redirect('boardPage', board_id)
