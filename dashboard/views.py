@@ -193,7 +193,7 @@ def deleteConcept(request, concept_id):
 def boardPage(request, board_id):
     board = Board.objects.get(id=board_id)
     logs = board.logs.all().order_by('-dateAdded')
-
+    sessions = board.sessions.order_by('-dateAdded')
 
     knownConcepts=Concept.objects.filter(board=board, known=True)
     unknownConcepts=Concept.objects.filter(board=board, unknown=True)
@@ -222,7 +222,7 @@ def boardPage(request, board_id):
     uri = "data:image/png;base64," + urllib.parse.quote(string)
 
 
-    return render(request, 'dashboard/boardPage.html', {'board' : board, 'logs' : logs, 'knownConcepts' : knownConcepts, 'unknownConcepts' : unknownConcepts, 'learningConcepts' : learningConcepts, 'chart' : uri })
+    return render(request, 'dashboard/boardPage.html', {'board' : board, 'logs' : logs, 'knownConcepts' : knownConcepts, 'unknownConcepts' : unknownConcepts, 'learningConcepts' : learningConcepts, 'chart' : uri, 'sessions' : sessions })
 
 
 @login_required

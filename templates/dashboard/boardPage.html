@@ -52,7 +52,7 @@
             <div class="w-full h-full flex flex-col bg-gray-700 rounded-2xl relative shadow-md overflow-y-auto shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-700">
                 <h2 class="text-3xl font-bold mt-2 mb-4 text-center text-white cursor-default drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">My Study Sessions</h2>
                 <div class="w-full h-full flex flex-col overflow-y-auto auto-rows-min">
-                {% for session in board.sessions.all|slice:"::-1" %}
+                {% for session in sessions %}
                     <a href="#" data-id="{{ session.id }}" class="bg-blue-300 w-[90%] h-[10%] py-2 rounded-2xl ml-[5%] my-2 flex justify-between items-center px-6">
                         <p class="text-right px-4">
                             <span class='local-time' data-time="{{ session.dateAdded|date:'c' }}"></span>
