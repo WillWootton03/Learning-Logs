@@ -20,7 +20,7 @@ from django.contrib.auth.views import LogoutView
 
 from accounts.views import home
 from accounts.views import signIn, register
-from dashboard.views import home, boards, newBoard, boardPage, newConcept, conceptPage, conceptToggleTags, deleteTag, updateConcept, deleteConcept, createTag, uploadConceptsCSV, deleteBoard
+from dashboard.views import home, boards, newBoard, boardPage, newConcept, conceptPage, conceptToggleTags, deleteTag, updateConcept, deleteConcept, createTag, deleteBoard, fileUpload, loadConceptsCSV
 from user_logs.views import newLog, logBreakdown, deleteLog
 from study_session.views import sessionSettingsToggleTags, newSessionSettings, updateSessionSettings, deleteSessionSettings, sessionStart, sessionPage, submitAnswer, newQuestion
 
@@ -48,9 +48,11 @@ urlpatterns = [
     # All Concept URLs
     path('board/<uuid:board_id>/newConcept/', newConcept, name='newConcept'),
     path('board/<uuid:board_id>/concepts/<uuid:concept_id>/', conceptPage, name='conceptPage'),
+    path('board/<uuid:board_id>/concepts/<uuid:concept_id>/session/<uuid:session_id>/', conceptPage, name='sessionEditConcept'),
     path('concept/update/<uuid:concept_id>/', updateConcept, name='updateConcept'),
     path('concept/delete/<uuid:concept_id>/', deleteConcept, name='deleteConcept'),
-    path('board/<uuid:board_id>/uploadConcepts/', uploadConceptsCSV, name='uploadConceptsCSV'),
+    path('board/<uuid:board_id>/uploadConcepts/', loadConceptsCSV, name='uploadConceptsCSV'),
+    path('board/<uuid:board_id>/addConcepts/', fileUpload, name='addConcepts'),
 
     # All Logs URLs
     path('logs/newLog/<uuid:board_id>/', newLog, name='newLog'),

@@ -4,16 +4,25 @@
 <div id="page-wrapper" class="flex flex-box mx-auto pt-24 justify-center h-[calc(100vh-3rem)] w-[90%] transition-all duration-200">
     <div class="h-full w-[95%] bg-gray-800 rounded-2xl shadow-md shadow-black flex flex-col gap-y-12 px-20 justify-center text-center items-center relative">
             <h2 id="question-answer" class="bg-gray-700 px-3 py-3 max-h-[40vh] max-w-[80vw] rounded text-white font-bold text-center flex items-center justify-center shadow-[0_0px_15px_rgba(0,0,0,0.9)] shadow-purple-600 cursor-default">{{ question.answer }}</h2>
-            <form method="POST" id="answer-form" action="{% url 'submitAnswer' board.id session.id %}" class="flex flex-col gap-y-4" >
-                {% csrf_token %}
-                <input id="answer-input" required name="answer-input" autocomplete="off" 
-                class="bg-gray-600 text-2xl py-2 focus:shadow-[0_0px_15px_rgba(0,0,0,0.9)] shadow-md shadow-black focus:shadow-purple-600 focus:border-purple-800 focus:outline-0 text-center rounded border-3 border-purple-950 text-white" 
-                placeholder="Answer" />
-                <h2 id="correct-answer" class="hidden text-2xl text-white"></h2>
-                <button id="submit-button" type="submit" class="text-center bg-blue-800 text-white px-10 py-3 shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-blue-600 hover:bg-blue-600 font-bold text-2xl rounded-2xl mb-3 flex flex-col">Submit</button>
-                <input type="hidden" name="question_id" value="{{ question.id }}" />
-            </form>
-            <a href="{% url 'boardPage' board.id %}" class="absolute top-4 right-4 px-3 py-2 bg-red-600 rounded-3xl text-lg text-white shadow-md shadow-black">X</a>
+            <div class="flex flex-col gap-y-4 align-items-center">
+                <form method="POST" id="answer-form" action="{% url 'submitAnswer' board.id session.id %}" class="flex flex-col gap-y-4 align-items-center" >
+                    {% csrf_token %}
+                    <input id="answer-input" required name="answer-input" autocomplete="off" 
+                    class="bg-gray-600 text-2xl py-2 focus:shadow-[0_0px_15px_rgba(0,0,0,0.9)] shadow-md shadow-black focus:shadow-purple-600 focus:border-purple-800 focus:outline-0 text-center rounded border-3 border-purple-950 text-white" 
+                    placeholder="Answer" />
+                    <h2 id="correct-answer" class="hidden text-2xl text-white"></h2>
+                    <button id="submit-button" type="submit" class="text-center bg-blue-800 text-white px-10 w-full py-3 shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-blue-600 hover:bg-blue-600 font-bold text-2xl rounded-2xl">Submit</button>
+                    <input type="hidden" name="question_id" value="{{ question.id }}" />
+                </form>
+                    <div class="h-fit w-fit flex flex-row gap-x-3">
+                        <button id="hint-button" class="w-full text-center bg-orange-400 text-white px-10 py-3 shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-orange-300 hover:bg-orange-300 font-bold text-2xl rounded-2xl">Hint</button>
+                        <a href="{% url 'sessionEditConcept' board.id question.id session.id %}" id="edit-button" class="hidden w-full text-center bg-indigo-500 text-white px-10 py-3 shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-indigo-400 hover:bg-indigo-400 font-bold text-2xl rounded-2xl">Edit</a>
+                    </div>
+                <a href="{% url 'boardPage' board.id %}" class="absolute top-4 right-4 px-3 py-2 bg-red-600 rounded-3xl text-lg text-white shadow-md shadow-black">X</a>
+                <div id="hint" class="hidden h-max-[20%] w-max-[80%] h-fit w-fit bg-gray-700 text-2xl text-white px-2 py-2 rounded shadow-[0_0px_15px_rgba(0,0,0,0.9)] shadow-orange-400">
+                        <p>{{ question.hint }}</p>
+                    </div>
+            </div>
     </div>
 </div>
 
@@ -32,6 +41,9 @@
     const questionId = answerForm.querySelector('[name="question_id"]');
     const submitButton = document.getElementById('submit-button');
     const correctAnswer = document.getElementById('correct-answer');
+    const hintBtn = document.getElementById('hint-button');
+    const editBtn = document.getElementById('edit-button');
+    const hint = document.getElementById('hint');
 
     let canSubmitAnswer = true;
 
@@ -62,6 +74,7 @@
             submitButton.textContent = 'Next';
             submitButton.classList.remove('bg-blue-800', 'hover:bg-blue-600', 'hover:shadow-blue-600');
             submitButton.classList.add('bg-green-600', 'hover:bg-green-600', 'hover:shadow-green-600');
+            editBtn.classList.remove('hidden');
             canSubmitAnswer = false;
             if(data.result) {
                 questionAnswer.classList.add('shadow-green-600');
@@ -73,7 +86,7 @@
                 answerInput.classList.add('shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'border-red-500', 'shadow-red-500', 'focus:border-red-500', 'focus:shadow-red-500');
                 correctAnswer.classList.remove('hidden');
                 correctAnswer.textContent = data.answer;
-            }
+            }     
         } else {
             alert('Something Went Wrong');
         }
@@ -105,6 +118,7 @@
             answerInput.classList.remove('shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'shadow','border-green-500', 'shadow-green-500', 'focus:border-green-500', 'focus:shadow-green-500');
             answerInput.classList.remove('shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'border-red-500', 'shadow-red-500', 'focus:border-red-500', 'focus:shadow-red-500');
             answerInput.classList.add('shadow-md');
+            editBtn.classList.add('hidden');
             if(!correctAnswer.classList.contains('hidden')) correctAnswer.classList.add('hidden');
             answerForm.reset();
             canSubmitAnswer = true;
@@ -112,6 +126,10 @@
             alert('Fail');
         }
     }
+
+    hintBtn.addEventListener('click', () => {
+        hint.classList.toggle('hidden');
+    });
 
     answerInput.addEventListener('keydown', async (e) => {
         if(e.key === 'Enter'){
@@ -135,7 +153,7 @@
         }
     });
 
-    // Allows to make sure when reloading the page you are redirected back to the main page and cant continue that learning session
+/*    // Allows to make sure when reloading the page you are redirected back to the main page and cant continue that learning session
     window.addEventListener('load', () => {
         const navigationEntries = performance.getEntriesByType('navigation');
         const type = navigationEntries.length > 0 ? navigationEntries[0].type : null
@@ -143,6 +161,6 @@
             window.location.href = `/board/${boardId}/`;
         }
     });
-
+*/
 </script>
 {% endblock %}

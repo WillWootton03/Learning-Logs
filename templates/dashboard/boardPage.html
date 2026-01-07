@@ -2,6 +2,8 @@
 {% load static tailwind_tags %}
 
 {% block content %}
+    <meta name="csrf_token" content="{{ csrf_token }}">
+
     <div class="flex flex-box mx-5 pt-24 h-[calc(100vh-3rem)]">
         <div class="grid grid-cols-[1fr_2fr] grid-rows-2 gap-x-20 gap-y-10 w-full h-full">
 
@@ -75,7 +77,7 @@
                 <div class="flex flex-row h-[15%] relative px-3 gap-x-8 align-items-center">
                     <div class="h-full w-fit align-content-center pb-2">
                         <button id="known-concepts-button" class="bg-gray-500 px-2 text-xl text-green-300 font-bold py-2 rounded hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-green-500 hover:bg-gray-500 hover:text-green-500 active:border-green-500 border-4 border-transparent">Known</button>
-                        <button id="learning-concepts-button" class="bg-gray-500 px-2 text-xl text-yellow-200 font-bold py-2 rounded hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-yellow-500 hover:bg-gray-500 hover:text-yellow-300 active:border-yellow-500 border-4 border-transparent">Learning</button>
+                        <button id="learning-concepts-button" class="bg-gray-500 px-2 text-xl text-yellow-200 font-bold py-2 rounded hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-yellow-400 hover:bg-gray-500 hover:text-yellow-300 active:border-yellow-500 border-4 border-transparent">Learning</button>
                         <button id="unknown-concepts-button" class="bg-gray-500 px-2 text-xl text-red-300 font-bold py-2 rounded hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-red-500 hover:bg-gray-500 hover:text-red-500 active:border-red-500 border-4 border-transparent">Unknown</button>
                         <button id="clear-concepts-button" class="bg-gray-500 px-2 text-xl text-blue-300 font-bold py-2 rounded hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-blue-500 hover:bg-gray-500 hover:text-blue-500 active:border-blue-500 border-4 border-transparent">Clear</button>
                     </div>
@@ -90,7 +92,7 @@
                             </a>
                     {% endfor %}
                     {% for concept in learningConcepts %}
-                        <a id="{{ concept.id }}" data-answer="{{ concept.answer }}" data-definition="{{ concept.definition }}" href="{% url 'conceptPage' board_id=board.id concept_id=concept.id%}" class="conceptButton learningConcept bg-yellow-700 rounded-2xl py-1 justify-items-center border text-white text-lg border-black shadow-md shadow-black hover:bg-yellow-900">
+                        <a id="{{ concept.id }}" data-answer="{{ concept.answer }}" data-definition="{{ concept.definition }}" href="{% url 'conceptPage' board_id=board.id concept_id=concept.id%}" class="conceptButton learningConcept bg-yellow-600 rounded-2xl py-1 justify-items-center border text-white text-lg border-black shadow-md shadow-black hover:bg-yellow-800">
                             <h2 class="font-medium mx-2 my-2">{{ concept.answer }}</h2>
                         </a>
                     {% endfor %}
@@ -102,10 +104,10 @@
                 </div>
                 <div id="new-concept-dropdown" class="hidden absolute flex flex-col top-9 right-8 bg-gray-800 gap-y-2 py-2 px-2 w-fit h-fit rounded shadow-md shadow-black"> 
                     <a href="{% url 'newConcept' board.id %}" class="bg-gray-600 px-2 py-1 text-white text-md font-bold rounded hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-700 hover:bg-gray-500">Create New Concept</a>
-                    <form id="upload-csv" method="POST" enctype="multipart/form-data" action="{% url 'uploadConceptsCSV' board.id %}">
+                    <form id="upload-csv" method="POST" action="{% url 'addConcepts' board.id%}">
                         {% csrf_token %}
                         <div class="bg-gray-600 justify-items-center px-2 py-1 text-white text-md font-bold rounded hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-700 hover:bg-gray-500 flex-row justify-between ">
-                            <label for="concept-file" class="cursor-pointer">Upload Concept CSV</label>
+                            <label for="concept-file" action="{% url 'uploadConceptsCSV' board.id %}" class="cursor-pointer">Upload Concept CSV</label>
                             <input type="file" id="concept-file" name="concept-file" accept=".csv" class="hidden" />
                         </div>
                     </form>
@@ -126,9 +128,18 @@
             </a>
         {% endfor %}
     </div>
+    <!--Confirm Adding CSV File-->
+    <div id="csv-confirm-modal" class="hidden flex flex-col fixed inset-x-[25%] inset-y-[40%] w-[50%] h-fit py-2 gap-y-4 rounded-2xl bg-gray-700 z-100 justify-content-center align-items-center">
+        <h2 id="csv-concept-text" class="text-2xl text-white text-center"></h2>
+        <h2 id="csv-tag-text" class="text-2xl text-white text-center"></h2>
+        <button id="confirm-csv-upload" class="bg-red-500 py-1 rounded w-fit h-fit text-lg font-bold px-4 hover:bg-red-800">Upload</button>
+        <button id="cancel-csv-upload" class="absolute top-2 right-2 bg-red-600 rounded px-2 text-white hover:bg-red-800">X</button>
+    </div>
     <script>
-
-        const sessionsSettingsDropdown = document.getElementById('sessions-settings-dropdown')
+        const boardID = "{{ board.id }}";
+        const newTags = "{{ newTags }}" || null;
+        const newConcepts = "{{ newConcepts }}" || null;
+        const sessionsSettingsDropdown = document.getElementById('sessions-settings-dropdown');
         const toggleSessionsSettingsDropdown = document.getElementById('toggle-sessions-settings');
         const modalBackdrop = document.getElementById('modal-backdrop');
         const loadSessionsSettings = document.getElementById('load-sessions-settings');
@@ -138,6 +149,11 @@
 
         const conceptCSVInput = document.getElementById('concept-file');
         const uploadCSVForm = document.getElementById('upload-csv');
+        const confirmCSV = document.getElementById('csv-confirm-modal');
+        const csvConceptText = document.getElementById('csv-concept-text');
+        const csvTagText = document.getElementById('csv-tag-text');
+        const confirmCSVUpload = document.getElementById('confirm-csv-upload');
+        const cancelCSVUpload = document.getElementById('cancel-csv-upload');
 
         const knownConceptsButton = document.getElementById('known-concepts-button');
         const learningConceptsButton = document.getElementById('learning-concepts-button');
@@ -148,6 +164,7 @@
         const learningConcepts = document.querySelectorAll('.learningConcept');
         const unknownConcepts = document.querySelectorAll('.unknownConcept');
         const conceptSearch = document.getElementById('concept-search');
+        const csrfToken = document.querySelector('meta[name=csrf_token]').getAttribute('content');
 
         knownConceptsButton.addEventListener('click', () => {
             learningConcepts.forEach(btn => {
@@ -194,11 +211,63 @@
             });
         });
 
+        cancelCSVUpload.addEventListener('click', () => {
+            confirmCSV.classList.toggle('hidden');
+        });
 
         conceptCSVInput.addEventListener('change', () => {
             if(conceptCSVInput.files.length) {
-                uploadCSVForm.submit();
-            }
+
+                const formData = new FormData();
+                formData.append('file', conceptCSVInput.files[0]);
+                formData.append('confirm', false);
+
+                fetch(`/board/${boardID}/uploadConcepts/`, {
+                    method : 'POST',
+                    headers : {
+                        'X-CSRFToken' : csrfToken
+                    },
+                    body : formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success) {
+                        confirmCSV.classList.toggle('hidden');
+
+                        const newConceptsCount = data.newConceptsCount ?? 0;
+                        const newTagsCount = data.newTags.length ?? 0;
+
+                        csvConceptText.textContent = `Are you sure you want to add ${newConceptsCount} new concepts?`;
+                        csvTagText.textContent = `Are you sure you want to add ${newTagsCount} new tags?`;
+                        confirmCSVUpload.addEventListener('click', () =>{
+                            const confirmFormData = new FormData();
+                            confirmFormData.append('confirm', true)
+                            data.newTags.forEach(tag => {
+                                confirmFormData.append('newTags', tag);
+                            });
+                            data.newConcepts.forEach(concept => {
+                               confirmFormData.append('newConcepts', JSON.stringify(concept)); 
+                            });
+                            fetch(`/board/${boardID}/uploadConcepts/`, {
+                                method : 'POST',
+                                headers : {
+                                    'X-CSRFToken' : csrfToken
+                                },
+                                body : confirmFormData 
+                            })
+                            .then(res => res.json())
+                            .then(res => {
+                                if(res.success) {
+                                    window.location.reload();
+                                } else {
+                                    console.error('Failed Upload', error);
+                                }
+                            });
+                        });
+                    }
+                })
+                .catch(err => console.error('Upload Failed', err))
+            } else console.error('No File Detected');
         });
         
         loadSessionsSettings.addEventListener('click', (e) => {
@@ -214,7 +283,7 @@
         toggleNewConceptBtn.addEventListener('click', (e) => {
             newConceptDropdown.classList.toggle('hidden')
         })
-        
+    
         document.addEventListener('click', (e) => {
             if(!newConceptDropdown.contains(e.target) && !newConceptDropdown.classList.contains('hidden') && !toggleNewConceptBtn.contains(e.target)){
                 newConceptDropdown.classList.add('hidden');
@@ -228,23 +297,21 @@
             }
         });
 
-    conceptSearch.addEventListener('input', (e) => {
-        const normalize = str => str.normalize('NFKC');
-        const searchVal = normalize(e.target.value.toLowerCase());
-        conceptButtons.forEach(btn => {
-            console.log(btn.dataset.answer, btn.dataset.definition);
-            const answer = normalize(btn.dataset.answer || '').toLowerCase();
-            const definition = normalize(btn.dataset.definition || '').toLowerCase();
-            if(!answer.includes(searchVal) && !definition.includes(searchVal)) {
-                btn.classList.add('hidden');
-            } else {
-                btn.classList.remove('hidden');
-            }
+        conceptSearch.addEventListener('input', (e) => {
+            const normalize = str => str.normalize('NFKC');
+            const searchVal = normalize(e.target.value.toLowerCase());
+            conceptButtons.forEach(btn => {
+                console.log(btn.dataset.answer, btn.dataset.definition);
+                const answer = normalize(btn.dataset.answer || '').toLowerCase();
+                const definition = normalize(btn.dataset.definition || '').toLowerCase();
+                if(!answer.includes(searchVal) && !definition.includes(searchVal)) {
+                    btn.classList.add('hidden');
+                } else {
+                    btn.classList.remove('hidden');
+                }
+            });
         });
-    });
- 
-
-
+    
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.local-time').forEach(span => {
                 const UTCDate = new Date(span.dataset.time);

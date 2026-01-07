@@ -62,8 +62,8 @@
                     <button id="create-tag" class="text-center bg-gray-700 text-white px-10 py-3 shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-blue-600 hover:bg-gray-900 font-bold text-2xl rounded-2xl mb-3 flex flex-col">Create A New Tag</button>
                 </div>
                     <div class="grid grid-cols-3 w-[90%] h-fit gap-2 py-2">
-                        <a href="{% url 'boardPage' board.id %}" id="submit-button" class="py-2 text-center bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-900 hover:bg-gray-800">Submit</a>
-                        <a href="{% url 'boardPage' board.id %}"class="py-2 text-center bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-yellow-700 hover:bg-gray-800">Cancel</a>
+                        <a href="{% if sessionId %}{% url 'sessionPage' board.id sessionId %}{% else %}{% url 'boardPage' board.id %}{% endif %}" id="submit-button" class="py-2 text-center bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-900 hover:bg-gray-800">Submit</a>
+                        <a href="{% if sessionId %}{% url 'sessionPage' board.id sessionId %}{% else %}{% url 'boardPage' board.id %}{% endif %}"class="py-2 text-center bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-yellow-700 hover:bg-gray-800">Cancel</a>
                         <button id="delete-button" class="py-2 text-center bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-red-500 hover:bg-gray-800">Delete</button>
                     </div>
             </div>
@@ -133,6 +133,7 @@
 
         const boardId = "{{ board.id }}";
         const conceptId = "{{ concept.id }}";
+        const sessionId = "{{ session.id }}" || null;
 
 
         function openModal() {
@@ -249,7 +250,7 @@
                         'X-CSRFToken' : csrfToken,
                         'Content-Type' : 'application/json'
                     },
-                    body : JSON.stringify({answer : answerValue, definition : definitionValue, hint : hintValue, tags : stagedTags})
+                    body : JSON.stringify({answer : answerValue, definition : definitionValue, hint : hintValue, tags : stagedTags, sessionId : sessionId})
             })
             .then(res => res.json())
             .then(data => {

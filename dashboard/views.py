@@ -112,15 +112,19 @@ def createTag(request, board_id):
 
 
 @login_required
-def conceptPage(request, board_id, concept_id):
+def conceptPage(request, board_id, concept_id, session_id = None):
     board = Board.objects.get(id=board_id)
     concept = Concept.objects.get(id=concept_id)
+
+    # If user is editing a concept during a session
+    if session_id is not None:
+        print(session_id)
     
     # Used to get values for initial render of the page
     availableTags_qs = board.tags.exclude(id__in=concept.tags.all().values_list('id', flat=True))
     availableTags = list(availableTags_qs.values('id','name'))
     conceptTags = list(concept.tags.values("id", "name"))
-    return render(request, 'dashboard/conceptPage.html', {'board' : board, 'concept' : concept, 'availableTags' : availableTags, 'conceptTags' : conceptTags})
+    return render(request, 'dashboard/conceptPage.html', {'board' : board, 'concept' : concept, 'availableTags' : availableTags, 'conceptTags' : conceptTags, 'sessionId' : session_id})
 
 @login_required
 def conceptToggleTags(request, board_id, concept_id, tag_id):
@@ -169,6 +173,8 @@ def updateConcept(request, concept_id):
                 tags = Tag.objects.filter(id__in=data['tags'])
                 concept.tags.set(tags)
 
+            if 'sessionId' in data is not None:
+                return redirect('study_session:sessionPage', board.id, data['sessionId'])
 
             return JsonResponse({'success' : True})
 
@@ -218,45 +224,67 @@ def boardPage(request, board_id):
 
     return render(request, 'dashboard/boardPage.html', {'board' : board, 'logs' : logs, 'knownConcepts' : knownConcepts, 'unknownConcepts' : unknownConcepts, 'learningConcepts' : learningConcepts, 'chart' : uri })
 
+
+@login_required
+def loadConceptsCSV(request, board_id):
+    board = Board.objects.get(id=board_id)
+    if request.method =='POST':
+        if request.POST.get('confirm') == 'true':
+            loadConcepts = [json.loads(concept) for concept in request.POST.getlist('newConcepts')]
+            loadTags = request.POST.getlist('newTags') 
+
+            tagObjects = [Tag.objects.create(name=name, board=board) for name in loadTags]
+
+            for concept in loadConcepts:
+                conceptObject = Concept.objects.create(answer=concept['answer'], definition=concept['definition'], hint=concept['hint'], board=board)
+                conceptObject.tags.set(tag for tag in tagObjects if tag.name in concept['tags'])
+
+            return JsonResponse({'success' : True})
+
+        if request.FILES.get('file'):
+            uploadedFile = io.TextIOWrapper(request.FILES['file'].file, encoding='utf-8')
+            reader = csv.DictReader(uploadedFile)
+
+            newConceptsCount = 0
+            newTags = set()
+            concepts = []
+            existingTags = set(tag.name for tag in Tag.objects.filter(board=board))
+            if reader:
+                #Only Appends New Concepts to Concept Model
+                for row in reader:
+                    if not any(row):
+                        continue
+
+                    answer = row['Answer']
+                    definition = row['Definition']
+                    hint = row['Hint']
+                    tags = {tag.strip() for tag in row['Tags'].split(',')} 
+                    
+                    newTags.update(tag for tag in tags if tag not in existingTags)
+                    # Checks for tags in the tag field of file, if tag doesn't exsist creates a new tag and adds it to tags
+                    
+                    # Checks for concept matching when uploading new files
+                    if not Concept.objects.filter(answer=answer, definition=definition, hint=hint, board=board).exists():
+                        concepts.append({'answer' : answer, 'definition' : definition, 'hint': hint, 'tags' : list(tags)})
+                        newConceptsCount += 1
+                return JsonResponse({'success': True, 'newConcepts' : concepts, 'newTags': list(newTags), 'newConceptsCount' : newConceptsCount})
+
+        return JsonResponse({'success' : False})
+
 import csv
 import io
 @login_required
-@require_POST
-def uploadConceptsCSV(request, board_id):
+def fileUpload(request, board_id):
+    data = json.loads(request.body)
     board = Board.objects.get(id=board_id)
-    if request.method == 'POST' and request.FILES.get('concept-file'):
-        uploadedFile = io.TextIOWrapper(request.FILES['concept-file'].file, encoding='utf-8')
-        reader = csv.DictReader(uploadedFile)
-        if reader:
-            print('reader')
-        #Only Appends New Concepts to Concept Model
-        for row in reader:
-            if not any(row):
-                continue
-            answer = row['Answer']
-            definition = row['Definition']
-            hint = row['Hint']
-            tags = [tag.strip() for tag in row['Tags'].split(',') if tag.strip()] 
-            print(answer)
-
-            existingTags = {tag.name: tag for tag in Tag.objects.all()}
-
-            tagObjects = []
-            for tagName in tags:
-                if tagName in existingTags:
-                    tagObjects.append(existingTags[tagName])
-                else:
-                    newTag = Tag.objects.create(name=tagName, board=board)        
-                    existingTags[tagName] = newTag
-                    tagObjects.append(newTag)
-
-            if not Concept.objects.filter(answer=answer, definition=definition, hint=hint).exists():
-                print(answer)
-                concept = Concept.objects.create(board=board, answer=answer, definition=definition, hint=hint)
-                concept.tags.set(tagObjects)
-
-        return redirect('boardPage', board_id)
-
+    if data:
+        if 'newTags' in data:
+            for tagName in data['newTags']:
+                Tag.objects.create(name=tagName, board=board)
+        if 'newConcepts' in data:
+            for concept in data['newConcepts']:
+                concept = Concept.objects.create(board=board, answer=concept, definition=concept['definition'], hint=concept['hint'])
+                concept.tags.set(concept['tags'])
     return redirect('boardPage', board_id)
 
 @login_required
