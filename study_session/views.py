@@ -134,7 +134,6 @@ def newQuestion(request, board_id, session_id):
     concepts = session.concepts.exclude(id=questionId)
     if concepts.exists():
         question = random.choice(concepts)
-
     return JsonResponse({'success' : True, 'questionAnswer' : question.answer, 'questionId' : question.id })
 
 @login_required
@@ -150,7 +149,9 @@ def submitAnswer(request, board_id, session_id):
             question_id = uuid.UUID(question_id)
             concept = Concept.objects.get(id=question_id)
             if(concept):
-                result =  (submitedAnswer == concept.definition.strip().lower())
+                acceptableDefinitions = concept.definition.strip().lower().split('/')
+                print(acceptableDefinitions)
+                result = (submitedAnswer in acceptableDefinitions)
                 if result:
                     session.correctAnswers += 1
                     concept.count += 1
