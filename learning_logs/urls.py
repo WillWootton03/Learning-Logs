@@ -20,7 +20,7 @@ from django.contrib.auth.views import LogoutView
 
 from accounts.views import home
 from accounts.views import signIn, register
-from dashboard.views import home, boards, newBoard, boardPage, newConcept, conceptPage, conceptToggleTags, deleteTag, updateConcept, deleteConcept, createTag, deleteBoard, fileUpload, loadConceptsCSV, deleteAllConcepts, deleteAllTags, removeQuestion, addQuestion
+from dashboard.views import home, boards, newBoard, boardPage, newConcept, conceptPage, conceptToggleTags, deleteTag, updateConcept, deleteConcept, createTag, deleteBoard, fileUpload, loadConceptsCSV, deleteAllConcepts, deleteAllTags
 from user_logs.views import newLog, logBreakdown, deleteLog
 from study_session.views import sessionSettingsToggleTags, newSessionSettings, updateSessionSettings, deleteSessionSettings, sessionStart, sessionPage, submitAnswer, newQuestion
 
@@ -55,8 +55,6 @@ urlpatterns = [
     path('board/<uuid:board_id>/addConcepts/', fileUpload, name='addConcepts'),
     path('board/<uuid:board_id>/deleteAllConcepts/', deleteAllConcepts, name='deleteAllConcepts'),
     path('board/<uuid:board_id>/deleteAllTags/', deleteAllTags, name='deleteAllTags'),
-    path('board/<uuid:board_id>/concept/<uuid:concept_id>/removeQuestion/', removeQuestion, name='removeQuestion'),
-    path('board/<uuid:board_id>/concept/<uuid:concept_id>/addQuestion/', addQuestion, name='addQuestion'),
 
     # All Logs URLs
     path('logs/newLog/<uuid:board_id>/', newLog, name='newLog'),

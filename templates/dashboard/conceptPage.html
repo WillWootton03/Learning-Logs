@@ -161,6 +161,7 @@
         const addQuestion = document.getElementById('add-question');
 
         let stagedTags = [];
+        let stagedQuestions = [];
 
         const boardId = "{{ board.id }}";
         const conceptId = "{{ concept.id }}";
@@ -233,73 +234,46 @@
         availableQuestionsDropdown.addEventListener('click', (e) => {
             const btn = e.target.closest('.available-question');
             if (!btn) return;
-            fetch(`/board/${boardId}/concept/${conceptId}/addQuestion/`, {
-                method : 'POST',
-                headers : {
-                    'X-CSRFToken' : csrfToken,
-                    'Conent-Type' : 'application/json'
-                },
-                body : JSON.stringify({title : btn.dataset.title })
-            })
-            .then(res => res.json())
-            .then(data => {
                 availableQuestionsDropdown.classList.toggle('hidden');
-                if(data.success) {
-                    const newQuestionBtn = document.createElement('div');
-                    newQuestionBtn.classList.add("question-button", "flex", "flex-row", "gap-x-4", "cursor-default", "text-center", "px-2", "py-2", "bg-gray-700", "text-white", "rounded-lg", "hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)]", "shadow-md", "shadow-black", "hover:shadow-purple-900", "hover:bg-gray-900", "w-full", "relative", "text-white", "text-xl");
-                    newQuestionBtn.dataset.title = btn.dataset.title;
-                    newQuestionBtn.textContent = btn.dataset.title.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-                    
-                    const removeBtn = document.createElement('button');
-                    removeBtn.classList.add("remove-question", "bg-red-500", "text-white", "font-bold", "px-2", "rounded", "hover:bg-red-900");
-                    removeBtn.dataset.title = btn.dataset.title;
-                    removeBtn.textContent = 'X';
-                    newQuestionBtn.appendChild(removeBtn);
+                const newQuestionBtn = document.createElement('div');
+                newQuestionBtn.classList.add("question-button", "flex", "flex-row", "gap-x-4", "cursor-default", "text-center", "px-2", "py-2", "bg-gray-700", "text-white", "rounded-lg", "hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)]", "shadow-md", "shadow-black", "hover:shadow-purple-900", "hover:bg-gray-900", "w-fit", "relative", "text-white", "text-xl");
+                newQuestionBtn.dataset.title = btn.dataset.title;
+                newQuestionBtn.textContent = btn.dataset.title.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.classList.add("remove-question", "bg-red-500", "text-white", "font-bold", "px-2", "rounded", "hover:bg-red-900");
+                removeBtn.dataset.title = btn.dataset.title;
+                removeBtn.textContent = 'X';
+                newQuestionBtn.appendChild(removeBtn);
 
-                    availableQuestionBtns = document.querySelectorAll('.available-question');
-                    removeQuestionBtns = document.querySelectorAll('.remove-question');
+                availableQuestionBtns = document.querySelectorAll('.available-question');
+                removeQuestionBtns = document.querySelectorAll('.remove-question');
 
-                    questionContainer.append(newQuestionBtn);
-                    availableQuestionsDropdown.removeChild(btn);
+                questionContainer.append(newQuestionBtn);
+                stagedQuestions.push(btn.dataset.title);
+                availableQuestionsDropdown.removeChild(btn);
 
-                }
-            }) .catch(err => console.error(err));
-        });
+            });
 
 
         questionContainer.addEventListener('click', (e) => {
             const questionBtn = e.target.closest('.remove-question');
             if(!questionBtn) return;
             if(questionContainer.children.length > 1) {
-                fetch(`/board/${boardId}/concept/${conceptId}/removeQuestion/`, {
-                    method : 'POST',
-                    headers : {
-                        'X-CSRFToken' : csrfToken,
-                        'Content-Type' : 'application/json'
-                    },
-                    body : JSON.stringify({title: questionBtn.dataset.title })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if(data.success){
-                        const btn = questionBtn.closest('.question-button');
+                const btn = questionBtn.closest('.question-button');
 
-                        const newAvailableQuestion = document.createElement('div');
-                        newAvailableQuestion.classList.add("available-question", "cursor-pointer", "h-fit", "w-[95%]", "bg-gray-500", "text-center", "text-white", "rounded", "text-lg", "font-bold")
-                        newAvailableQuestion.textContent = btn.dataset.title.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-                        newAvailableQuestion.dataset.title = btn.dataset.title;
+                const newAvailableQuestion = document.createElement('div');
+                newAvailableQuestion.classList.add("available-question", "cursor-pointer", "h-fit", "w-[95%]", "bg-gray-500", "text-center", "text-white", "rounded", "text-lg", "font-bold")
+                newAvailableQuestion.textContent = btn.dataset.title.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+                newAvailableQuestion.dataset.title = btn.dataset.title;
 
 
-                        availableQuestionsDropdown.append(newAvailableQuestion);
-                        questionContainer.removeChild(btn);
+                availableQuestionsDropdown.append(newAvailableQuestion);
+                stagedQuestions = stagedQuestions.filter(title => title !== btn.dataset.title);
+                questionContainer.removeChild(btn);
+            } 
+                });
 
-                    } else {
-                        console.log('Something Went Wrong');
-                    }
-                })
-                .catch(err => console.error(err));
-            }
-        });
 
     tagSearch.addEventListener('input', (e) => { 
         const conceptTagBtns = document.querySelectorAll('.conceptTag');
@@ -359,7 +333,7 @@
                         'X-CSRFToken' : csrfToken,
                         'Content-Type' : 'application/json'
                     },
-                    body : JSON.stringify({answer : answerValue, definition : definitionValue, hint : hintValue, tags : stagedTags, sessionId : sessionId})
+                    body : JSON.stringify({answer : answerValue, definition : definitionValue, hint : hintValue, tags : stagedTags, sessionId : sessionId, questions : stagedQuestions})
             })
             .then(res => res.json())
             .then(data => {
@@ -441,8 +415,12 @@
         document.addEventListener('DOMContentLoaded', () => {
             const conceptTagsData = JSON.parse(document.getElementById('concept-tags-data').textContent);
             const availableTagsData = JSON.parse(document.getElementById('available-tags-data').textContent);
+            const loadQuestions = document.querySelectorAll('.question-button');
 
             stagedTags = conceptTagsData.map(tag => String(tag.id))
+            loadQuestions.forEach(btn => {
+                stagedQuestions.push(btn.dataset.title);
+            });
 
             conceptTags.innerHTML = '';
             availableTags.innerHTML = '';

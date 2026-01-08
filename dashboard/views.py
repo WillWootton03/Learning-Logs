@@ -173,6 +173,9 @@ def updateConcept(request, concept_id):
             if 'tags' in data:
                 tags = Tag.objects.filter(id__in=data['tags'])
                 concept.tags.set(tags)
+            if 'questions' in data:
+                questions = Question.objects.filter(title__in=data['questions'])
+                concept.questions.set(questions)
 
             if 'sessionId' in data is not None:
                 return redirect('study_session:sessionPage', board.id, data['sessionId'])
@@ -311,32 +314,3 @@ def deleteAllTags(request, board_id):
     board = Board.objects.get(id=board_id)
     board.tags.all().delete()
     return redirect('boardPage', board_id)
-
-@login_required
-@require_POST
-def removeQuestion(request, board_id, concept_id):
-    board = Board.objects.get(id=board_id)
-    concept = Concept.objects.get(id=concept_id)
-    data = json.loads(request.body)
-    title = data.get('title')
-
-    if title:
-        question = Question.objects.get(title=data['title'])
-        if concept.questions.count() > 1:
-            concept.questions.remove(question)
-
-        return JsonResponse({'success' : True})
-    print('no title')
-    return JsonResponse({'success' : False})
-
-@login_required
-@require_POST
-def addQuestion(request, board_id, concept_id):
-    board = Board.objects.get(id=board_id)
-    concept = Concept.objects.get(id=concept_id)
-    data = json.loads(request.body)
-    if 'title' in data:
-        question = Question.objects.get(title=data['title'])
-        concept.questions.add(question)
-        return JsonResponse({'success' : True})
-    return JsonResponse({'success' : False})
