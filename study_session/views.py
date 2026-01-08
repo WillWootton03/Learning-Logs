@@ -134,7 +134,7 @@ def newQuestion(request, board_id, session_id):
     concepts = session.concepts.exclude(id=questionId)
     if concepts.exists():
         question = random.choice(concepts)
-    return JsonResponse({'success' : True, 'questionAnswer' : question.answer, 'questionId' : question.id })
+    return JsonResponse({'success' : True, 'questionAnswer' : question.answer, 'questionId' : question.id, 'questionHint' : question.hint, 'questionAnswer' : question.answer })
 
 @login_required
 @require_POST

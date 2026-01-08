@@ -74,6 +74,7 @@
             submitButton.textContent = 'Next';
             submitButton.classList.remove('bg-blue-800', 'hover:bg-blue-600', 'hover:shadow-blue-600');
             submitButton.classList.add('bg-green-600', 'hover:bg-green-600', 'hover:shadow-green-600');
+            hint.classList.add('hidden');
             editBtn.classList.remove('hidden');
             canSubmitAnswer = false;
             if(data.result) {
@@ -110,6 +111,7 @@
             questionAnswer.textContent = data.questionAnswer;
             questionFitty[0].fit();
             questionId.value = data.questionId;
+            console.log(data.questionAnswer)
             submitButton.textContent = 'Submit';
             submitButton.classList.remove('bg-green-600', 'hover:bg-green-600', 'hover:shadow-green-600');
             submitButton.classList.add('bg-blue-800', 'hover:bg-blue-600', 'hover:shadow-blue-600');
@@ -119,6 +121,9 @@
             answerInput.classList.remove('shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'border-red-500', 'shadow-red-500', 'focus:border-red-500', 'focus:shadow-red-500');
             answerInput.classList.add('shadow-md');
             editBtn.classList.add('hidden');
+            editBtn.href = `/board/${boardId}/concepts/${data.questionId}/session/${sessionId}/`;
+            hint.textContent = data.questionHint;
+            hint.classList.add('hidden');
             if(!correctAnswer.classList.contains('hidden')) correctAnswer.classList.add('hidden');
             answerForm.reset();
             canSubmitAnswer = true;
