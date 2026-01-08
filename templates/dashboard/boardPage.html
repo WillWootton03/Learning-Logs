@@ -258,6 +258,7 @@
 
         cancelCSVUpload.addEventListener('click', () => {
             confirmCSV.classList.toggle('hidden');
+            modalBackdrop.classList.toggle('hidden');
         });
 
         conceptCSVInput.addEventListener('change', () => {
@@ -278,6 +279,7 @@
                 .then(data => {
                     if(data.success) {
                         confirmCSV.classList.toggle('hidden');
+                        modalBackdrop.classList.toggle('hidden');
 
                         const newConceptsCount = data.newConceptsCount ?? 0;
                         const newTagsCount = data.newTags.length ?? 0;
@@ -326,7 +328,7 @@
         });
 
         toggleNewConceptBtn.addEventListener('click', (e) => {
-            newConceptDropdown.classList.toggle('hidden')
+            newConceptDropdown.classList.toggle('hidden');
         })
     
         document.addEventListener('click', (e) => {

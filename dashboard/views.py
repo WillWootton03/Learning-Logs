@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 import json, io, base64, urllib
 
-from .models import Board, Concept, Tag
+from .models import Board, Concept, Tag, Question
 from user_logs.models import Log
 from study_session.models import Session
 
@@ -124,7 +124,8 @@ def conceptPage(request, board_id, concept_id, session_id = None):
     availableTags_qs = board.tags.exclude(id__in=concept.tags.all().values_list('id', flat=True))
     availableTags = list(availableTags_qs.values('id','name'))
     conceptTags = list(concept.tags.values("id", "name"))
-    return render(request, 'dashboard/conceptPage.html', {'board' : board, 'concept' : concept, 'availableTags' : availableTags, 'conceptTags' : conceptTags, 'sessionId' : session_id})
+    availableQuestions = Question.objects.exclude(title__in=concept.questions.all())
+    return render(request, 'dashboard/conceptPage.html', {'board' : board, 'concept' : concept, 'availableTags' : availableTags, 'conceptTags' : conceptTags, 'sessionId' : session_id, 'availableQuestions' : availableQuestions})
 
 @login_required
 def conceptToggleTags(request, board_id, concept_id, tag_id):
@@ -310,3 +311,32 @@ def deleteAllTags(request, board_id):
     board = Board.objects.get(id=board_id)
     board.tags.all().delete()
     return redirect('boardPage', board_id)
+
+@login_required
+@require_POST
+def removeQuestion(request, board_id, concept_id):
+    board = Board.objects.get(id=board_id)
+    concept = Concept.objects.get(id=concept_id)
+    data = json.loads(request.body)
+    title = data.get('title')
+
+    if title:
+        question = Question.objects.get(title=data['title'])
+        if concept.questions.count() > 1:
+            concept.questions.remove(question)
+
+        return JsonResponse({'success' : True})
+    print('no title')
+    return JsonResponse({'success' : False})
+
+@login_required
+@require_POST
+def addQuestion(request, board_id, concept_id):
+    board = Board.objects.get(id=board_id)
+    concept = Concept.objects.get(id=concept_id)
+    data = json.loads(request.body)
+    if 'title' in data:
+        question = Question.objects.get(title=data['title'])
+        concept.questions.add(question)
+        return JsonResponse({'success' : True})
+    return JsonResponse({'success' : False})

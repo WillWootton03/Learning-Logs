@@ -5,16 +5,38 @@
     <!--Section for all tags-->
     <div id="page-wrapper" class="flex flex-box mx-auto pt-24 justify-center h-[calc(100vh-3rem)] w-[90%] transition-all duration-200">
         <div class="grid grid-cols-2 gap-2 h-full w-full">
-            <div class="flex flex-col gap-4 px-4 pt-1 pb-2  align-items-center">
+            <div class="flex flex-col gap-4 px-4 pt-1 pb-2 align-items-center">
                 <div class="flex-row h-fit w-full bg-purple-950 justify-items-center px-5 pt-1 pb-2 rounded-2xl text-xl shadow-md shadow-black focus-within:shadow-[0_0px_15px_rgba(0,0,0,0.9)] focus-within:shadow-purple-500">
                     <input type="text" id="concept-answer" placeholder="{{ concept.answer }}" value="{{ concept.answer }}"
                             class="text-2xl font-bold text-white h-full w-full bg-transparent text-center focus:outline-none">
                 </div>
-                <div class="flex-row h-full w-full border-4 border-purple-900 bg-gray-800 justify-items-center px-5 py-3 rounded-2xl shadow-md shadow-black focus-within:shadow-[0_0px_15px_rgba(0,0,0,0.9)] focus-within:shadow-purple-500">
+                <div class="h-full w-full border-4 border-purple-900 bg-gray-800 justify-items-center px-5 py-3 rounded-2xl shadow-md shadow-black focus-within:shadow-[0_0px_15px_rgba(0,0,0,0.9)] focus-within:shadow-purple-500">
                     <h2 class="text-2xl font-bold text-white bg-purple-950 px-3 py-2 rounded-2xl shadow-md shadow-black mb-3 cursor-default">Concept Definition</h2>
                     <div class="h-[75%] w-full">
                         <input type="text" id="concept-definition" placeholder="{{ concept.definition }}" value="{{ concept.definition }}" 
                                 class="text-lg text-white h-full w-full bg-transparent justify-items-center focus:outline-none">
+                    </div>
+                </div>
+                <div class="h-[40%] w-full border-4 border-purple-900 bg-gray-800 justify-items-center px-5 py-3 rounded-2xl shadow-md shadow-black focus-within:shadow-[0_0px_15px_rgba(0,0,0,0.9)] focus-within:shadow-purple-500">
+                    <!--Header Section-->
+                    <div class="w-full h-fit relative">
+                        <h2 class="justify-self-center text-2xl font-bold text-white bg-purple-950 px-3 py-2 rounded-2xl shadow-md shadow-black mb-3 cursor-default">Concept Questions</h2>
+                        <!--Add new Question or Remove Question-->
+                        <button id="add-question" class="top-0 right-0 absolute bg-purple-500 text-black rounded-3xl shadow-md shadow-black hover:bg-purple-700 h-full w-fit text-xl font-bold px-3">+</button>
+                        <!--Available Questions Dropdown-->
+                        <div id="available-questions-dropdown" class=" hidden top-6 right-5 absolute h-fit w-[30%] bg-gray-700 flex flex-col gap-y-2 align-items-center py-2 px-1">
+                            {% for question in availableQuestions %}
+                            <div data-title="{{ question.title }}" class="available-question cursor-pointer h-fit w-[95%] bg-gray-500 text-center text-white rounded text-lg font-bold">{{ question.display_title }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div id="question-container" class="flex flex-row align-content-center gap-x-3">
+                        {% for question in concept.questions.all %}
+                            <div data-title="{{ question.title }}" class="question-button flex flex-row gap-x-4 cursor-default text-center px-2 py-2 bg-gray-700 text-white rounded-lg hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] shadow-md shadow-black hover:shadow-purple-900 hover:bg-gray-900 w-fit relative">
+                                <h2 class="text-white text-xl">{{ question.display_title }}</h2>
+                                <button data-title="{{ question.title }}" class="remove-question bg-red-500 text-white font-bold px-2 rounded hover:bg-red-900">X</button>
+                            </div>  
+                        {% endfor %}
                     </div>
                 </div>
                 <div class="h-[50%] w-full flex flex-row gap-x-2">
@@ -114,6 +136,7 @@
 
         const csrfToken = document.querySelector('meta[name=csrf_token]').getAttribute('content');
 
+
         const deleteTagConfirm = document.getElementById('delete-tag-confirm');
         const confirmDeleteBtn = document.getElementById('confirm-delete');
 
@@ -128,6 +151,14 @@
         const deleteBtn = document.getElementById('delete-button');
 
         const tagSearch = document.getElementById('tag-search');
+
+        const questionContainer = document.getElementById('question-container');
+        const currentQuestionBtn = document.querySelectorAll('.question-button');
+
+        let availableQuestionBtns = document.querySelectorAll('.available-question');
+        let removeQuestionBtns = document.querySelectorAll('.remove-question');
+        const availableQuestionsDropdown = document.getElementById('available-questions-dropdown');
+        const addQuestion = document.getElementById('add-question');
 
         let stagedTags = [];
 
@@ -181,7 +212,7 @@
 
             const removeTagButton = document.createElement('button');
             removeTagButton.textContent = 'X';
-            removeTagButton.className = 'absolute right-2 top-2 bg-red-500 text-white text-xs px-1 rounded';
+            removeTagButton.className = 'absolute right-2 top-2 bg-red-500 text-white text-xs px-1 rounded hover:bg-red-800';
             removeTagButton.onclick = (e) => { 
                 e.stopPropagation();
                 openDeleteModal(tag.id);
@@ -191,6 +222,84 @@
 
             return button;
         }
+
+        addQuestion.addEventListener('click', () => {
+            if(availableQuestionsDropdown.children.length > 0 ){
+                availableQuestionsDropdown.classList.toggle('hidden');
+            } 
+        });
+
+
+        availableQuestionsDropdown.addEventListener('click', (e) => {
+            const btn = e.target.closest('.available-question');
+            if (!btn) return;
+            fetch(`/board/${boardId}/concept/${conceptId}/addQuestion/`, {
+                method : 'POST',
+                headers : {
+                    'X-CSRFToken' : csrfToken,
+                    'Conent-Type' : 'application/json'
+                },
+                body : JSON.stringify({title : btn.dataset.title })
+            })
+            .then(res => res.json())
+            .then(data => {
+                availableQuestionsDropdown.classList.toggle('hidden');
+                if(data.success) {
+                    const newQuestionBtn = document.createElement('div');
+                    newQuestionBtn.classList.add("question-button", "flex", "flex-row", "gap-x-4", "cursor-default", "text-center", "px-2", "py-2", "bg-gray-700", "text-white", "rounded-lg", "hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)]", "shadow-md", "shadow-black", "hover:shadow-purple-900", "hover:bg-gray-900", "w-full", "relative", "text-white", "text-xl");
+                    newQuestionBtn.dataset.title = btn.dataset.title;
+                    newQuestionBtn.textContent = btn.dataset.title.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+                    
+                    const removeBtn = document.createElement('button');
+                    removeBtn.classList.add("remove-question", "bg-red-500", "text-white", "font-bold", "px-2", "rounded", "hover:bg-red-900");
+                    removeBtn.dataset.title = btn.dataset.title;
+                    removeBtn.textContent = 'X';
+                    newQuestionBtn.appendChild(removeBtn);
+
+                    availableQuestionBtns = document.querySelectorAll('.available-question');
+                    removeQuestionBtns = document.querySelectorAll('.remove-question');
+
+                    questionContainer.append(newQuestionBtn);
+                    availableQuestionsDropdown.removeChild(btn);
+
+                }
+            }) .catch(err => console.error(err));
+        });
+
+
+        questionContainer.addEventListener('click', (e) => {
+            const questionBtn = e.target.closest('.remove-question');
+            if(!questionBtn) return;
+            if(questionContainer.children.length > 1) {
+                fetch(`/board/${boardId}/concept/${conceptId}/removeQuestion/`, {
+                    method : 'POST',
+                    headers : {
+                        'X-CSRFToken' : csrfToken,
+                        'Content-Type' : 'application/json'
+                    },
+                    body : JSON.stringify({title: questionBtn.dataset.title })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success){
+                        const btn = questionBtn.closest('.question-button');
+
+                        const newAvailableQuestion = document.createElement('div');
+                        newAvailableQuestion.classList.add("available-question", "cursor-pointer", "h-fit", "w-[95%]", "bg-gray-500", "text-center", "text-white", "rounded", "text-lg", "font-bold")
+                        newAvailableQuestion.textContent = btn.dataset.title.replace(/_/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+                        newAvailableQuestion.dataset.title = btn.dataset.title;
+
+
+                        availableQuestionsDropdown.append(newAvailableQuestion);
+                        questionContainer.removeChild(btn);
+
+                    } else {
+                        console.log('Something Went Wrong');
+                    }
+                })
+                .catch(err => console.error(err));
+            }
+        });
 
     tagSearch.addEventListener('input', (e) => { 
         const conceptTagBtns = document.querySelectorAll('.conceptTag');
