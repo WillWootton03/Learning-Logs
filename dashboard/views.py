@@ -237,14 +237,14 @@ def loadConceptsCSV(request, board_id):
     if request.method =='POST':
         if request.POST.get('confirm') == 'true':
             loadConcepts = [json.loads(concept) for concept in request.POST.getlist('newConcepts')]
-            loadTags = request.POST.getlist('newTags') 
 
-            tagObjects = [Tag.objects.create(name=name, board=board) for name in loadTags]
             allTags = Tag.objects.filter(board=board)
+            allQuestions = Question.objects.all()
 
             for concept in loadConcepts:
                 conceptObject = Concept.objects.create(answer=concept['answer'], definition=concept['definition'], hint=concept['hint'], board=board)
                 conceptObject.tags.set(tag for tag in allTags if tag.name in concept['tags'])
+                conceptObject.questions.set(question for question in allQuestions if question.title in concept['questions'])
 
             return JsonResponse({'success' : True})
 
@@ -261,18 +261,21 @@ def loadConceptsCSV(request, board_id):
                 for row in reader:
                     if not any(row):
                         continue
-
+                    
                     answer = row['Answer']
                     definition = row['Definition']
                     hint = row['Hint']
-                    tags = {tag.strip() for tag in row['Tags'].split(',')} 
+                    questions = ['answer']
+                    tags = {tag.strip() for tag in row['Tags'].split(',')}
+                    if row.get('Questions', '').strip():
+                        questions = [question.strip() for question in row.get('Questions', '').split(',')]
                     
                     newTags.update(tag for tag in tags if tag not in existingTags)
                     # Checks for tags in the tag field of file, if tag doesn't exsist creates a new tag and adds it to tags
                     
                     # Checks for concept matching when uploading new files
                     if not Concept.objects.filter(answer=answer, definition=definition, hint=hint, board=board).exists():
-                        concepts.append({'answer' : answer, 'definition' : definition, 'hint': hint, 'tags' : list(tags)})
+                        concepts.append({'answer' : answer, 'definition' : definition, 'hint': hint, 'tags' : list(tags), 'questions' : questions})
                         newConceptsCount += 1
                 return JsonResponse({'success': True, 'newConcepts' : concepts, 'newTags': list(newTags), 'newConceptsCount' : newConceptsCount})
 
@@ -292,6 +295,8 @@ def fileUpload(request, board_id):
             for concept in data['newConcepts']:
                 concept = Concept.objects.create(board=board, answer=concept, definition=concept['definition'], hint=concept['hint'])
                 concept.tags.set(concept['tags'])
+                concept.questions.set(concept['questions'])
+
     return redirect('boardPage', board_id)
 
 @login_required
