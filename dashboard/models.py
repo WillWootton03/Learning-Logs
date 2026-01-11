@@ -1,6 +1,5 @@
 from django.db import models
 from accounts.models import User
-from multiselectfield import MultiSelectField
 import uuid
 
 # Create your models here.
