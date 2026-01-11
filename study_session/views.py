@@ -24,10 +24,15 @@ def newSessionSettings(request, board_id):
         if 'title' in data:
             sessionSettings.title = data['title']
         
+        if 'isExclusive' in data:
+            sessionSettings.isExclusive = data['isExclusive']
+        
         sessionSettings.save()
         if 'tags' in data:
             tags = Tag.objects.filter(id__in=data['tags'])
             sessionSettings.tags.set(tags)
+
+
         
         return JsonResponse({'success' : True, 'board_id' : board.id, 'redirect_url' : reverse('boardPage', args=[board_id])})
 

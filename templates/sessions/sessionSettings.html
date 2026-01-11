@@ -71,7 +71,7 @@
     </div>
 </div>
 <!--Acts as the blurred background to cover main page-->
-<div id="modal-backdrop" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm">
+<div id="modal-backdrop" class="hidden fixed inset-0  bg-black/50 backdrop-blur-sm">></div>
     <!--Main modal for adding a tag-->
     <div id="new-tag-modal" class="hidden flex flex-row fixed inset-x-[25%] inset-y-[40%] w-[50%] h-[6vw] rounded-2xl bg-gray-500 z-100 align-content-center">
         <div class="flex flex-row h-full w-full py-2 px-3 gap-x-14 align-items-center">
@@ -90,16 +90,15 @@
             {% csrf_token %}
             <button type="submit" class="bg-red-500 py-1 rounded  text-lg font-bold px-4 hover:bg-red-800">Delete</button>
         </form>
-        <button id="cancel-delete-modal" class="absolute top-2 right-2 bg-red-600 rounded px-2 text-white hover:bg-red-800">X</button>
+        <button id="cancel-delete-session-settings" class="absolute top-2 right-2 bg-red-600 rounded px-2 text-white hover:bg-red-800">X</button>
     </div>
     {% endif %}
     <!--Permanently Delete Tag Modal Popup-->
     <div id="delete-tag-confirm" class="hidden flex flex-col fixed inset-x-[25%] inset-y-[40%] w-[50%] h-[6vw] rounded-2xl bg-gray-700 z-100 justify-content-center align-items-center">
         <h2 class="text-2xl text-white text-center pb-3">Do you want to permanently delete this tag?</h2>
-        <button id="confirm-delete" class="bg-red-500 py-1 rounded w-fit h-fit text-lg font-bold px-4 hover:bg-red-800">Delete</button>
-        <button id="cancel-delete-modal" class="absolute top-2 right-2 bg-red-600 rounded px-2 text-white hover:bg-red-800">X</button>
+        <button id="confirm-tag-delete" class="bg-red-500 py-1 rounded w-fit h-fit text-lg font-bold px-4 hover:bg-red-800">Delete</button>
+        <button id="cancel-tag-delete" class="absolute top-2 right-2 bg-red-600 rounded px-2 text-white hover:bg-red-800">X</button>
     </div>
-</div>
 {% if sessionSettingsTags %}
     {{ sessionSettingsTags|json_script:"session-settings-tags-data" }}
 {% endif %}
@@ -115,12 +114,13 @@
     const sessionTitleData = document.getElementById('session-title');
 
     const modalBackdrop = document.getElementById('modal-backdrop');
-    const deleteSessionSettings = document.getElementById('delete-session-settings');
-    const deleteSessionSettingsConfirm = document.getElementById('delete-session-settings-confirm');
+    const deleteSessionSettingsBtn = document.getElementById('delete-session-settings');
+    const deleteSessionSettingsModal = document.getElementById('delete-session-settings-confirm');
+    const cancelDeleteSessionSettings = document.getElementById('cancel-delete-session-settings');
 
-    const deleteTagConfirm = document.getElementById('delete-tag-confirm');
-    const cancelDeleteModal = document.getElementById('cancel-delete-modal');
-    const confirmDeleteBtn = document.getElementById('confirm-delete');
+    const deleteTagConfirmModal = document.getElementById('delete-tag-confirm');
+    const cancelTagDelete = document.getElementById('cancel-tag-delete');
+    const confirmTagDeleteBtn = document.getElementById('confirm-tag-delete');
 
     const newTagModal = document.getElementById('new-tag-modal');
     const createTag = document.getElementById('create-tag')
@@ -142,11 +142,9 @@
 
 
     let stagedTags = [];
-    let isExclusive = "{{ sessionSettings.isExclusive|yesno:'true,false' }}" === 'true';
-    console.log(isExclusive);
+    let isExclusive = "{{ sessionSettings.isExclusive|yesno:'true,false' }}" === 'true' || false ;
     const boardId = "{{ board.id }}";
     const sessionSettingsId = "{{ sessionSettings.id }}";
-
 
 
     function createTagButton(tag, isSessionTag = false) {
@@ -161,23 +159,12 @@
             removeTagButton.className = 'absolute right-2 top-2 bg-red-500 text-white text-xs px-1 rounded';
             removeTagButton.onclick = (e) => { 
                 e.stopPropagation();
-                openDeleteModal(tag.id);
+                openConfirmDeleteTagModal(tag.id);
             }
 
             button.appendChild(removeTagButton);
 
             return button;
-    }
-    function openDeleteModal(tagId) {
-        modalBackdrop.classList.remove('hidden');
-        deleteTagConfirm.dataset.tagId = tagId;
-        deleteTagConfirm.classList.remove('hidden');
-    }
-
-    function closeDeleteModal(tagId) {
-        deleteTagConfirm.classList.add('hidden');
-        modalBackdrop.classList.add('hidden');
-        deleteTagConfirm.dataset.tagId = '';
     }
 
     function openNewTagModal() {
@@ -190,17 +177,32 @@
         modalBackdrop.classList.add('hidden');
     }
 
+    function closeConfirmTagDeleteModal() {
+        deleteTagConfirmModal.classList.add('hidden');
+        modalBackdrop.classList.add('hidden');
+    }
+
+    function openConfirmTagDeleteModal(tagId) {
+        deleteTagConfirmModal.classList.remove('hidden');
+        modalBackdrop.classList.remove('hidden');
+    }
+
+    cancelTagDelete.addEventListener('click', () => {
+        closeConfirmTagDeleteModal();
+    });
+
+
+
+
     exclusiveBtn.addEventListener('click', () => {
         if(!isExclusive){
             isExclusive = true;
             exclusiveBtn.classList.remove('bg-gray-600', 'text-green-300');
             exclusiveBtn.classList.add('bg-green-600','text-gray-700', 'hover:text-gray-950');
-            console.log(isExclusive);
         } else {
             isExclusive = false;
            exclusiveBtn.classList.remove('bg-green-600', 'text-gray-700', 'hover:text-gray-950');
             exclusiveBtn.classList.add('bg-gray-600', 'text-green-300');
-            console.log(isExclusive);
         }
     });
 
@@ -216,28 +218,21 @@
 
     modalBackdrop.addEventListener('click', (e) => {
         modalBackdrop.classList.add('hidden');
-        if(deleteSessionSettings) deleteSessionSettingsConfirm.classList.add('hidden');
-        if(newTagModal){ 
-            newTagModal.classList.add('hidden');}
+        if(deleteSessionSettingsModal) {deleteSessionSettingsModal.classList.add('hidden');}
+        if(newTagModal) {newTagModal.classList.add('hidden');}
     });
-
-    if(sessionSettingsId){
-        deleteSessionSettings.addEventListener('click', () => {
-            modalBackdrop.classList.remove('hidden');
-            deleteSessionSettingsConfirm.classList.remove('hidden');
-        });
-    }
 
     newTagModal.addEventListener('click', (e) => {
         e.stopPropagation();
     });
 
     if(sessionSettingsId){
-        deleteSessionSettingsConfirm.addEventListener('click', (e) => {
-            e.stopPropagation();
+        deleteSessionSettingsBtn.addEventListener('click', (e) => {
+            modalBackdrop.classList.remove('hidden');
+            deleteSessionSettingsModal.classList.remove('hidden');
         })
-        deleteTagConfirm.addEventListener('click', (e) => {
-            e.stopPropagation();
+        cancelDeleteSessionSettings.addEventListener('click', (e) => {
+            deleteSessionSettingsModal.classList.add('hidden');
         });
     }
 
@@ -264,19 +259,20 @@
     });
 
     // Closes the delete modal popup
-    cancelDeleteModal.addEventListener('click', () => {
-        closeDeleteModal();
+    cancelTagDelete.addEventListener('click', () => {
+        deleteTagConfirm.classList.add('hidden');
+        modalBackdrop.classList.add('hidden');
     });
 
     createTag.addEventListener('click', () => {
-        openNewTagModal();
+        newTagModal.classList.remove('hidden');
+        modalBackdrop.classList.remove('hidden');
     });
 
     function startSessionFunc(){
         const sessionBtns = document.querySelectorAll('.sessionTag');
         let addTags = Array.from(sessionBtns).map(btn => btn.dataset.id);
 
-        
         fetch(`/board/${boardId}/sessions/${sessionSettingsId}/sessionStart/`, {
             method : 'POST',
             headers : {
@@ -316,8 +312,8 @@
     
 
     // Event listener to handle fully deleting a tag after confirm delete popup
-    confirmDeleteBtn.addEventListener('click', () => {
-        const tagId = deleteTagConfirm.dataset.tagId;
+    confirmTagDeleteBtn.addEventListener('click', () => {
+        const tagId = confirmTagDeleteBtn.dataset.tagId;
         if(!tagId) return;
             fetch(`/tag/${tagId}/delete/`, {
                 method: 'POST',

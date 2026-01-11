@@ -120,10 +120,16 @@
     </div>
     <!--Background wrapper to make bg blurry when choosing which settings to load-->
     <div id="modal-backdrop" class="hidden fixed inset-0 z-90 bg-black/50 backdrop-blur-sm"></div>
-    <div id="load-settings-modal" class="hidden fixed inset-x-96 inset-y-20 mt-10 z-100 p-3 bg-gray-800 grid grid-cols-2  auto-rows-min gap-4 rounded-2xl shadow-md shadow-black">
+    <!--Load Session Settings-->
+    <div id="load-settings-modal" class="hidden fixed inset-x-96 inset-y-20 mt-10 z-100 p-3 bg-gray-800 rounded-2xl shadow-md shadow-black">
+        <div class="h-fit w-full relative">
+            <h2 class="h-fit w-full text-2xl text-center font-bold text-white pt-2 pb-4">All Session Settings</h2>
+            <button id="close-session-settings" class="absolute top-1 right-2 bg-red-500 text-white rounded px-2 py-1">X</button>
+        </div>
+        <div class="w-full h-[90%] grid grid-cols-2 auto-rows-min gap-4 ">
         {% for sessionSettings in board.sessionSettings.all %} 
             <!--Href link For Each Button of board session settings so bring you to edit session settings to start a new session -->
-            <a href="{% url 'updateSessionSettings' board.id sessionSettings.id %}" data-id="" class="bg-gray-700 w-full h-fit rounded-2xl shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-500 hover:bg-gray-600">
+            <a href="{% url 'updateSessionSettings' board.id sessionSettings.id %}" class="bg-gray-700 w-full h-fit rounded-2xl shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-500 hover:bg-gray-600">
                     <div class="flex flex-row justify-between align-items-center gap-4 py-3 px-3">
                         <h2 class="text-2xl text-white font-bold text-left">{{ sessionSettings.title }}</h2>
                         <h2 class="text-2xl text-white text-right">Length : {{ sessionSettings.numQuestions }}</h2>
@@ -131,6 +137,8 @@
             </a>
         {% endfor %}
     </div>
+    </div>
+    
     <!--Confirm Adding CSV File-->
     <div id="csv-confirm-modal" class="hidden flex flex-col fixed inset-x-[25%] inset-y-[40%] w-[50%] h-fit py-2 gap-y-4 rounded-2xl bg-gray-700 z-100 justify-content-center align-items-center">
         <h2 id="csv-concept-text" class="text-2xl text-white text-center"></h2>
@@ -161,6 +169,7 @@
         const loadSettingsModal = document.getElementById('load-settings-modal');
         const toggleNewConceptBtn = document.getElementById('toggle-new-concept');
         const newConceptDropdown = document.getElementById('new-concept-dropdown');
+        const closeSessionSettings = document.getElementById('close-session-settings');
 
         const conceptCSVInput = document.getElementById('concept-file');
         const uploadCSVForm = document.getElementById('upload-csv');
@@ -190,6 +199,11 @@
         const confirmDeleteAllTagsText = document.getElementById('delete-all-tags-text');
         const cancelDeleteAllTagsBtn = document.getElementById('cancel-delete-all-tags');
         const deleteAllTags = document.getElementById('delete-all-tags');
+
+        closeSessionSettings.addEventListener('click', () => {
+            modalBackdrop.classList.toggle('hidden');
+            loadSettingsModal.classList.toggle('hidden');
+        });
 
         deleteAllConcepts.addEventListener('click', () => {
             confirmDeleteAllConceptsModal.classList.toggle('hidden');
