@@ -159,7 +159,7 @@
             removeTagButton.className = 'absolute right-2 top-2 bg-red-500 text-white text-xs px-1 rounded';
             removeTagButton.onclick = (e) => { 
                 e.stopPropagation();
-                openConfirmDeleteTagModal(tag.id);
+                openConfirmTagDeleteModal(tag.id);
             }
 
             button.appendChild(removeTagButton);
@@ -180,10 +180,12 @@
     function closeConfirmTagDeleteModal() {
         deleteTagConfirmModal.classList.add('hidden');
         modalBackdrop.classList.add('hidden');
+        confirmTagDeleteBtn.dataset.tagId = '';
     }
 
     function openConfirmTagDeleteModal(tagId) {
         deleteTagConfirmModal.classList.remove('hidden');
+        confirmTagDeleteBtn.dataset.tagId = tagId;
         modalBackdrop.classList.remove('hidden');
     }
 
@@ -233,6 +235,7 @@
         })
         cancelDeleteSessionSettings.addEventListener('click', (e) => {
             deleteSessionSettingsModal.classList.add('hidden');
+            modalBackdrop.classList.add('hidden');
         });
     }
 
@@ -323,7 +326,7 @@
             .then(data => {
                 if(data.success) {
                     document.querySelector(`[data-id="${tagId}"]`)?.remove();
-                    closeDeleteModal();
+                    closeConfirmTagDeleteModal();
                 } else {
                     alert('Failed to delete tag: ' + data.error);
                 }

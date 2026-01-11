@@ -5,6 +5,10 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.urls import reverse
 from django.db.models import Count, Q
+
+from django.core.cache import cache
+from django.db.models import Prefetch
+
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -195,18 +199,33 @@ def deleteConcept(request, concept_id):
 
 @login_required
 def boardPage(request, board_id):
-    board = Board.objects.get(id=board_id)
-    logs = board.logs.all().order_by('-dateAdded')
-    sessions = board.sessions.order_by('-dateAdded')
+    cacheKey = f"board:{board_id}"
+    board = cache.get(cacheKey)
 
-    knownConcepts=Concept.objects.filter(board=board, known=True)
-    unknownConcepts=Concept.objects.filter(board=board, unknown=True)
-    learningConcepts=Concept.objects.filter(board=board, known=False, unknown=False)
-    conceptsCount = len(Concept.objects.filter(board=board))
-    tagsCount = len(Tag.objects.filter(board=board))
+    if board is None : 
+        board = (Board.objects
+            .select_related('user')
+            .prefetch_related(
+                Prefetch('logs', queryset=Log.objects.order_by('-dateAdded')),
+                Prefetch('sessions', queryset=Session.objects.order_by('-dateAdded')),
+                'sessionSettings',
+                Prefetch('concepts', queryset=Concept.objects.filter(known=True), to_attr='knownConcepts',),
+                Prefetch('concepts', queryset=Concept.objects.filter(unknown=True), to_attr='unknownConcepts'),
+                Prefetch('concepts', queryset=Concept.objects.filter(known=False, unknown=False), to_attr='learningConcepts'),
+                'tags',
+            )
+        ).get(id=board_id)             
+        cache.set(cacheKey, board, timeout=300)     # Used for redis caching
+
+    knownConcepts = board.knownConcepts
+    unknownConcepts = board.unknownConcepts
+    learningConcepts = board.learningConcepts
+
+    conceptsCount = len(knownConcepts) + len(unknownConcepts) + len(learningConcepts)
+    tagsCount = len(board.tags.all())
 
     graphLabels = ['Known Concepts', 'Learning Concepts', 'Unknown Concepts']
-    graphValues = [knownConcepts.count(), learningConcepts.count(), unknownConcepts.count()]
+    graphValues = [len(knownConcepts), len(learningConcepts), len(unknownConcepts)]
     barColors = ['#22d628','#d6c722','#bf2424']
 
     fig, ax = plt.subplots(figsize=(6, 4))
@@ -228,7 +247,7 @@ def boardPage(request, board_id):
     uri = "data:image/png;base64," + urllib.parse.quote(string)
 
 
-    return render(request, 'dashboard/boardPage.html', {'board' : board, 'logs' : logs, 'knownConcepts' : knownConcepts, 'unknownConcepts' : unknownConcepts, 'learningConcepts' : learningConcepts, 'chart' : uri, 'sessions' : sessions, 'conceptsCount' : conceptsCount, 'tagsCount' : tagsCount })
+    return render(request, 'dashboard/boardPage.html', {'board' : board, 'logs' : board.logs.all(), 'knownConcepts' : knownConcepts, 'unknownConcepts' : unknownConcepts, 'learningConcepts' : learningConcepts, 'chart' : uri, 'sessions' : board.sessions.all(), 'conceptsCount' : conceptsCount, 'tagsCount' : tagsCount })
 
 
 @login_required

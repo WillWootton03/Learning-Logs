@@ -100,7 +100,15 @@ DATABASES = {
     'default': dj_database_url.parse(os.environ.get('DATABASE_URL'), conn_max_age=600)
 }
 
-
+CACHES = {
+    'default' : {
+        "BACKEND" : 'django_redis.cache.RedisCache',
+        "LOCATION" : 'redis://127.0.0.1:6379/1',
+        "OPTIONS" : {
+            "CLIENT__CLASS" : 'django_redis.client.DefaultClient',
+        }
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
