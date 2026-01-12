@@ -7,3 +7,4 @@ tailwind
 django-browser-reload
 matplotlib
 dj_database_url
+django_redis

@@ -6,14 +6,12 @@ from django.views.decorators.http import require_POST
 from django.urls import reverse
 from django.db.models import Count, Q
 
-from django.core.cache import cache
-from django.db.models import Prefetch
 
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-import json, io, base64, urllib
+import json, io, base64, urllib, csv
 
 from .models import Board, Concept, Tag, Question
 from user_logs.models import Log
@@ -45,12 +43,49 @@ def boards(request):
         logCount=Count('logs', distinct=True),
     )
         
-
     context = {
         'user' : user,
         'boards' : boards
     }
     return render(request, 'dashboard/boards.html', context=context)
+
+
+@login_required
+def boardPage(request, board_id):
+    board = Board.objects.get(id=board_id)
+    concepts = board.concepts.all()
+    logs = board.logs.order_by('-dateAdded')[:50]
+    sessions = board.sessions.all()[:20]
+
+    knownConcepts = [concept for concept in concepts if concept.known ]
+    unknownConcepts = [concept for concept in concepts if concept.unknown]
+    learningConcepts = [concept for concept in concepts if not concept.known and not concept.unknown]
+
+    graphLabels = ['Known Concepts', 'Learning Concepts', 'Unknown Concepts']
+    graphValues = [len(knownConcepts), len(learningConcepts), len(unknownConcepts)]
+    barColors = ['#22d628','#d6c722','#bf2424']
+
+    fig, ax = plt.subplots(figsize=(6, 4))
+    ax.bar(graphLabels, graphValues, color=barColors)
+
+    for tick in ax.get_xticklabels():
+        tick.set_fontsize(10)
+        tick.set_fontweight('bold')
+    fig.patch.set_alpha(0.0)
+    ax.set_facecolor('none')
+
+    plt.tight_layout()
+
+    buf = io.BytesIO()
+    fig.savefig(buf, format='png')
+    plt.close(fig)
+    buf.seek(0)
+    string = base64.b64encode(buf.read())
+    uri = "data:image/png;base64," + urllib.parse.quote(string)
+
+
+    return render(request, 'dashboard/boardPage.html', {'board' : board, 'logs' : board.logs.all(), 'chart' : uri, 'sessions' : board.sessions.all(), 'concepts' : concepts, 'conceptsCount' : len(concepts)})
+
 
 @login_required 
 def newBoard(request):
@@ -86,7 +121,6 @@ def newBoard(request):
 @login_required
 def newConcept(request, board_id):
     board = Board.objects.get(id=board_id)
-
     if request.method == 'POST':
         form = NewConcept(request.POST)
         if form.is_valid():
@@ -103,6 +137,7 @@ def newConcept(request, board_id):
 @login_required
 def createTag(request, board_id):
     board = Board.objects.get(id=board_id)
+
     if request.method == 'POST':
         data = json.loads(request.body)
         tag = Tag()
@@ -198,125 +233,130 @@ def deleteConcept(request, concept_id):
     return redirect('boardPage', boardId)
 
 @login_required
-def boardPage(request, board_id):
-    cacheKey = f"board:{board_id}"
-    board = cache.get(cacheKey)
-
-    if board is None : 
-        board = (Board.objects
-            .select_related('user')
-            .prefetch_related(
-                Prefetch('logs', queryset=Log.objects.order_by('-dateAdded')),
-                Prefetch('sessions', queryset=Session.objects.order_by('-dateAdded')),
-                'sessionSettings',
-                Prefetch('concepts', queryset=Concept.objects.filter(known=True), to_attr='knownConcepts',),
-                Prefetch('concepts', queryset=Concept.objects.filter(unknown=True), to_attr='unknownConcepts'),
-                Prefetch('concepts', queryset=Concept.objects.filter(known=False, unknown=False), to_attr='learningConcepts'),
-                'tags',
-            )
-        ).get(id=board_id)             
-        cache.set(cacheKey, board, timeout=300)     # Used for redis caching
-
-    knownConcepts = board.knownConcepts
-    unknownConcepts = board.unknownConcepts
-    learningConcepts = board.learningConcepts
-
-    conceptsCount = len(knownConcepts) + len(unknownConcepts) + len(learningConcepts)
-    tagsCount = len(board.tags.all())
-
-    graphLabels = ['Known Concepts', 'Learning Concepts', 'Unknown Concepts']
-    graphValues = [len(knownConcepts), len(learningConcepts), len(unknownConcepts)]
-    barColors = ['#22d628','#d6c722','#bf2424']
-
-    fig, ax = plt.subplots(figsize=(6, 4))
-    ax.bar(graphLabels, graphValues, color=barColors)
-
-    for tick in ax.get_xticklabels():
-        tick.set_fontsize(10)
-        tick.set_fontweight('bold')
-    fig.patch.set_alpha(0.0)
-    ax.set_facecolor('none')
-
-    plt.tight_layout()
-
-    buf = io.BytesIO()
-    fig.savefig(buf, format='png')
-    plt.close(fig)
-    buf.seek(0)
-    string = base64.b64encode(buf.read())
-    uri = "data:image/png;base64," + urllib.parse.quote(string)
-
-
-    return render(request, 'dashboard/boardPage.html', {'board' : board, 'logs' : board.logs.all(), 'knownConcepts' : knownConcepts, 'unknownConcepts' : unknownConcepts, 'learningConcepts' : learningConcepts, 'chart' : uri, 'sessions' : board.sessions.all(), 'conceptsCount' : conceptsCount, 'tagsCount' : tagsCount })
-
-
-@login_required
 def loadConceptsCSV(request, board_id):
+
+    allQuestions = Question.objects.all()
+    allQuestionTitles = [question.title.strip() for question in allQuestions]
+    
+    allTags = list(Tag.objects.filter(board_id=board_id))
+    allConcepts = list(Concept.objects.filter(board_id=board_id))
+
     board = Board.objects.get(id=board_id)
+    existingTags = set(tag.name for tag in allTags)
+    existingConcepts = set((concept.answer, concept.definition, concept.hint) for concept in allConcepts)
+
     if request.method =='POST':
+        questionMap = {question.title: question for question in allQuestions}
+
         if request.POST.get('confirm') == 'true':
-            loadConcepts = [json.loads(concept) for concept in request.POST.getlist('newConcepts')]
+            uploadedFile = request.FILES['file']
+            fileBytes = uploadedFile.read()
+            reader = csv.DictReader(io.StringIO(fileBytes.decode('utf-8')))
+            newConcepts = []
+            newTagNames = set()
 
-            allTags = Tag.objects.filter(board=board)
-            allQuestions = Question.objects.all()
+            for row in reader:
+                answer = row['Answer']
+                definition = row['Definition']
+                hint = row['Hint']
+                tagsToAdd = set(tag.strip() for tag in row['Tags'].split(',') if tag.strip())
+                questionsRaw = row.get('Questions') or ''
+                questionsToAdd = [question.strip() for question in questionsRaw.split(',') if question.strip() in allQuestionTitles]
+                if not questionsToAdd:
+                    questionsToAdd = ['answer'] 
+                    
 
-            for concept in loadConcepts:
-                conceptObject = Concept.objects.create(answer=concept['answer'], definition=concept['definition'], hint=concept['hint'], board=board)
-                conceptObject.tags.set(tag for tag in allTags if tag.name in concept['tags'])
-                conceptObject.questions.set(question for question in allQuestions if question.title in concept['questions'])
+                if(answer, definition, hint) not in existingConcepts:
+                    existingConcepts.add((answer, definition, hint))
+                    newConcepts.append({
+                        'answer' : answer,
+                        'definition' : definition,
+                        'hint' : hint,
+                        'tags' : tagsToAdd,
+                        'questions' : questionsToAdd
+                    })
+
+                for tagName in tagsToAdd:
+                    if tagName not in existingTags:
+                        newTagNames.add(tagName)
+                        existingTags.add(tagName)
+            
+            tagsToCreate = [Tag(board=board, name=name) for name in newTagNames]
+            Tag.objects.bulk_create(tagsToCreate)
+
+            allTags = list(Tag.objects.filter(board=board))
+            tagMap = {tag.name: tag for tag in allTags}
+
+            conceptObjects = [
+                Concept(
+                    board=board,
+                    answer=concept['answer'],   
+                    definition=concept['definition'],
+                    hint=concept['hint']
+                ) for concept in newConcepts
+            ]
+            Concept.objects.bulk_create(conceptObjects)
+            
+
+            addTagRelations = []
+            for conceptDict, conceptObj in zip(newConcepts, conceptObjects):
+                for tagName in conceptDict['tags']:
+                    addTagRelations.append(
+                        Concept.tags.through(concept_id=conceptObj.id, tag_id=tagMap[tagName].id)
+                    )
+            Concept.tags.through.objects.bulk_create(addTagRelations)
+
+
+            addQuestionRelations = []
+            for conceptDict, conceptObj in zip(newConcepts, conceptObjects):
+                questions = conceptDict.get('questions', [])
+                if not questions:
+                    questionObject = questionMap.get('answer')
+                for questionTitle in questions:
+                    questionObject = questionMap.get(questionTitle)
+                    if questionObject:
+                        addQuestionRelations.append(
+                            Concept.questions.through(concept_id=conceptObj.id, question_id=questionTitle)
+                        )
+            Concept.questions.through.objects.bulk_create(addQuestionRelations) 
 
             return JsonResponse({'success' : True})
-
-        if request.FILES.get('file'):
-            uploadedFile = io.TextIOWrapper(request.FILES['file'].file, encoding='utf-8')
-            reader = csv.DictReader(uploadedFile)
+        
+        # Branch for counting new concepts and new tags for confirm modal
+        if request.POST.get('confirm') == 'false':
+            uploadedFile = request.FILES['file']
+            fileBytes = uploadedFile.read()
+            reader = csv.DictReader(io.StringIO(fileBytes.decode('utf-8')))
 
             newConceptsCount = 0
-            newTags = set()
-            concepts = []
-            existingTags = set(tag.name for tag in Tag.objects.filter(board=board))
+            newTagsCount = 0
+
             if reader:
                 #Only Appends New Concepts to Concept Model
                 for row in reader:
                     if not any(row):
                         continue
-                    
+
                     answer = row['Answer']
                     definition = row['Definition']
                     hint = row['Hint']
-                    questions = ['answer']
-                    tags = {tag.strip() for tag in row['Tags'].split(',')}
-                    if row.get('Questions', '').strip():
-                        questions = [question.strip() for question in row.get('Questions', '').split(',')]
+                    tagsToAdd = set(tag.strip() for tag in row['Tags'].split(',') if tag.strip())
                     
-                    newTags.update(tag for tag in tags if tag not in existingTags)
-                    # Checks for tags in the tag field of file, if tag doesn't exsist creates a new tag and adds it to tags
-                    
-                    # Checks for concept matching when uploading new files
-                    if not Concept.objects.filter(answer=answer, definition=definition, hint=hint, board=board).exists():
-                        concepts.append({'answer' : answer, 'definition' : definition, 'hint': hint, 'tags' : list(tags), 'questions' : questions})
+                    # Checks if the current question is in the list of existing concepts
+                    if (answer, definition, hint) not in existingConcepts:
                         newConceptsCount += 1
-                return JsonResponse({'success': True, 'newConcepts' : concepts, 'newTags': list(newTags), 'newConceptsCount' : newConceptsCount})
+                        existingConcepts.add((answer, definition, hint))
+
+                    # Gets all tags from the current row and checks if any are new tags    
+                    for tag in tagsToAdd:
+                        if tag not in existingTags:
+                            newTagsCount += 1
+                            existingTags.add(tag)
+
+                return JsonResponse({'success': True, 'newTagsCount': newTagsCount, 'newConceptsCount' : newConceptsCount})
 
         return JsonResponse({'success' : False})
 
-import csv
-import io
-@login_required
-def fileUpload(request, board_id):
-    data = json.loads(request.body)
-    board = Board.objects.get(id=board_id)
-    if data:
-        if 'newTags' in data:
-            for tagName in data['newTags']:
-                Tag.objects.create(name=tagName, board=board)
-        if 'newConcepts' in data:
-            for concept in data['newConcepts']:
-                concept = Concept.objects.create(board=board, answer=concept, definition=concept['definition'], hint=concept['hint'])
-                concept.tags.set(concept['tags'])
-                concept.questions.set(concept['questions'])
-
-    return redirect('boardPage', board_id)
 
 @login_required
 @require_POST
@@ -325,16 +365,17 @@ def deleteBoard(request):
     board = Board.objects.get(id=boardId)
     if board:
         board.delete()
+
     return redirect('dashboard')
 
 @login_required
 def deleteAllConcepts(request, board_id):
-    board = Board.objects.get(id=board_id)
-    board.concepts.all().delete()
+    Concept.objects.filter(board_id=board_id).delete()
+    
     return redirect('boardPage', board_id)
 
 @login_required
 def deleteAllTags(request, board_id):
-    board = Board.objects.get(id=board_id)
-    board.tags.all().delete()
+    Tag.objects.filter(board_id=board_id).delete()
+    
     return redirect('boardPage', board_id)

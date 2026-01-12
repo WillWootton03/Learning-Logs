@@ -86,25 +86,25 @@
                     <button id="toggle-new-concept" class="bg-purple-500 text-black rounded-full px-3.5 py-2 shadow-md shadow-black flex-7 hover:bg-purple-700">+</button>
                 </div>
                 <div id="concept-grid" class="grid grid-cols-6 w-full h-full auto-rows-min gap-2 p-2 overflow-y-auto">
-                    {% for concept in knownConcepts %}
-                            <a id="{{ concept.id }}" data-answer="{{ concept.answer }}" data-definition="{{ concept.definition }}" href="{% url 'conceptPage' board_id=board.id concept_id=concept.id%}" class="conceptButton knownConcept bg-green-600 rounded-2xl py-1 justify-items-center border text-white text-lg border-black shadow-md shadow-black hover:bg-green-800">
+                    {% for concept in concepts %}
+                        {% if concept.known %}
+                                <a id="{{ concept.id }}" data-answer="{{ concept.answer }}" data-definition="{{ concept.definition }}" href="{% url 'conceptPage' board_id=board.id concept_id=concept.id%}" class="conceptButton knownConcept bg-green-600 rounded-2xl py-1 justify-items-center border text-white text-lg border-black shadow-md shadow-black hover:bg-green-800">
+                                    <h2 class="font-medium mx-2 my-2">{{ concept.answer }}</h2>
+                                </a>
+                        {% elif concept.learning %}
+                            <a id="{{ concept.id }}" data-answer="{{ concept.answer }}" data-definition="{{ concept.definition }}" href="{% url 'conceptPage' board_id=board.id concept_id=concept.id%}" class="conceptButton learningConcept bg-yellow-600 rounded-2xl py-1 justify-items-center border text-white text-lg border-black shadow-md shadow-black hover:bg-yellow-800">
                                 <h2 class="font-medium mx-2 my-2">{{ concept.answer }}</h2>
                             </a>
-                    {% endfor %}
-                    {% for concept in learningConcepts %}
-                        <a id="{{ concept.id }}" data-answer="{{ concept.answer }}" data-definition="{{ concept.definition }}" href="{% url 'conceptPage' board_id=board.id concept_id=concept.id%}" class="conceptButton learningConcept bg-yellow-600 rounded-2xl py-1 justify-items-center border text-white text-lg border-black shadow-md shadow-black hover:bg-yellow-800">
-                            <h2 class="font-medium mx-2 my-2">{{ concept.answer }}</h2>
-                        </a>
-                    {% endfor %}
-                    {% for concept in unknownConcepts %}
-                        <a id="{{ concept.id }}" data-answer="{{ concept.answer }}" data-definition="{{ concept.definition }}" href="{% url 'conceptPage' board_id=board.id concept_id=concept.id%}" class="conceptButton unknownConcept bg-red-500 rounded-2xl py-1 justify-items-center border text-white text-lg border-black shadow-md shadow-black hover:bg-red-800">
-                            <h2 class="font-medium mx-2 my-2">{{ concept.answer }}</h2>
-                        </a>
+                        {% elif concept.unknown %}
+                            <a id="{{ concept.id }}" data-answer="{{ concept.answer }}" data-definition="{{ concept.definition }}" href="{% url 'conceptPage' board_id=board.id concept_id=concept.id%}" class="conceptButton unknownConcept bg-red-500 rounded-2xl py-1 justify-items-center border text-white text-lg border-black shadow-md shadow-black hover:bg-red-800">
+                                <h2 class="font-medium mx-2 my-2">{{ concept.answer }}</h2>
+                            </a>
+                        {% endif %}
                     {% endfor %}
                 </div>
                 <div id="new-concept-dropdown" class="hidden absolute flex flex-col top-9 right-8 bg-gray-800 gap-y-2 py-2 px-2 w-fit h-fit rounded shadow-md shadow-black"> 
                     <a href="{% url 'newConcept' board.id %}" class="bg-gray-600 px-2 py-1 text-white text-md font-bold rounded hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-700 hover:bg-gray-500">Create New Concept</a>
-                    <form id="upload-csv" method="POST" action="{% url 'addConcepts' board.id%}">
+                    <form id="upload-csv" method="POST" action="{% url 'uploadConceptsCSV' board.id%}">
                         {% csrf_token %}
                         <div class="bg-gray-600 justify-items-center px-2 py-1 text-white text-md font-bold rounded hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-700 hover:bg-gray-500 flex-row justify-between ">
                             <label for="concept-file" action="{% url 'uploadConceptsCSV' board.id %}" class="cursor-pointer">Upload Concept CSV</label>
@@ -296,19 +296,14 @@
                         modalBackdrop.classList.toggle('hidden');
 
                         const newConceptsCount = data.newConceptsCount ?? 0;
-                        const newTagsCount = data.newTags.length ?? 0;
+                        const newTagsCount = data.newTagsCount ?? 0;
 
                         csvConceptText.textContent = `Are you sure you want to add ${newConceptsCount} new concepts?`;
                         csvTagText.textContent = `Are you sure you want to add ${newTagsCount} new tags?`;
-                        confirmCSVUpload.addEventListener('click', () =>{
+                        confirmCSVUpload.onclick = () => {
                             const confirmFormData = new FormData();
-                            confirmFormData.append('confirm', true)
-                            data.newTags.forEach(tag => {
-                                confirmFormData.append('newTags', tag);
-                            });
-                            data.newConcepts.forEach(concept => {
-                               confirmFormData.append('newConcepts', JSON.stringify(concept)); 
-                            });
+                            confirmFormData.append('confirm', true);
+                            confirmFormData.append('file', conceptCSVInput.files[0]);
                             fetch(`/board/${boardID}/uploadConcepts/`, {
                                 method : 'POST',
                                 headers : {
@@ -319,18 +314,18 @@
                             .then(res => res.json())
                             .then(data => {
                                 if(data.success) {
-                                    window.location.reload();
+                                    window.location.reload()
                                 } else {
-                                    console.error('Failed Upload');
+                                    console.error('Upload Failed', data);
                                 }
-                            });
-                        });
+                            })
+                            .catch(err => console.error('Upload Failed', err))
+                        }
                     }
-                })
-                .catch(err => console.error('Upload Failed', err))
-            } else console.error('No File Detected');
+                });
+            }
         });
-        
+
         loadSessionsSettings.addEventListener('click', (e) => {
             e.stopPropagation();
             loadSettingsModal.classList.remove('hidden');
@@ -388,6 +383,3 @@
 
     </script>
 {% endblock %}
-<!--        
-
--->
