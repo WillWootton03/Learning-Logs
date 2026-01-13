@@ -128,7 +128,11 @@
             answerInput.classList.remove('shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'shadow','border-green-500', 'shadow-green-500', 'focus:border-green-500', 'focus:shadow-green-500');
             answerInput.classList.remove('shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'border-red-500', 'shadow-red-500', 'focus:border-red-500', 'focus:shadow-red-500');
             answerInput.classList.add('shadow-md');
-            questionAnswer.textContent = currentQuestion.answer;
+            if(randomQuestionType === 'answer' ){
+                questionAnswer.textContent = currentQuestion.answer;
+            } else if (randomQuestionType === 'definition'){
+                questionAnswer.textContent = currentQuestion.definition;
+            }
         } else if(randomQuestionType == 'mutliple_choice') {
             multipleChoiceBox.classList.remove('hidden');
         } else if(randomQuestionType == 'true_or_false') {
