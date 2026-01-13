@@ -36,8 +36,8 @@ class Concept(models.Model):
     unknown = models.BooleanField(default=True)
     count = models.IntegerField(default=0)
     maxCount = models.IntegerField(default=0)
-    tags = models.ManyToManyField(Tag, blank=True, related_name='concepts')
-    questions = models.ManyToManyField(Question, related_name='questions')
+    tags = models.ManyToManyField(Tag, blank=True, related_name='tags')
+    questions = models.ManyToManyField(Question, related_name='concepts')
 
     def __str__(self):
         return self.answer

@@ -34,15 +34,15 @@
                         <!--Section for known concepts-->
                         <div class="h-12 my-9 mx-8 rounded-2xl w-[90%] bg-gray-800 flex items-center justify-between shadow-md shadow-black">
                             <h2 class="text-2xl font-bold px-4 text-left text-white cursor-default">Known Concepts </h2>
-                            <h2 class="text-2xl font-bold px-4 text-right text-white cursor-default">{{ knownConcepts.count }}</h2>
+                            <h2 class="text-2xl font-bold px-4 text-right text-white cursor-default">{{ knownConceptsCount }}</h2>
                         </div>
                             <div class="h-12 my-9 mx-8 rounded-2xl w-[90%] bg-gray-800 flex items-center justify-between shadow-md shadow-black">
                             <h2 class="text-2xl font-bold px-4 text-left text-white cursor-default">Learning Concepts</h2>
-                            <h2 class="text-2xl font-bold px-4 text-right text-white cursor-default">{{ learningConcepts.count }}</h2>
+                            <h2 class="text-2xl font-bold px-4 text-right text-white cursor-default">{{ learningConceptsCount }}</h2>
                         </div>
                             <div class="h-12 my-9 mx-8 rounded-2xl w-[90%] bg-gray-800 flex items-center justify-between shadow-md shadow-black">
                             <h2 class="text-2xl text-white font-bold px-4 text-left cursor-default">Unknown Concepts</h2>
-                            <h2 class="text-2xl text-white font-bold px-4 text-right cursor-default">{{ unknownConcepts.count }}</h2>
+                            <h2 class="text-2xl text-white font-bold px-4 text-right cursor-default">{{ unknownConceptsCount }}</h2>
                         </div>
                     </div>
                 </div>
@@ -86,20 +86,20 @@
                     <button id="toggle-new-concept" class="bg-purple-500 text-black rounded-full px-3.5 py-2 shadow-md shadow-black flex-7 hover:bg-purple-700">+</button>
                 </div>
                 <div id="concept-grid" class="grid grid-cols-6 w-full h-full auto-rows-min gap-2 p-2 overflow-y-auto">
-                    {% for concept in concepts %}
-                        {% if concept.known %}
-                                <a id="{{ concept.id }}" data-answer="{{ concept.answer }}" data-definition="{{ concept.definition }}" href="{% url 'conceptPage' board_id=board.id concept_id=concept.id%}" class="conceptButton knownConcept bg-green-600 rounded-2xl py-1 justify-items-center border text-white text-lg border-black shadow-md shadow-black hover:bg-green-800">
-                                    <h2 class="font-medium mx-2 my-2">{{ concept.answer }}</h2>
-                                </a>
-                        {% elif concept.learning %}
-                            <a id="{{ concept.id }}" data-answer="{{ concept.answer }}" data-definition="{{ concept.definition }}" href="{% url 'conceptPage' board_id=board.id concept_id=concept.id%}" class="conceptButton learningConcept bg-yellow-600 rounded-2xl py-1 justify-items-center border text-white text-lg border-black shadow-md shadow-black hover:bg-yellow-800">
-                                <h2 class="font-medium mx-2 my-2">{{ concept.answer }}</h2>
-                            </a>
-                        {% elif concept.unknown %}
-                            <a id="{{ concept.id }}" data-answer="{{ concept.answer }}" data-definition="{{ concept.definition }}" href="{% url 'conceptPage' board_id=board.id concept_id=concept.id%}" class="conceptButton unknownConcept bg-red-500 rounded-2xl py-1 justify-items-center border text-white text-lg border-black shadow-md shadow-black hover:bg-red-800">
-                                <h2 class="font-medium mx-2 my-2">{{ concept.answer }}</h2>
-                            </a>
-                        {% endif %}
+                    {% for concept in knownConcepts %}
+                        <a id="{{ concept.id }}" data-answer="{{ concept.answer }}" data-definition="{{ concept.definition }}" href="{% url 'conceptPage' board_id=board.id concept_id=concept.id%}" class="conceptButton knownConcept bg-green-600 rounded-2xl py-1 justify-items-center border text-white text-lg border-black shadow-md shadow-black hover:bg-green-800">
+                            <h2 class="font-medium mx-2 my-2">{{ concept.answer }}</h2>
+                        </a>
+                    {% endfor %}
+                    {% for concept in learningConcepts %}
+                        <a id="{{ concept.id }}" data-answer="{{ concept.answer }}" data-definition="{{ concept.definition }}" href="{% url 'conceptPage' board_id=board.id concept_id=concept.id%}" class="conceptButton learningConcept bg-yellow-600 rounded-2xl py-1 justify-items-center border text-white text-lg border-black shadow-md shadow-black hover:bg-yellow-800">
+                            <h2 class="font-medium mx-2 my-2">{{ concept.answer }}</h2>
+                        </a>
+                    {% endfor %}
+                    {% for concept in unknownConcepts %}
+                        <a id="{{ concept.id }}" data-answer="{{ concept.answer }}" data-definition="{{ concept.definition }}" href="{% url 'conceptPage' board_id=board.id concept_id=concept.id%}" class="conceptButton unknownConcept bg-red-500 rounded-2xl py-1 justify-items-center border text-white text-lg border-black shadow-md shadow-black hover:bg-red-800">
+                            <h2 class="font-medium mx-2 my-2">{{ concept.answer }}</h2>
+                        </a>
                     {% endfor %}
                 </div>
                 <div id="new-concept-dropdown" class="hidden absolute flex flex-col top-9 right-8 bg-gray-800 gap-y-2 py-2 px-2 w-fit h-fit rounded shadow-md shadow-black"> 

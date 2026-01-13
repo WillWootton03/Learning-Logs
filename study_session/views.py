@@ -1,9 +1,12 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
+from django.db.models import Prefetch
 from django.http import JsonResponse
 from django.urls import reverse
 from django.views.decorators.http import require_POST
+from django.contrib.postgres.aggregates import ArrayAgg
+from django.db.models import F, Count, Q
 import json
 import uuid
 import random
@@ -73,46 +76,49 @@ def deleteSessionSettings(request, board_id, sessionSettings_id):
 
 @login_required
 def sessionSettingsToggleTags(request, board_id, sessionSettings_id, tag_id):
-    board = Board.objects.get(id=board_id)
-    sessionSettings = SessionSettings.objects.get(id=sessionSettings_id)
+    sessionSettings = SessionSettings.objects.prefetch_related(
+        Prefetch('tags', list(SessionSettings.tags.values('id', 'name')))
+    ).get(id=sessionSettings_id)
+
+    board = Board.objects.prefetch_related(
+        Prefetch('availableTags', queryset=list(Tag.objects.filter(board_id=board_id).exclude(id__in=sessionSettings.sessionSettingsTags.all().values_list('id', flat=True)).values('id', 'name')))
+    ).get(id=board_id)
+    
     tag = Tag.objects.get(id=tag_id)
 
-    if tag in SessionSettings.tags.all():
+    if tag in sessionSettings.tags:
         sessionSettings.tags.remove(tag)
     else:
         sessionSettings.tags.add(tag)
 
     #Updates tag boxes
-    sessionSettingsTags = list(SessionSettings.tags.values('id', 'name'))
-    availableTags = list(board.tags.exclude(id__in=sessionSettings.tags.all().values_list('id', flat=True)).values('id','name'))
+    # sessionSettingsTags = list(SessionSettings.tags.values('id', 'name'))
+    # availableTags = list(board.tags.exclude(id__in=sessionSettings.tags.all().values_list('id', flat=True)).values('id','name'))
 
-    return JsonResponse({'sessionSettingsTags' : sessionSettingsTags, 'availableTags' : availableTags})
+    return JsonResponse({'sessionSettingsTags' : sessionSettings.sessionSettingsTags, 'availableTags' : board.availableTags})
 
 
 @login_required
 def sessionStart(request, board_id, sessionSettings_id):
-    board = Board.objects.get(id=board_id)
     sessionSettings = SessionSettings.objects.get(id=sessionSettings_id)
+
     if request.method == 'POST':
         data = json.loads(request.body)
-        availableConcepts = []
+        tagUuids = list({uuid.UUID(t) for t in data['tags']})
+        tagCount = len(tagUuids)
+        if sessionSettings.isExclusive:
+            board = Board.objects.prefetch_related(
+                Prefetch('concepts', queryset=Concept.objects.annotate(matchedTags=Count('tags', filter=Q(tags__id__in=tagUuids), distinct=True),
+                                                                       totalTags=Count('tags', distinct=True)
+                                                                       ).filter(matchedTags=tagCount, totalTags=tagCount), to_attr='filteredConcepts')).get(id=board_id)
+        else:
+            board = Board.objects.prefetch_related(
+                Prefetch('concepts', queryset=Concept.objects.annotate(matchedTags=Count('tags', filter=Q(tags__id__in=tagUuids), distinct=True)).filter(matchedTags=tagCount), to_attr='filteredConcepts') 
+            ).get(id=board_id)
 
         # Converts the input strings from data into actual UUID objects
-        tagUuids = {uuid.UUID(t) for t in data['tags']} 
-
-        for concept in board.concepts.all():
-            conceptTagIds = set(concept.tags.values_list('id', flat=True))
-            if sessionSettings.isExclusive:
-                isValid = tagUuids == conceptTagIds
-            else:
-                isValid = tagUuids.issubset(conceptTagIds)
-
-            if isValid:
-                availableConcepts.append(concept)
-
-        print(availableConcepts)
         session = Session.objects.create(board=board)
-        session.concepts.set(availableConcepts)
+        session.concepts.set(board.filteredConcepts)
 
         return JsonResponse({'success' : True, 'redirect_url' : reverse('sessionPage', args=[board_id, session.id])})
     return JsonResponse({'success' : False})
@@ -120,57 +126,93 @@ def sessionStart(request, board_id, sessionSettings_id):
 @login_required
 def sessionPage(request, board_id, session_id):
     board = Board.objects.get(id=board_id)
-    session = Session.objects.get(id=session_id)
+    session = Session.objects.prefetch_related(
+        Prefetch('concepts',  to_attr='sessionConcepts')
+    ).get(id=session_id)
 
-    concepts = session.concepts.all()
+    questions = {}
 
-    if concepts.exists():
-        question = random.choice(concepts)
+    if session.sessionConcepts:
+        for concept in session.sessionConcepts:
+            questions[str(concept.id)] = {'answer' : concept.answer, 'definition' : concept.definition, 'hint' : concept.hint, 'count' : concept.count, 'known' : concept.known, 'unknown' : concept.unknown}
 
-    return render(request, 'sessions/sessionPage.html', {'board' : board, 'session' : session, 'question' : question})
+    questions =  json.dumps(questions)
+    return render(request, 'sessions/sessionPage.html', {'board' : board, 'session' : session, 'questions' : questions})
 
 @login_required
 @require_POST
-def newQuestion(request, board_id, session_id):
+def submitSession(request, board_id, session_id):
     board = Board.objects.get(id=board_id)
-    session = Session.objects.get(id=session_id)
+    if request.body:
+        data = json.loads(request.body)
+        submittedQuestions = {uuid.UUID(k): v for k, v in data.get('questions').items()}
+
+        questionIds = list(submittedQuestions.keys())
+        questions = list(Concept.objects.filter(id__in=questionIds))
+
+        for concept in questions:
+            questionData = submittedQuestions[concept.id]
+            for field, value in questionData.items():
+                setattr(concept, field, value)
+
+        Concept.objects.bulk_update(questions, ['count', 'known', 'unknown'])        
+
+        Session.objects.filter(id=session_id).update(
+            correctAnswers=data.get('correctAnswers'),
+            incorrectAnswers=data.get('incorrectAnswers')
+        )
+    
+        return JsonResponse({'success' : True, 'redirect_url': reverse('boardPage', args=[board_id])})
+    return JsonResponse({'success' : False})
+""" 
+@login_required
+@require_POST
+def newQuestion(request, board_id, session_id):
     data = json.loads(request.body)
     questionId = uuid.UUID(data.get('questionId'))
-    concepts = session.concepts.exclude(id=questionId)
-    if concepts.exists():
-        question = random.choice(concepts)
-    return JsonResponse({'success' : True, 'questionAnswer' : question.answer, 'questionId' : question.id, 'questionHint' : question.hint, 'questionAnswer' : question.answer })
+    session = Session.objects.prefetch_related(
+        Prefetch('concepts', queryset=Concept.objects.exclude(id=questionId), to_attr='sessionConcepts')
+    ).get(id=session_id)
+
+    if session.sessionConcepts:
+        question = random.choice(session.sessionConcepts)
+    else:
+        return JsonResponse({'success': False})
+
+    return JsonResponse({'success' : True, 'questionAnswer' : question.answer, 'questionId' : question.id, 'questionHint' : question.hint })
 
 @login_required
 @require_POST
 def submitAnswer(request, board_id, session_id):
-    board = Board.objects.get(id=board_id)
-    session = Session.objects.get(id=session_id)
-    submitedAnswer = request.POST.get('answer-input', '') 
-    submitedAnswer = str(submitedAnswer).strip().lower()
+
+    submitedAnswer = str(request.POST.get('answer-input', '')).strip().lower()
     question_id = request.POST.get('question_id')
-    if(question_id):
-        try:
-            question_id = uuid.UUID(question_id)
-            concept = Concept.objects.get(id=question_id)
-            if(concept):
-                acceptableDefinitions = concept.definition.strip().lower().split('/')
-                print(acceptableDefinitions)
-                result = (submitedAnswer in acceptableDefinitions)
-                if result:
-                    session.correctAnswers += 1
-                    concept.count += 1
-                    if concept.count >= board.knownThreshold:
-                        concept.known = True
-                    if concept.unknown:
-                        concept.unknown = False
-                else:
-                    session.incorrectAnswers += 1
-                    concept.count = 0
-                    concept.known = False
-                concept.save()
-                session.save()
-                return JsonResponse({'success' : True, 'result' : result, 'answer' : concept.definition })
-        except:
-            return JsonResponse({'success' : False})
-    return JsonResponse({'success' : False})
+
+    board = Board.objects.only('knownThreshold').get(id=board_id)
+    session = Session.objects.get(id=session_id)
+
+    try:
+        question_id = uuid.UUID(question_id)
+        concept = Concept.objects.get(id=question_id)
+    except:
+        return JsonResponse({'success' : False})
+    
+    acceptableDefinitons = [definition.strip().lower() for definition in concept.definition.strip().lower().split('/')]
+    result = submitedAnswer in acceptableDefinitons
+    
+    if result:
+        concept.count += 1
+        concept.known = concept.count >= board.knownThreshold
+        concept.unknown = False
+        concept.save(update_fields=['count', 'known', 'unknown'])
+        session.correctAnswers += 1
+        session.save(update_fields=['correctAnswers'])
+    else:
+        concept.count = 0
+        concept.save(update_fields=['count'])
+        session.incorrectAnswers += 1
+        session.save(update_fields=['incorrectAnswers'])
+
+
+    return JsonResponse({'success' : True, 'result' : result, 'answer' : concept.definition })
+    """

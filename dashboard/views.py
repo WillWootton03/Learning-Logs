@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.urls import reverse
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Prefetch
 
 
 import matplotlib
@@ -52,14 +52,15 @@ def boards(request):
 
 @login_required
 def boardPage(request, board_id):
-    board = Board.objects.get(id=board_id)
-    concepts = board.concepts.all()
+    board = Board.objects.prefetch_related(
+        Prefetch('concepts', to_attr='allConcepts'),
+    ).get(id=board_id)
     logs = board.logs.order_by('-dateAdded')[:50]
-    sessions = board.sessions.all()[:20]
+    sessions = board.sessions.order_by('-dateAdded')[:20]
 
-    knownConcepts = [concept for concept in concepts if concept.known ]
-    unknownConcepts = [concept for concept in concepts if concept.unknown]
-    learningConcepts = [concept for concept in concepts if not concept.known and not concept.unknown]
+    knownConcepts = [concept for concept in board.allConcepts if concept.known ]
+    unknownConcepts = [concept for concept in board.allConcepts if concept.unknown]
+    learningConcepts = [concept for concept in board.allConcepts if not concept.known and not concept.unknown]
 
     graphLabels = ['Known Concepts', 'Learning Concepts', 'Unknown Concepts']
     graphValues = [len(knownConcepts), len(learningConcepts), len(unknownConcepts)]
@@ -84,7 +85,7 @@ def boardPage(request, board_id):
     uri = "data:image/png;base64," + urllib.parse.quote(string)
 
 
-    return render(request, 'dashboard/boardPage.html', {'board' : board, 'logs' : board.logs.all(), 'chart' : uri, 'sessions' : board.sessions.all(), 'concepts' : concepts, 'conceptsCount' : len(concepts)})
+    return render(request, 'dashboard/boardPage.html', {'board' : board, 'logs' : logs, 'chart' : uri, 'sessions' : sessions,  'knownConceptsCount' : len(knownConcepts), 'learningConceptsCount' : len(learningConcepts), 'unknownConceptsCount' : len(unknownConcepts), 'knownConcepts' : knownConcepts, 'learningConcepts' : learningConcepts, 'unknownConcepts' : unknownConcepts})
 
 
 @login_required 
