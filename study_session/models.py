@@ -1,7 +1,7 @@
 from django.db import models
 import uuid
 
-from dashboard.models import Board, Concept, Tag
+from dashboard.models import Board, Concept, Tag, Question
 
 
 # Create your models here.
@@ -19,5 +19,6 @@ class SessionSettings(models.Model):
     board = models.ForeignKey(Board, on_delete=models.CASCADE, related_name='sessionSettings')
     tags = models.ManyToManyField(Tag, blank=True, related_name='sessions')
     isExclusive = models.BooleanField(default=False)
+    questionType = models.ForeignKey(Question, default='answer', related_name='sessionSettings', on_delete=models.CASCADE)
     numQuestions = models.IntegerField(default=0)
     dateAdded = models.DateTimeField(auto_now_add=True)

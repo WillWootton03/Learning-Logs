@@ -12,7 +12,7 @@ import uuid
 import random
 
 from .models import Session, SessionSettings
-from dashboard.models import Board, Tag, Concept
+from dashboard.models import Board, Tag, Concept, Question
 
 
 # Create your views here.
@@ -56,6 +56,9 @@ def updateSessionSettings(request, board_id, sessionSettings_id):
             sessionSettings.tags.set(tags)
         if 'isExclusive' in data:
             sessionSettings.isExclusive = data['isExclusive']
+        if 'question' in data:
+            question = Question.objects.get(title=data.get('question'))
+            sessionSettings.questionType = question
         
         sessionSettings.save()
 
@@ -64,7 +67,11 @@ def updateSessionSettings(request, board_id, sessionSettings_id):
     sessionSettingsTags = list(sessionSettings.tags.all().values('id','name'))
     availableTags_qs = board.tags.exclude(id__in=sessionSettings.tags.values_list('id', flat=True))
     availableTags = list(availableTags_qs.values('id','name'))
-    return render (request, 'sessions/sessionSettings.html', {'board': board, 'sessionSettings' : sessionSettings,  'availableTags' : availableTags, 'sessionSettingsTags' : sessionSettingsTags })
+    questionOptions = list(Question.objects.all().values('title'))
+    for option in questionOptions:
+        option['formattedTitle'] = option['title'].replace('_', ' ').title()
+    question = sessionSettings.questionType.title.replace('_', ' ').title()
+    return render (request, 'sessions/sessionSettings.html', {'board': board, 'sessionSettings' : sessionSettings,  'availableTags' : availableTags, 'sessionSettingsTags' : sessionSettingsTags, 'options' : questionOptions, 'defaultQuestion' : question })
 
 @login_required
 @require_POST

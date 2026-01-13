@@ -168,21 +168,17 @@
 
 
     // Allows to make sure when reloading the page you are redirected back to the main page and cant continue that learning session
-    window.addEventListener('load', () => {
+/*    window.addEventListener('load', () => {
         const navigationEntries = performance.getEntriesByType('navigation');
         const type = navigationEntries.length > 0 ? navigationEntries[0].type : null
         if(type === 'reload'){
             submitSession();
         }
     });
-
+*/
     window.addEventListener('load', () => {
         nextQuestion();
     });
-    /*
-    path('board/<uuid:board_id>/sessions/<uuid:session_id>/submitAnswer/', submitAnswer, name='submitAnswer'),
-    path('board/<uuid:board_id>/sessions/<uuid:session_id>/newQuestion/', newQuestion, name='newQuestion'),
-    */
 </script>
 {% endblock %}
 
