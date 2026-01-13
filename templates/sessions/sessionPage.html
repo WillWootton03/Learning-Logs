@@ -5,7 +5,8 @@
     <div class="h-full w-[95%] bg-gray-800 rounded-2xl shadow-md shadow-black flex flex-col gap-y-12 px-20 justify-center text-center items-center relative">
             <h2 id="question-answer" class="bg-gray-700 px-3 py-3 max-h-[40vh] max-w-[80vw] rounded text-white font-bold text-center flex items-center justify-center shadow-[0_0px_15px_rgba(0,0,0,0.9)] shadow-purple-600 cursor-default">{{ question.answer }}</h2>
             <div class="flex flex-col gap-y-4 align-items-center">
-                <div class="flex flex-col gap-y-4 align-items-center" >
+                <!---->
+                <div id="answer-definition-box" class="hidden flex flex-col gap-y-4 align-items-center" >
                     {% csrf_token %}
                     <input id="answer-input" required name="answer-input" autocomplete="off" 
                     class="bg-gray-600 text-2xl py-2 focus:shadow-[0_0px_15px_rgba(0,0,0,0.9)] shadow-md shadow-black focus:shadow-purple-600 focus:border-purple-800 focus:outline-0 text-center rounded border-3 border-purple-950 text-white" 
@@ -13,11 +14,26 @@
                     <h2 id="correct-answer" class="hidden text-2xl text-white"></h2>
                     <button id="submit-button" type="submit" class="text-center bg-blue-800 text-white px-10 w-full py-3 shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-blue-600 hover:bg-blue-600 font-bold text-2xl rounded-2xl">Submit</button>
                 </div>
-                    <div class="h-fit w-fit flex flex-row gap-x-3">
-                        <button id="hint-button" class="w-full text-center bg-orange-400 text-white px-10 py-3 shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-orange-300 hover:bg-orange-300 font-bold text-2xl rounded-2xl">Hint</button>
-                        <a href="#" id="edit-button" class="hidden w-full text-center bg-indigo-500 text-white px-10 py-3 shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-indigo-400 hover:bg-indigo-400 font-bold text-2xl rounded-2xl">Edit</a>
-                    </div>
+                <!--Div for when a question is multiple choice-->
+                <div id="multiple-choice-box" class="hidden grid grid-cols-2 grid-rows-2 gap-y-4 gap-x-4 align-items-center" >
+                    <button class="w-full text-center bg-gray-700 text-white px-16 py-3 border-3 border-transparent shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-blue-600 hover:bg-gray-600 font-bold text-2xl rounded-2xl">Option a</button>
+                    <button class="w-full text-center bg-gray-700 text-white px-16 py-3 border-3 border-transparent shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-blue-600 hover:bg-gray-600 font-bold text-2xl rounded-2xl">Option a</button>
+                    <button class="w-full text-center bg-gray-700 text-white px-16 py-3 border-3 border-transparent shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-blue-600 hover:bg-gray-600 font-bold text-2xl rounded-2xl">Option a</button>
+                    <button class="w-full text-center bg-gray-700 text-white px-16 py-3 border-3 border-transparent shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-blue-600 hover:bg-gray-600 font-bold text-2xl rounded-2xl">Option a</button>
+                </div>
+                <!--Div for when a question is true or false-->
+                <div id="true-or-false-box" class="hidden flex flex-row gap-x-4 align-items-center">
+                    <button id="true-button" class="w-full text-center bg-gray-700 text-white px-16 py-3 shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-blue-600 hover:bg-gray-600 font-bold text-2xl rounded-2xl">True</button>
+                    <button id="false-button" class="w-full text-center bg-gray-700 text-white px-16 py-3 shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-red-600 hover:bg-gray-600 font-bold text-2xl rounded-2xl">False</button>
+                </div>
+                <!--Bottom of the page buttons div-->
+                <div class="h-fit w-fit flex flex-row gap-x-3">
+                    <button id="hint-button" class="w-full text-center bg-orange-400 text-white px-10 py-3 shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-orange-300 hover:bg-orange-300 font-bold text-2xl rounded-2xl">Hint</button>
+                    <a href="#" id="edit-button" class="hidden w-full text-center bg-indigo-500 text-white px-10 py-3 shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-indigo-400 hover:bg-indigo-400 font-bold text-2xl rounded-2xl">Edit</a>
+                </div>
+                <!--Top right close session button-->
                 <button id="close-session" class="absolute top-4 right-4 px-3 py-2 bg-red-600 rounded-3xl text-lg text-white shadow-md shadow-black">X</button>
+                <!--Bottom of the page hint section-->
                 <div id="hint" class="hidden h-max-[20%] w-max-[80%] h-fit w-fit bg-gray-700 text-2xl text-white px-2 py-2 rounded shadow-[0_0px_15px_rgba(0,0,0,0.9)] shadow-orange-400">
                         <p>{{ question.hint }}</p>
                     </div>
@@ -27,24 +43,37 @@
 
     <!--Fitty to help text sizing-->
     <script src="https://unpkg.com/fitty/dist/fitty.min.js"></script>
+    {{ questions|json_script:'questions-data' }}
+    {{ questionTypes|json_script:'question-types-data'}}
 <script>
 
 
-    const boardId = '{{ board.id }}' 
-    const sessionId = '{{ session.id }}'
-    const questions = '{{ questions|safe }}'
+    const boardId = '{{ board.id }}' ;
+    const sessionId = '{{ session.id }}';
+    const questions = JSON.parse(document.getElementById('questions-data').textContent);
+    const questionTypes = JSON.parse(document.getElementById('question-types-data').textContent);
     const questionsObjs = JSON.parse(questions.replace(/'/g, '"'));
     let questionKeys = Object.keys(questionsObjs);
     const csrf_token = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-    const answerInput = document.getElementById('answer-input');
-    const questionAnswer = document.getElementById('question-answer');
     const submitButton = document.getElementById('submit-button');
     const correctAnswer = document.getElementById('correct-answer');
     const hintBtn = document.getElementById('hint-button');
     const editBtn = document.getElementById('edit-button');
     const hint = document.getElementById('hint');
     const closeSessionBtn = document.getElementById('close-session');
+
+    const answerDefinitionBox = document.getElementById('answer-definition-box');
+    const answerInput = document.getElementById('answer-input');
+    const questionAnswer = document.getElementById('question-answer');
+
+    const trueOrFalseChoiceBox = document.getElementById('true-or-false-box');
+    const trueBtn = document.getElementById('true-button');
+    const falseBtn = document.getElementById('false-button');
+
+    const multipleChoiceBox = document.getElementById('multiple-choice-box');
+
+    let randomQuestionType = '';
 
     let currentQuestion = null;
     let canSubmitAnswer = true;
@@ -77,32 +106,54 @@
 
     function nextQuestion() {
         const randomIndex = questionKeys[Math.floor(Math.random() * questionKeys.length)];
+        answerDefinitionBox.classList.add('hidden');
+        multipleChoiceBox.classList.add('hidden');
+        trueOrFalseChoiceBox.classList.add('hidden');
         if(currentQuestion !== null){
             currentQuestion = questionsObjs[randomIndex];
             questionKeys.splice(randomIndex, 1);
         } else {
             currentQuestion = questionsObjs[randomIndex];
         }
+        // Gets the intersection between current question's question types and the sessions available question types
+        const questionPossibilites = questionTypes.filter(item => currentQuestion.questionTypes.includes(item));
+
+        // Gets a random question type to be used for the random question
+        randomQuestionType =  questionPossibilites[Math.floor(Math.random() * questionPossibilites.length)];
+
+        if(randomQuestionType === 'answer' || randomQuestionType === 'definition' ) {
+            answerDefinitionBox.classList.remove('hidden');
+            questionAnswer.classList.remove('shadow-green-600', 'shadow-red-600');
+            questionAnswer.classList.add('shadow-purple-600');
+            answerInput.classList.remove('shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'shadow','border-green-500', 'shadow-green-500', 'focus:border-green-500', 'focus:shadow-green-500');
+            answerInput.classList.remove('shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'border-red-500', 'shadow-red-500', 'focus:border-red-500', 'focus:shadow-red-500');
+            answerInput.classList.add('shadow-md');
+            questionAnswer.textContent = currentQuestion.answer;
+        } else if(randomQuestionType == 'mutliple_choice') {
+            multipleChoiceBox.classList.remove('hidden');
+        } else if(randomQuestionType == 'true_or_false') {
+            trueOrFalseChoiceBox.classList.remove('hidden');
+        }
+        currentQuestionTypes = currentQuestion.questions;
         submitButton.textContent = 'Submit';
         submitButton.classList.remove('bg-green-600', 'hover:bg-green-600', 'hover:shadow-green-600');
         submitButton.classList.add('bg-blue-800', 'hover:bg-blue-600', 'hover:shadow-blue-600');
-        questionAnswer.classList.remove('shadow-green-600', 'shadow-red-600');
-        questionAnswer.classList.add('shadow-purple-600');
-        answerInput.classList.remove('shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'shadow','border-green-500', 'shadow-green-500', 'focus:border-green-500', 'focus:shadow-green-500');
-        answerInput.classList.remove('shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'border-red-500', 'shadow-red-500', 'focus:border-red-500', 'focus:shadow-red-500');
-        answerInput.classList.add('shadow-md');
         editBtn.classList.add('hidden');
         editBtn.href = `/board/${boardId}/concepts/${randomIndex}/session/${sessionId}/`;
-        questionAnswer.textContent = currentQuestion.answer;
         hint.textContent = currentQuestion.hint;
         correctAnswer.classList.add('hidden'),
         answerInput.value = '';
         hint.classList.add('hidden');
     }
-    
+   
     function submitAnswer(){
         const answerValue = answerInput.value.trim();
-        const possibleAnswers = currentQuestion.definition.toLowerCase().trim().split('/');
+        let possibleAnswers = '';
+        if(randomQuestionType === 'answer'){
+            possibleAnswers = currentQuestion.definition.toLowerCase().trim().split('/');
+        } else if (randomQuestionType === 'definition') {
+            possibleAnswers = currentQuestion.answer.toLowerCase().trim().split('/');
+        }
         if(!answerValue) {
             alert('No Answer Given');
             return;
@@ -120,7 +171,6 @@
                 currentQuestion.count += 1;
                 if(currentQuestion.unknown) { currentQuestion.unknown = false; }
                 correctAnswers += 1;
-                console.log(correctAnswers);
             } else {
                 questionAnswer.classList.add('shadow-red-600');
                 answerInput.classList.remove('shadow-md');
@@ -130,7 +180,6 @@
                 currentQuestion.count = 0;
                 if(currentQuestion.known) { currentQuestion.known = false; }
                 incorrectAnswers += 1;
-                console.log(incorrectAnswers);
             }
         }
     }

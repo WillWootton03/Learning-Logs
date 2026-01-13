@@ -67,22 +67,9 @@
                     <div class="w-full h-full bg-gray-900 rounded-2xl py-2 justify-items-center">
                         <!--Questions Dropdown-->
                         <div class="relative w-[90%]">
-                            <div class="w-full h-fit flex flex-col bg-gray-700 rounded-2xl align-items-center px-1 py-2 gap-y-3">
+                            <div class="w-full h-fit flex flex-col bg-gray-800 rounded-2xl align-items-center px-1 py-2 gap-y-3">
                                 <h2 class="text-2xl text-white">Question Type</h2>
-                                <button type="button" id="question-dropdown" class="shadow-md shadow-black border-none bg-gray-600 px-4 text-gray-200 w-full py-2 rounded flex justify-between items-center hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-500 cursor-pointer hover:bg-gray-700 focus:shadow-[0_0px_15px_rgba(0,0,0,0.9)] focus:shadow-purple-500 ">
-                                    <span id="question-dropdown-text">{{ defaultQuestion }}</span>
-                                    <svg id="downarrow-chevron" class="w-5 h-5 bg-gray-400 rounded text-gray-600" fill="none" stroke="currentColor" viewbox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M19 9l-7 7-7-7" />
-                                    </svg> 
-                                </button> 
-                            </div>
-                            <!--Concept amount dropdown-->
-                            <div id="questions-menu" class="hidden absolute left-1/2 transform text-center -translate-x-1/2 mt-1 w-full  rounded-md shadow-lg z-20 bg-gray-600">
-                                <div class="py-1">
-                                    {% for option in options %}
-                                        <button type="button" onclick="selectQuestion('{{ option.title }}')" class="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-500">{{ option.formattedTitle }}</button>
-                                    {% endfor %}
+                                <div id="selected-questions" class="flex flex-col gap-y-2 align-items-center px-1 py-2 min-w-full">
                                 </div>
                             </div>
                         </div>
@@ -133,7 +120,11 @@
 {% if sessionSettingsTags %}
     {{ sessionSettingsTags|json_script:"session-settings-tags-data" }}
 {% endif %}
+{% if sessionQuestions %}
+    {{sessionQuestions|json_script:"session-questions"}}
+{% endif %}
 {{ availableTags|json_script:"available-tags-data"}}
+{{ defaultQuestions|json_script:"default-questions" }}
 <script>
     const csrfToken = document.querySelector('meta[name=csrf_token]').getAttribute('content');
 
@@ -171,11 +162,18 @@
     const clearSessionTagSearch = document.getElementById("clear-session-tag-search");
     const clearAvailableTagSearch = document.getElementById('clear-available-tag-search');
 
-    const questionDropdownBtn = document.getElementById('question-dropdown');
-    const questionsMenu = document.getElementById('questions-menu');
-    const questionDropdownText = document.getElementById('question-dropdown-text')
-    let questionValue = '{{ defaultQuestion }}';
+    const defaultQuestions = JSON.parse(document.getElementById('default-questions').textContent);
 
+    const sessionQuestions = JSON.parse(document.getElementById('session-questions').textContent);
+
+    const selectedQuestions = document.getElementById('selected-questions');
+    let questionValues = [];
+
+    if(sessionQuestions){
+        questionValues = sessionQuestions.slice()
+    } else {
+        questionValues = defaultQuestions.slice();
+    }
 
     let stagedTags = [];
     let isExclusive = "{{ sessionSettings.isExclusive|yesno:'true,false' }}" === 'true' || false ;
@@ -225,23 +223,9 @@
         modalBackdrop.classList.remove('hidden');
     }
 
-    function selectQuestion(value) {
-        const questionText =`${value.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}`;
-        questionDropdownText.innerText = questionText;
-        questionValue = value;
-        questionsMenu.classList.add('hidden');
-    }
  
     cancelTagDelete.addEventListener('click', () => {
         closeConfirmTagDeleteModal();
-    });
-
-    questionDropdownBtn.addEventListener('click', () => {
-        if(questionsMenu.classList.contains('hidden')){
-        questionsMenu.classList.remove('hidden');
-        } else {
-            questionsMenu.classList.add('hidden');
-        }
     });
 
     exclusiveBtn.addEventListener('click', () => {
@@ -330,7 +314,7 @@
                 'X-CSRFToken' :csrfToken,
                 'Content-Type' : 'application/json'
             },
-            body : JSON.stringify({ tags : addTags, isExclusive : isExclusive, question : questionValue })
+            body : JSON.stringify({ tags : addTags, isExclusive : isExclusive, questions : questionValues })
         })
         .then(res => res.json())
         .then(data => {
@@ -395,7 +379,7 @@
                 'X-CSRFToken' : csrfToken,
                 'Content-Type' : 'application/json'
             },
-            body : JSON.stringify({title : sessionTitle, tags : stagedTags, isExclusive : isExclusive, question : questionValue})
+            body : JSON.stringify({title : sessionTitle, tags : stagedTags, isExclusive : isExclusive, questions : questionValues })
         })
         .then(res => res.json())
         .then(data => {
@@ -454,6 +438,35 @@
         availableTags.innerHTML = '';
         availableTagsData.forEach(tag => {
             availableTags.appendChild(createTagButton(tag, false));
+        });
+
+        defaultQuestions.forEach(question => {
+            const newValue = document.createElement('button');
+            newValue.classList.add('bg-gray-700', 'w-full', 'rounded-xl', 'py-1', 'text-xl', 'text-white', 'font-bold', 'text-center', 'border-3', 'border-transparent', 'hover:shadow-[0_0px_8px_rgba(0,0,0,0.9)]', 'hover:shadow-blue-500');
+            newValue.dataset.title=question;
+            newValue.innerText = `${question.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}`
+            if(questionValues.includes(question)){
+                newValue.classList.add('border-blue-500');
+                newValue.classList.remove('text-white');
+                newValue.classList.add('text-blue-300');
+            }
+            newValue.addEventListener('click', () => {
+                if(questionValues.includes(question)) {
+                    if(questionValues.length != 1) {
+                        questionValues.splice(questionValues.indexOf(question), 1);
+                        newValue.classList.remove('border-blue-500');
+                        newValue.classList.remove('text-blue-300');
+                        newValue.classList.add('text-white');
+                    }
+                } else {
+                    questionValues.push(question);
+                    newValue.classList.add('border-blue-500');
+                    newValue.classList.remove('text-white');
+                    newValue.classList.add('text-blue-300');
+                }
+                console.log(questionValues);
+            });
+            selectedQuestions.appendChild(newValue)
         });
 
         try { 
