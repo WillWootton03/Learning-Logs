@@ -2,25 +2,24 @@
 {% load static tailwind_tags %}
 
 {% block content %}
-
+<meta name="csrf_token" content="{{ csrf_token }}">
 <!-- Spacer equal to navbar height -->
 <div class="h-32"></div>
 
 <!--Page Container-->
-<div class="container relative mx-auto flex flex-col items-center px-4 py-12 mb-12 bg-gray-800 rounded-lg" style="min-height: calc(100vh - 7rem - 5rem);">
+<div class="container relative mx-auto flex flex-col align-items-center px-4 py-12 mb-12 bg-gray-800 rounded-lg" style="min-height: calc(100vh - 7rem - 5rem);">
         <!--New boards Title-->
-    <form method="POST">
-        {% csrf_token %}
-        <div class="bg-gray-700 rounded-xl w-[40rem] mb-6 mx-auto shadow-md shadow-black focus-within:shadow-[0_0px_15px_rgba(0,0,0,0.9)] focus-within:shadow-purple-500 hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-500">
-            {{ form.title }}
+    <div class="h-full w-full flex flex-col gap-y-8 align-items-center">
+        <div class="bg-gray-700 rounded-xl w-[60%] mx-auto shadow-md shadow-black focus-within:shadow-[0_0px_15px_rgba(0,0,0,0.9)] focus-within:shadow-purple-500 hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-500">
+            <input id="title" placeholder="Board Title" class= "text-center text-white text-2xl font-bold w-[95%] h-full bg-transparent focus:outline-none" />
         </div>
         <!--New boards Description-->
-        <div class="bg-gray-600 rounded-xl w-[60rem] h-[20rem] mb-6 p-2 mx-auto align-content-center justify-content-center shadow-md shadow-black focus-within:shadow-[0_0px_15px_rgba(0,0,0,0.9)] focus-within:shadow-purple-500 hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-500">
-                {{ form.description }}
+        <div class="bg-gray-600 rounded-xl w-[80%] h-[40%] p-2 mx-auto align-content-center justify-content-center shadow-md shadow-black focus-within:shadow-[0_0px_15px_rgba(0,0,0,0.9)] focus-within:shadow-purple-500 hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-500">
+            <input id="description" placeholder="Board Description" class="text-center text-white text-lg w-[95%] h-[95%] bg-transparent focus:outline-none" />
         </div>
         <!--New boards repetition amount dropdown-->
-        <div class="relative">
-            <button type="button" id="concept-dropdown" class="block mx-auto shadow-md shadow-black border-none bg-gray-600 px-4 text-gray-200 w-[35rem] py-2 rounded flex justify-between items-center hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-500 cursor-pointer hover:bg-gray-700 focus:shadow-[0_0px_15px_rgba(0,0,0,0.9)] focus:shadow-purple-500 ">
+        <div class="relative w-full ">
+            <button type="button" id="concept-dropdown" class=" mx-auto shadow-md shadow-black border-none bg-gray-600 px-4 text-gray-200 w-[50%] py-2 rounded flex justify-between items-center hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-500 cursor-pointer hover:bg-gray-700 focus:shadow-[0_0px_15px_rgba(0,0,0,0.9)] focus:shadow-purple-500 ">
                 <span id="dropdown-text">Choose how many times it takes to move a concept to known </span>
                 <svg id="downarrow-chevron" class="w-5 h-5 bg-gray-400 rounded text-gray-600" fill="none" stroke="currentColor" viewbox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -28,7 +27,7 @@
                 </svg> 
             </button>
             <!--Concept amount dropdown-->
-            <div id="concepts-menu" class="absolute left-1/2 transform text-center -translate-x-1/2 mt-1 w-full  rounded-md shadow-lg hidden z-20 bg-gray-600">
+            <div id="concepts-menu" class="absolute left-1/2 transform text-center -translate-x-1/2 mt-1 w-[60%]  rounded-md shadow-lg hidden z-20 bg-gray-600">
                 <div class="bg-gray-700 px-4 py-2 cursor-default text-gray-400 rounded">Choose how many times it takes to move a concept to known</div>
                 <div class="py-1">
                     {% for key, value in options.items %}
@@ -37,22 +36,57 @@
                 </div>
             </div>
         </div>
+        <div id="default-board-questions" class="h-fit w-[70%] flex flex-row align-items-center gap-x-5 ">
+            <h2 class="text-2xl w-[20%] text-white font-bold">Default Questions</h2>
+
 
         <!--Hidden for form input based on dropdown value selected-->
         <input type="hidden" name="dropdown-value" id="dropdown-value" value="">
+        <input type="hidden" name="defaultQuestions" id="default-questions-input">
 
-        <button type="submit" class="absolute bottom-4 left-1/2 transform -translate-x-1/2 shadow-md rounded text-white text-lg px-3 py-1 bg-gray-600 hover:bg-gray-700 shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-500">
+        <button id="submit-button" type="submit" class="absolute bottom-4 left-1/2 transform -translate-x-1/2 shadow-md rounded text-white text-lg px-3 py-1 bg-gray-600 hover:bg-gray-700 shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-500">
             Submit
         </button>
     </form>
 </div>
-
+{{ allQuestions|json_script:"all-questions" }}
 <script>
     const dropdownBtn = document.getElementById('concept-dropdown');
     const dropdownMenu = document.getElementById('concepts-menu');
     const dropdownValue = document.getElementById('dropdown-value');
     const dropdownText = document.getElementById('dropdown-text');
     const downArrow = document.getElementById('downarrow-chevron');
+    const defaultBoardQuestionsRow = document.getElementById('default-board-questions');
+    const defaultQuestions = JSON.parse(document.getElementById('all-questions').textContent);
+    const submitBtn = document.getElementById('submit-button');
+    const csrf_token = document.querySelector('meta[name=csrf_token]').getAttribute('content');
+
+    let stagedQuestions = [];
+    
+    function selectKnown(value, desciption){
+        dropdownText.innerText = `${value} : ${desciption}`;
+        dropdownValue.value = value;
+    }
+
+    defaultQuestions.forEach(question => {
+        const btn = document.createElement('button');
+        btn.dataset.title = question;
+        btn.type = 'button'
+        btn.innerText = `${question.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}` ;
+        btn.classList.add('bg-gray-500', 'w-full', 'h-fit', 'text-xl', 'text-white', 'font-bold', 'py-2', 'rounded', 'border-3', 'border-transparent', 'hover:bg-gray-600', 'hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'hover:shadow-purple-500')
+        btn.addEventListener('click', () => {
+            if(stagedQuestions.includes(question)){
+                stagedQuestions.splice(stagedQuestions.indexOf(question), 1);
+                btn.classList.add('text-white', 'border-transparent');
+                btn.classList.remove('text-purple-200', 'border-purple-600', 'hover:shadow-red-500', 'hover:border-red-500');
+            } else {
+                stagedQuestions.push(question);
+                btn.classList.remove('text-white', 'border-transparent');
+                btn.classList.add('text-purple-200', 'border-purple-600', 'hover:shadow-red-500', 'hover:border-red-500');
+            }
+        });
+        defaultBoardQuestionsRow.appendChild(btn);
+    });
 
     dropdownBtn.addEventListener('click', () => {
         dropdownMenu.classList.toggle('hidden');
@@ -81,12 +115,24 @@
         }
     });
 
-    function selectKnown(value, desciption){
-        dropdownText.innerText = `${value} : ${desciption}`;
-        dropdownValue.value = value;
-        console.log(`${value}`)
-    }
-
+    submitBtn.addEventListener('click', () => {
+        const description = document.getElementById('description').value;
+        const title = document.getElementById('title').value;
+        fetch('/newBoard/', {
+            method : 'POST',
+            headers : {
+                'X-CSRFToken' : csrf_token,
+                'Content-Type' : 'application/json'
+            },
+            body : JSON.stringify({ title : title, description : description, knownThreshold : dropdownValue.value, questions : stagedQuestions })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.success){
+                window.location.href = data.redirect_url;
+            }
+        })
+    });
 
 
 </script>

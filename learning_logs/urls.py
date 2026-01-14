@@ -32,7 +32,7 @@ urlpatterns = [
     # All Authentication URLs
     path('signIn/', signIn, name='signIn'),
     path('register/', register, name='register'),
-    path('logout/', LogoutView.as_view(), name='logout'),
+    path('logout/', LogoutView.as_view(next_page='home'), name='logout'),
 
     # All Dashboards URLs
     path('dashboard/', boards, name='dashboard'),

@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from django.views.decorators.cache import never_cache
 from django.urls import reverse
 from django.db.models import Count, Q, Prefetch
 
@@ -21,15 +22,12 @@ from .forms import NewBoard, CreateTag, NewConcept
 
 
 # Create your views here.
+@never_cache
 def home(request):
     user = request.user
     if user.is_authenticated:
-        context ={
-            'user' : user
-        }
-    else:
-        context = None
-    return render(request, 'dashboard/home.html', context=context)
+        return redirect ('dashboard')
+    return redirect('signIn')
 
 @login_required
 def boards(request):
@@ -118,23 +116,24 @@ def newBoard(request):
         30 : 'Fully Understand a Concept'
     }
 
+    defaultQuestions = list(Question.objects.all().values_list('title', flat=True))
+
     if request.method == 'POST':
-        form = NewBoard(request.POST)
-        if form.is_valid():
-            board = form.save(commit=False)
-            board.knownThreshold = int(request.POST.get('dropdown-value', 5))
-            board.user = user
+        data = json.loads(request.body)
+        print(data)
+        if data:
+            board = Board.objects.create(user=request.user)
+            board.title = data.get('title')
+            board.description = data.get('description')
+            board.knownThreshold = data.get('knownThreshold')
             board.save()
+
+            board.defaultQuestions.set(data.get('questions'))
             print(f'Saved Board: {board.title}, id={board.id}, user={board.user}, knownThreshold={board.knownThreshold}')
 
-            return redirect('home')
-        else:
-            print(form.errors)
-    else:
-        form = NewBoard()
-
-
-    return render(request, 'dashboard/newBoard.html', {'form' : form, 'options' : options, 'user' : user})
+            return JsonResponse({ 'success' : True,  'redirect_url' : reverse('boardPage', args=[board.id])})
+        
+    return render(request, 'dashboard/newBoard.html', {'options' : options, 'user' : user, 'allQuestions' : defaultQuestions})
 
 @login_required
 def newConcept(request, board_id):
@@ -190,7 +189,7 @@ def conceptPage(request, board_id, concept_id, session_id = None):
     availableTags = list(availableTags_qs.values('id','name'))
     conceptTags = list(concept.tags.values("id", "name"))
     availableQuestions = Question.objects.exclude(title__in=concept.questions.all())
-    
+
     return render(request, 'dashboard/conceptPage.html', {'board' : board, 'concept' : concept, 'availableTags' : availableTags, 'conceptTags' : conceptTags, 'sessionId' : session_id, 'availableQuestions' : availableQuestions})
 
 @login_required
@@ -242,9 +241,6 @@ def updateConcept(request, concept_id):
             if 'questions' in data:
                 questions = Question.objects.filter(title__in=data['questions'])
                 concept.questions.set(questions)
-
-            if 'sessionId' in data is not None:
-                return redirect('study_session:sessionPage', board.id, data['sessionId'])
 
             return JsonResponse({'success' : True})
 

@@ -162,7 +162,6 @@
     const clearAvailableTagSearch = document.getElementById('clear-available-tag-search');
 
     const sessionQuestions = JSON.parse(document.getElementById('session-questions').textContent);
-    
 
     const selectedQuestions = document.getElementById('selected-questions');
     const questionTypeSelection = document.getElementById("question-type-selection");
@@ -270,6 +269,7 @@
         modalBackdrop.classList.add('hidden');
         if(deleteSessionSettingsModal) {deleteSessionSettingsModal.classList.add('hidden');}
         if(newTagModal) {newTagModal.classList.add('hidden');}
+        if(deleteTagConfirmModal){deleteTagConfirmModal.classList.add('hidden');}
     });
 
     newTagModal.addEventListener('click', (e) => {
