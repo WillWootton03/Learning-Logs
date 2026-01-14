@@ -124,7 +124,6 @@
     {{sessionQuestions|json_script:"session-questions"}}
 {% endif %}
 {{ availableTags|json_script:"available-tags-data"}}
-{{ defaultQuestions|json_script:"default-questions" }}
 <script>
     const csrfToken = document.querySelector('meta[name=csrf_token]').getAttribute('content');
 
@@ -162,9 +161,8 @@
     const clearSessionTagSearch = document.getElementById("clear-session-tag-search");
     const clearAvailableTagSearch = document.getElementById('clear-available-tag-search');
 
-    const defaultQuestions = JSON.parse(document.getElementById('default-questions').textContent);
-
     const sessionQuestions = JSON.parse(document.getElementById('session-questions').textContent);
+    
 
     const selectedQuestions = document.getElementById('selected-questions');
     const questionTypeSelection = document.getElementById("question-type-selection");
@@ -173,7 +171,7 @@
     if(sessionQuestions){
         questionValues = sessionQuestions.slice()
     } else {
-        questionValues = defaultQuestions.slice();
+        questionValues = defaultQuestionList.slice();
     }
 
     let stagedTags = [];
@@ -460,13 +458,15 @@
     // Used to dynamically load tag button when the dom is loaded, easy to implement deletion button methodology compared to an html forloop 
     document.addEventListener('DOMContentLoaded', () => {
         const availableTagsData = JSON.parse(document.getElementById('available-tags-data').textContent);
+        // Honestly no clue why I couldn't parse this but these questions are the only choice now so this works great
+        const defaultQuestionList = ['answer', 'true_or_false', 'definition', 'multiple_choice'];
         
         availableTags.innerHTML = '';
         availableTagsData.forEach(tag => {
             availableTags.appendChild(createTagButton(tag, false));
         });
 
-        defaultQuestions.forEach(question => {
+        defaultQuestionList.forEach(question => {
             const newValue = document.createElement('button');
             newValue.classList.add('bg-gray-700', 'w-full', 'rounded-xl', 'py-1', 'text-xl', 'text-white', 'font-bold', 'text-center', 'border-3', 'border-transparent', 'hover:shadow-[0_0px_8px_rgba(0,0,0,0.9)]', 'hover:shadow-blue-500');
             newValue.dataset.title=question;

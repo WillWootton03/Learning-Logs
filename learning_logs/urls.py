@@ -20,7 +20,7 @@ from django.contrib.auth.views import LogoutView
 
 from accounts.views import home
 from accounts.views import signIn, register
-from dashboard.views import home, boards, newBoard, boardPage, newConcept, conceptPage, conceptToggleTags, deleteTag, updateConcept, deleteConcept, createTag, deleteBoard, loadConceptsCSV, deleteAllConcepts, deleteAllTags, saveBoardSettings
+from dashboard.views import home, boards, newBoard, boardPage, newConcept, conceptPage, conceptToggleTags, deleteTag, updateConcept, deleteConcept, createTag, deleteBoard, loadConceptsCSV, deleteAllConcepts, deleteAllTags, saveBoardSettings, allQuestionsAPI
 from user_logs.views import newLog, logBreakdown, deleteLog
 from study_session.views import sessionSettingsToggleTags, newSessionSettings, updateSessionSettings, deleteSessionSettings, sessionStart, sessionPage, submitSession
 
@@ -73,8 +73,10 @@ urlpatterns = [
     path('board/<uuid:board_id>/sessions/<uuid:sessionSettings_id>/sessionStart/', sessionStart, name='sessionStart'),
     path('board/<uuid:board_id>/sessions/sessionStart/', sessionStart, name='coldSessionStart'),
     path('board/<uuid:board_id>/sessions/<uuid:session_id>/sessionPage/', sessionPage, name='sessionPage'),
-
     path('board/<uuid:board_id>/sessions/<uuid:session_id>/submit/', submitSession, name='submitSession'),
+
+    # Extra API calls
+    path('api/<uuid:board_id>/all-questions/', allQuestionsAPI, name='allQuestionsAPI'),
 
     # Used to auto reload browser
     path('__reload__/', include('django_browser_reload.urls')),

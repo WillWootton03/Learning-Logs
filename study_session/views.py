@@ -49,7 +49,7 @@ def newSessionSettings(request, board_id):
     defaultQuestions = Question.objects.all()
     defaultQuestions = [question.title for question in defaultQuestions]
     sessionQuestions = ['answer']
-    return render (request, 'sessions/sessionSettings.html', { 'board': board,  'availableTags' : availableTags,  'options' : questionOptions, 'defaultQuestions' : defaultQuestions, 'sessionQuestions' : sessionQuestions})
+    return render (request, 'sessions/sessionSettings.html', { 'board': board,  'availableTags' : availableTags,  'options' : questionOptions, 'defaultQuestionList' : defaultQuestions, 'sessionQuestions' : sessionQuestions})
 
 @login_required
 def updateSessionSettings(request, board_id, sessionSettings_id = None):
@@ -77,12 +77,12 @@ def updateSessionSettings(request, board_id, sessionSettings_id = None):
     sessionSettingsTags = list(sessionSettings.tags.all().values('id','name'))
     availableTags_qs = board.tags.exclude(id__in=sessionSettings.tags.values_list('id', flat=True))
     availableTags = list(availableTags_qs.values('id','name'))
+    
     questions = [question.title for question in sessionSettings.questionTypes.all()]
 
-    defaultQuestions = Question.objects.all()
-    defaultQuestions = [question.title for question in defaultQuestions]
+    defaultQuestions = [question.title for question in Question.objects.all()]
 
-    return render (request, 'sessions/sessionSettings.html', {'board': board, 'sessionSettings' : sessionSettings,  'availableTags' : availableTags, 'sessionSettingsTags' : sessionSettingsTags, 'defaultQuestions' : defaultQuestions, 'sessionQuestions' : questions})
+    return render (request, 'sessions/sessionSettings.html', {'board': board, 'sessionSettings' : sessionSettings,  'availableTags' : availableTags, 'sessionSettingsTags' : sessionSettingsTags, 'defaultQuestionList' : defaultQuestions, 'sessionQuestions' : questions})
 
 @login_required
 @require_POST
@@ -166,6 +166,7 @@ def sessionStart(request, board_id, sessionSettings_id=None):
         session = Session.objects.create(board=board)
         session.concepts.set(board.filteredConcepts)
         session.questionTypes.set(questionTypes)
+        print(tagConcepts)
 
         cacheKey = f'board:{board_id}:tagConcepts'
         cache.set(cacheKey, tagConcepts, timeout=600)
@@ -224,10 +225,11 @@ def submitSession(request, board_id, session_id):
 
         Concept.objects.bulk_update(questions, ['count', 'known', 'unknown'])        
 
-        Session.objects.filter(id=session_id).update(
-            correctAnswers=data.get('correctAnswers'),
-            incorrectAnswers=data.get('incorrectAnswers')
-        )
+        session = Session.objects.get(id=session_id)
+        session.correctAnswers = data['correctAnswers']
+        session.incorrectAnswers = data['incorrectAnswers']
+        session.save()
+
     
         return JsonResponse({'success' : True, 'redirect_url': reverse('boardPage', args=[board_id])})
     return JsonResponse({'success' : False})

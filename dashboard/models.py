@@ -43,9 +43,4 @@ class Concept(models.Model):
 
     def __str__(self):
         return self.answer
-    
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        if not self.questions.exists():
-            defaultQuestions = Question.objects.filter(board=self.board).values_list('title', blank=True)
-            self.questions.set(defaultQuestions)
+

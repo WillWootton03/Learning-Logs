@@ -70,7 +70,8 @@ def boardPage(request, board_id):
     ).get(id=board_id)
     logs = board.logs.order_by('-dateAdded')[:50]
     sessions = board.sessions.order_by('-dateAdded')[:20]
-    questions = list(Question.objects.all().values_list('title', flat=True))
+
+    allQuestions = list(Question.objects.all().values_list('title', flat=True))
     boardQuestions = [question.title for question in board.boardConcepts]
 
 
@@ -101,7 +102,7 @@ def boardPage(request, board_id):
     uri = "data:image/png;base64," + urllib.parse.quote(string)
 
 
-    return render(request, 'dashboard/boardPage.html', {'board' : board, 'logs' : logs, 'chart' : uri, 'sessions' : sessions,  'knownConceptsCount' : len(knownConcepts), 'learningConceptsCount' : len(learningConcepts), 'unknownConceptsCount' : len(unknownConcepts), 'knownConcepts' : knownConcepts, 'learningConcepts' : learningConcepts, 'unknownConcepts' : unknownConcepts, 'questions' : questions, 'boardQuestions' : boardQuestions})
+    return render(request, 'dashboard/boardPage.html', {'board' : board, 'logs' : logs, 'chart' : uri, 'sessions' : sessions,  'knownConceptsCount' : len(knownConcepts), 'learningConceptsCount' : len(learningConcepts), 'unknownConceptsCount' : len(unknownConcepts), 'knownConcepts' : knownConcepts, 'learningConcepts' : learningConcepts, 'unknownConcepts' : unknownConcepts, 'allQuestions' : allQuestions, 'boardQuestions' : boardQuestions})
 
 
 @login_required 
@@ -137,19 +138,27 @@ def newBoard(request):
 
 @login_required
 def newConcept(request, board_id):
-    board = Board.objects.get(id=board_id)
+    board = Board.objects.prefetch_related(
+        Prefetch('defaultQuestions', to_attr='boardQuestions'),
+    ).get(id=board_id)
+
+    allQuestions = list(Question.objects.all().values_list('title', flat=True))
+    boardQuestions = [question.title for question in board.boardQuestions]
+
     if request.method == 'POST':
         form = NewConcept(request.POST)
         if form.is_valid():
             concept = form.save(commit=False)
             concept.board = board
             concept.save()
+            concept.questions.set([question.title for question in board.boardQuestions])
+            
 
             return redirect('conceptPage', board_id = board.id, concept_id= concept.id)
     else:
         form = NewConcept()
 
-    return render(request, 'dashboard/newConcept.html', {'board' : board, 'form' : form})
+    return render(request, 'dashboard/newConcept.html', {'board' : board, 'form' : form, 'allQuestions' : allQuestions, 'boardQuestions' : boardQuestions})
 
 @login_required
 def createTag(request, board_id):
@@ -181,6 +190,7 @@ def conceptPage(request, board_id, concept_id, session_id = None):
     availableTags = list(availableTags_qs.values('id','name'))
     conceptTags = list(concept.tags.values("id", "name"))
     availableQuestions = Question.objects.exclude(title__in=concept.questions.all())
+    
     return render(request, 'dashboard/conceptPage.html', {'board' : board, 'concept' : concept, 'availableTags' : availableTags, 'conceptTags' : conceptTags, 'sessionId' : session_id, 'availableQuestions' : availableQuestions})
 
 @login_required
@@ -258,7 +268,9 @@ def loadConceptsCSV(request, board_id):
     allTags = list(Tag.objects.filter(board_id=board_id))
     allConcepts = list(Concept.objects.filter(board_id=board_id))
 
-    board = Board.objects.get(id=board_id)
+    board = Board.objects.prefetch_related(
+        Prefetch('defaultQuestions', to_attr='questions')
+    ).get(id=board_id)
     existingTags = set(tag.name for tag in allTags)
     existingConcepts = set((concept.answer, concept.definition, concept.hint) for concept in allConcepts)
 
@@ -280,7 +292,7 @@ def loadConceptsCSV(request, board_id):
                 questionsRaw = row.get('Questions') or ''
                 questionsToAdd = [question.strip() for question in questionsRaw.split(',') if question.strip() in allQuestionTitles]
                 if not questionsToAdd:
-                    questionsToAdd = ['answer'] 
+                    questionsToAdd = [question.title for question in board.questions] 
                     
 
                 if(answer, definition, hint) not in existingConcepts:
@@ -396,3 +408,16 @@ def deleteAllTags(request, board_id):
     Tag.objects.filter(board_id=board_id).delete()
     
     return redirect('boardPage', board_id)
+
+@login_required
+def allQuestionsAPI(request, board_id):
+    board = Board.objects.prefetch_related(
+        Prefetch('defaultQuestions', to_attr='boardQuestions'),
+    ).get(id=board_id)
+
+    allQuestions = list(Question.objects.all().values_list('title', flat=True))
+    boardQuestions = [question.title for question in board.boardQuestions]
+
+    if board:
+        return JsonResponse({ 'success' : True, 'baseQuestions' : allQuestions, 'boardDefaultQuestions' : boardQuestions})
+    return JsonResponse({ 'success' : False})

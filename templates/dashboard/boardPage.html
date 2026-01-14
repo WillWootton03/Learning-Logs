@@ -219,8 +219,16 @@
         const cancelDeleteAllTagsBtn = document.getElementById('cancel-delete-all-tags');
         const deleteAllTags = document.getElementById('delete-all-tags');
 
-
-
+        modalBackdrop.addEventListener('click', () =>{
+            if(!modalBackdrop.classList.contains('hidden')) {
+                modalBackdrop.classList.add('hidden');
+            }
+            if(!deleteAllConcepts.classList.contains('hidden')) {
+                confirmDeleteAllConceptsModal.classList.add('hidden');
+            } if (!confirmDeleteAllTagsModal.classList.contains('hidden')) {
+                confirmDeleteAllTagsModal.classList.add('hidden');
+            }
+        })
 
         closeSessionSettings.addEventListener('click', () => {
             modalBackdrop.classList.toggle('hidden');

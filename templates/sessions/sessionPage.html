@@ -43,8 +43,6 @@
     {{ questionTypes|json_script:'question-types-data'}}
     {{ tagConcepts|json_script:'tag-concepts' }}
 <script>
-
-
     const boardId = '{{ board.id }}' ;
     const sessionId = '{{ session.id }}';
     const tagConcepts = JSON.parse(document.getElementById('tag-concepts').textContent);
@@ -75,11 +73,12 @@
     let t_fAnswer = '';
     let selectedOption = '';
     let answerSubmitted = false;
+    let randomIndex = null;
 
     let currentQuestion = null;
     let canSubmitAnswer = true;
-    let correctAnswers = 0;
-    let incorrectAnswers = 0;
+    let correctAnswers = parseInt('{{ session.correctAnswers }}');
+    let incorrectAnswers = parseInt('{{ session.incorrectAnswers }}');
     let result = null;
 
     const questionFitty = fitty('#question-answer', {
@@ -113,7 +112,7 @@
     }
 
     function nextQuestion() {
-        let randomIndex = null;
+        randomIndex = null;
         answerSubmitted = false;
         function randomQuestion() {
             const keyIndex = Math.floor(Math.random() * questionKeys.length)
@@ -198,7 +197,6 @@
         submitButton.classList.remove('bg-green-600', 'hover:bg-green-600', 'hover:shadow-green-600');
         submitButton.classList.add('bg-blue-800', 'hover:bg-blue-600', 'hover:shadow-blue-600');
         editBtn.classList.add('hidden');
-        editBtn.href = `/board/${boardId}/concepts/${randomIndex}/session/${sessionId}/`;
         hint.textContent = currentQuestion.hint;
         correctAnswer.classList.add('hidden'),
         answerInput.value = '';
@@ -243,6 +241,7 @@
             submitButton.classList.add('bg-green-600', 'hover:bg-green-600', 'hover:shadow-green-600');
             hint.classList.add('hidden');
             editBtn.classList.remove('hidden');
+            editBtn.href = `/board/${boardId}/concepts/${randomIndex}/session/${sessionId}/`;
             canSubmitAnswer = false;
             if(result)  {
                 questionAnswer.classList.add('shadow-green-600');
