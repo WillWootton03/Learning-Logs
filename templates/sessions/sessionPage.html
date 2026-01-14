@@ -3,31 +3,27 @@
 {% block content %}
 <div id="page-wrapper" class="flex flex-box mx-auto pt-24 justify-center h-[calc(100vh-3rem)] w-[90%] transition-all duration-200">
     <div class="h-full w-[95%] bg-gray-800 rounded-2xl shadow-md shadow-black flex flex-col gap-y-12 px-20 justify-center text-center items-center relative">
-            <h2 id="question-answer" class="bg-gray-700 px-3 py-3 max-h-[40vh] max-w-[80vw] rounded text-white font-bold text-center flex items-center justify-center shadow-[0_0px_15px_rgba(0,0,0,0.9)] shadow-purple-600 cursor-default">{{ question.answer }}</h2>
+            <h2 id="question-answer" class="bg-gray-700 px-3 py-3 max-h-[40vh] max-w-[80vw] rounded text-white font-bold text-center flex items-center justify-center shadow-[0_0px_15px_rgba(0,0,0,0.9)] shadow-purple-600 cursor-default"></h2>
             <div class="flex flex-col gap-y-4 align-items-center">
-                <!---->
+                <!--Div for both answer and definition input Box-->
                 <div id="answer-definition-box" class="hidden flex flex-col gap-y-4 align-items-center" >
                     {% csrf_token %}
                     <input id="answer-input" required name="answer-input" autocomplete="off" 
                     class="bg-gray-600 text-2xl py-2 focus:shadow-[0_0px_15px_rgba(0,0,0,0.9)] shadow-md shadow-black focus:shadow-purple-600 focus:border-purple-800 focus:outline-0 text-center rounded border-3 border-purple-950 text-white" 
                     placeholder="Answer" />
                     <h2 id="correct-answer" class="hidden text-2xl text-white"></h2>
-                    <button id="submit-button" type="submit" class="text-center bg-blue-800 text-white px-10 w-full py-3 shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-blue-600 hover:bg-blue-600 font-bold text-2xl rounded-2xl">Submit</button>
                 </div>
                 <!--Div for when a question is multiple choice-->
                 <div id="multiple-choice-box" class="hidden grid grid-cols-2 grid-rows-2 gap-y-4 gap-x-4 align-items-center" >
-                    <button class="w-full text-center bg-gray-700 text-white px-16 py-3 border-3 border-transparent shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-blue-600 hover:bg-gray-600 font-bold text-2xl rounded-2xl">Option a</button>
-                    <button class="w-full text-center bg-gray-700 text-white px-16 py-3 border-3 border-transparent shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-blue-600 hover:bg-gray-600 font-bold text-2xl rounded-2xl">Option a</button>
-                    <button class="w-full text-center bg-gray-700 text-white px-16 py-3 border-3 border-transparent shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-blue-600 hover:bg-gray-600 font-bold text-2xl rounded-2xl">Option a</button>
-                    <button class="w-full text-center bg-gray-700 text-white px-16 py-3 border-3 border-transparent shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-blue-600 hover:bg-gray-600 font-bold text-2xl rounded-2xl">Option a</button>
                 </div>
                 <!--Div for when a question is true or false-->
                 <div id="true-or-false-box" class="hidden flex flex-row gap-x-4 align-items-center">
-                    <button id="true-button" class="w-full text-center bg-gray-700 text-white px-16 py-3 shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-blue-600 hover:bg-gray-600 font-bold text-2xl rounded-2xl">True</button>
-                    <button id="false-button" class="w-full text-center bg-gray-700 text-white px-16 py-3 shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-red-600 hover:bg-gray-600 font-bold text-2xl rounded-2xl">False</button>
+                    <button id="true-button" class="w-full text-center bg-gray-700 text-white px-16 py-3 shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-blue-600 hover:bg-gray-600 font-bold text-2xl rounded-2xl border-4 border-transparent">True</button>
+                    <button id="false-button" class="w-full text-center bg-gray-700 text-white px-16 py-3 shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-red-600 hover:bg-gray-600 font-bold text-2xl rounded-2xl border-4 border-transparent">False</button>
                 </div>
                 <!--Bottom of the page buttons div-->
                 <div class="h-fit w-fit flex flex-row gap-x-3">
+                    <button id="submit-button" type="submit" class="text-center bg-blue-800 text-white px-10 w-full py-3 shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-blue-600 hover:bg-blue-600 font-bold text-2xl rounded-2xl">Submit</button>
                     <button id="hint-button" class="w-full text-center bg-orange-400 text-white px-10 py-3 shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-orange-300 hover:bg-orange-300 font-bold text-2xl rounded-2xl">Hint</button>
                     <a href="#" id="edit-button" class="hidden w-full text-center bg-indigo-500 text-white px-10 py-3 shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-indigo-400 hover:bg-indigo-400 font-bold text-2xl rounded-2xl">Edit</a>
                 </div>
@@ -45,11 +41,13 @@
     <script src="https://unpkg.com/fitty/dist/fitty.min.js"></script>
     {{ questions|json_script:'questions-data' }}
     {{ questionTypes|json_script:'question-types-data'}}
+    {{ tagConcepts|json_script:'tag-concepts' }}
 <script>
 
 
     const boardId = '{{ board.id }}' ;
     const sessionId = '{{ session.id }}';
+    const tagConcepts = JSON.parse(document.getElementById('tag-concepts').textContent);
     const questions = JSON.parse(document.getElementById('questions-data').textContent);
     const questionTypes = JSON.parse(document.getElementById('question-types-data').textContent);
     const questionsObjs = JSON.parse(questions.replace(/'/g, '"'));
@@ -74,11 +72,16 @@
     const multipleChoiceBox = document.getElementById('multiple-choice-box');
 
     let randomQuestionType = '';
+    let true_false = null;
+    let t_fAnswer = '';
+    let selectedOption = '';
+    let answerSubmitted = false;
 
     let currentQuestion = null;
     let canSubmitAnswer = true;
     let correctAnswers = 0;
     let incorrectAnswers = 0;
+    let result = null;
 
     const questionFitty = fitty('#question-answer', {
         maxSize: 92,
@@ -104,27 +107,43 @@
         });
     }
 
+    function pageLeaveSubmit() {
+        const url = `/board/${boardId}/sessions/${sessionId}/submit/`;
+        const data = JSON.stringify({ 'questions' : questionsObjs, 'correctAnswers' : correctAnswers, 'incorrectAnswers' : incorrectAnswers});
+        navigator.sendBeacon(url, data);
+    }
+
     function nextQuestion() {
-        const randomIndex = questionKeys[Math.floor(Math.random() * questionKeys.length)];
+        let randomIndex = null;
+        answerSubmitted = false;
+        function randomQuestion() {
+            const randIndex = questionKeys[Math.floor(Math.random() * questionKeys.length)];
+            if(currentQuestion){
+                newQuestion = questionsObjs[randIndex];
+                questionKeys.splice(randIndex, 1);
+            } else {
+                newQuestion = questionsObjs[randIndex];
+            }
+            return [newQuestion, randIndex];
+        }
+
+        [currentQuestion, randomIndex] = randomQuestion(); 
         answerDefinitionBox.classList.add('hidden');
         multipleChoiceBox.classList.add('hidden');
         trueOrFalseChoiceBox.classList.add('hidden');
-        if(currentQuestion !== null){
-            currentQuestion = questionsObjs[randomIndex];
-            questionKeys.splice(randomIndex, 1);
-        } else {
-            currentQuestion = questionsObjs[randomIndex];
-        }
+        questionAnswer.classList.remove('shadow-green-600', 'shadow-red-600');
+        questionAnswer.classList.add('shadow-purple-600');
+        multipleChoiceBox.innerHTML = '';
+
         // Gets the intersection between current question's question types and the sessions available question types
         const questionPossibilites = questionTypes.filter(item => currentQuestion.questionTypes.includes(item));
 
         // Gets a random question type to be used for the random question
         randomQuestionType =  questionPossibilites[Math.floor(Math.random() * questionPossibilites.length)];
 
+
         if(randomQuestionType === 'answer' || randomQuestionType === 'definition' ) {
             answerDefinitionBox.classList.remove('hidden');
-            questionAnswer.classList.remove('shadow-green-600', 'shadow-red-600');
-            questionAnswer.classList.add('shadow-purple-600');
             answerInput.classList.remove('shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'shadow','border-green-500', 'shadow-green-500', 'focus:border-green-500', 'focus:shadow-green-500');
             answerInput.classList.remove('shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'border-red-500', 'shadow-red-500', 'focus:border-red-500', 'focus:shadow-red-500');
             answerInput.classList.add('shadow-md');
@@ -133,10 +152,46 @@
             } else if (randomQuestionType === 'definition'){
                 questionAnswer.textContent = currentQuestion.definition;
             }
-        } else if(randomQuestionType == 'mutliple_choice') {
+        } 
+        else if(randomQuestionType == 'multiple_choice') {
             multipleChoiceBox.classList.remove('hidden');
-        } else if(randomQuestionType == 'true_or_false') {
+            const shuffled = [...tagConcepts].filter(answer => answer !== currentQuestion.answer).sort(() => 0.5 - Math.random());
+            const optionAnswers = shuffled.slice(0,3);
+            optionAnswers.push(currentQuestion.answer);
+            questionAnswer.textContent = currentQuestion.definition;
+            optionAnswers.forEach(answer => {
+                const option = document.createElement('button');
+                option.classList.add('w-full', 'text-center', 'bg-gray-700', 'text-white', 'px-16', 'py-3', 'border-3', 'border-transparent', 'shadow-md', 'shadow-black', 'hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'hover:shadow-blue-600', 'hover:bg-gray-600', 'font-bold', 'text-2xl', 'rounded-2xl');
+                option.dataset.answer = answer;
+                option.textContent = answer;
+                option.addEventListener('click', () => {
+                    if(!answerSubmitted){
+                        if(selectedOption !== answer){
+                            option.classList.add('border-blue-500');
+                            if(selectedOption){
+                                const selectedBtn =  document.querySelector(`[data-answer='${selectedOption}']`);
+                                selectedBtn.classList.remove('border-blue-500');
+                            }
+                            selectedOption = answer;
+                            canSubmitAnswer = true;
+                        } else if(selectedOption === answer ) {
+                            option.classList.remove('border-blue-500');
+                            selectedOption = '';
+                            canSubmitAnswer = false;
+                        }
+                    }
+                });
+                multipleChoiceBox.appendChild(option);
+            });
+        } 
+        else if(randomQuestionType == 'true_or_false') {
             trueOrFalseChoiceBox.classList.remove('hidden');
+            t_fAnswer = currentQuestion.answer;
+            if(Math.random() < .5){
+                 t_fAnswer = tagConcepts[Math.floor(Math.random() * tagConcepts.length)]
+            }
+            const questionText = `The answer to ${currentQuestion.definition} is ${t_fAnswer}`;
+            questionAnswer.textContent = questionText;
         }
         currentQuestionTypes = currentQuestion.questions;
         submitButton.textContent = 'Submit';
@@ -152,13 +207,34 @@
    
     function submitAnswer(){
         const answerValue = answerInput.value.trim();
+        answerSubmitted = true;
         let possibleAnswers = '';
         if(randomQuestionType === 'answer'){
             possibleAnswers = currentQuestion.definition.toLowerCase().trim().split('/');
+            result = possibleAnswers.includes(answerValue) ? true : false;
+
         } else if (randomQuestionType === 'definition') {
             possibleAnswers = currentQuestion.answer.toLowerCase().trim().split('/');
+            result = possibleAnswers.includes(answerValue) ? true : false;
+
+        } else if (randomQuestionType === 'true_or_false') {
+            if(true_false === null){
+                result = null;
+            }
+            else if(true_false) {
+                result = currentQuestion.answer === t_fAnswer ? true : false;
+            } else if(!true_false) {
+                result = currentQuestion.answer !== t_fAnswer ? true : false;
+            }
+        } else if (randomQuestionType === 'multiple_choice') {
+            if (selectedOption === ''){
+                result = null;
+            }
+            else if(selectedOption) {
+                result = currentQuestion.answer === selectedOption ? true : false;
+            }
         }
-        if(!answerValue) {
+        if(result === null) {
             alert('No Answer Given');
             return;
         } else{
@@ -168,13 +244,20 @@
             hint.classList.add('hidden');
             editBtn.classList.remove('hidden');
             canSubmitAnswer = false;
-            if(possibleAnswers.includes(answerValue))  {
+            if(result)  {
                 questionAnswer.classList.add('shadow-green-600');
-                answerInput.classList.remove('shadow-md');
-                answerInput.classList.add('shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'border-green-500', 'shadow-green-500', 'focus:border-green-500', 'focus:shadow-green-500');
                 currentQuestion.count += 1;
                 if(currentQuestion.unknown) { currentQuestion.unknown = false; }
                 correctAnswers += 1;
+                if(randomQuestionType === 'answer' || randomQuestionType === 'definition'){
+                    answerInput.classList.remove('shadow-md');
+                    answerInput.classList.add('shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'border-green-500', 'shadow-green-500', 'focus:border-green-500', 'focus:shadow-green-500');
+                } 
+                if(randomQuestionType === 'multiple_choice'){
+                    const selectedBtn =  document.querySelector(`[data-answer='${selectedOption}']`);
+                    selectedBtn.classList.remove('border-blue-500');
+                    selectedBtn.classList.add('border-green-500');
+                }
             } else {
                 questionAnswer.classList.add('shadow-red-600');
                 answerInput.classList.remove('shadow-md');
@@ -182,11 +265,61 @@
                 correctAnswer.classList.remove('hidden');
                 correctAnswer.textContent = currentQuestion.definition;
                 currentQuestion.count = 0;
-                if(currentQuestion.known) { currentQuestion.known = false; }
                 incorrectAnswers += 1;
+                if(currentQuestion.known) { currentQuestion.known = false; }
+
+                if(randomQuestionType === 'multiple_choice') {
+                    const selectedBtn =  document.querySelector(`[data-answer='${selectedOption}']`);
+                    selectedBtn.classList.remove('border-blue-500');
+                    selectedBtn.classList.add('border-red-500');
+                    const correctBtn = document.querySelector(`[data-answer='${currentQuestion.answer}']`);
+                    correctBtn.classList.add('border-green-500'); 
+                }
+                if(randomQuestionType === 'true_or_false') {
+                    trueBtn.classList.remove('border-blue-500');
+                    falseBtn.classList.remove('border-blue-500');
+                }
             }
+            if(randomQuestionType === 'true_or_false'){
+                true_false = null;
+                trueBtn.classList.remove('border-blue-500');
+                falseBtn.classList.remove('border-red-500');
+            }
+            if(randomQuestionType === 'multiple_choice'){
+                selectedOption = '';
+                multipleChoiceBox.childNodes.forEach(option => {
+                    option.classList.add('hover:cursor-default');
+                    option.classList.remove('hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'hover:shadow-blue-600', 'hover:bg-gray-600');
+                });
+            }   
         }
     }
+
+    trueBtn.addEventListener('click', (e) => {
+        if (true_false) {
+            true_false = null;
+            trueBtn.classList.remove('border-blue-500');
+            canSubmitAnswer = false;
+        } else {
+            trueBtn.classList.add('border-blue-500')
+            falseBtn.classList.remove('border-red-500')
+            true_false = true;
+            canSubmitAnswer = true;
+        } 
+    });
+
+    falseBtn.addEventListener('click', (e) => {
+        if(true_false === false){
+            true_false = null;
+            falseBtn.classList.remove('border-red-500')
+            canSubmitAnswer = false;
+        } else {
+            falseBtn.classList.add('border-red-500')
+            trueBtn.classList.remove('border-blue-500')
+            true_false = false;
+            canSubmitAnswer = true;
+        }
+    });
 
     closeSessionBtn.addEventListener('click', () => {
         submitSession();
@@ -221,16 +354,14 @@
 
 
     // Allows to make sure when reloading the page you are redirected back to the main page and cant continue that learning session
-/*    window.addEventListener('load', () => {
-        const navigationEntries = performance.getEntriesByType('navigation');
-        const type = navigationEntries.length > 0 ? navigationEntries[0].type : null
-        if(type === 'reload'){
-            submitSession();
-        }
-    });
-*/
     window.addEventListener('load', () => {
         nextQuestion();
+    });
+
+
+    window.addEventListener('beforeunload', (e) => {
+        // Calls server endpoint when leaving page
+        pageLeaveSubmit();
     });
 </script>
 {% endblock %}

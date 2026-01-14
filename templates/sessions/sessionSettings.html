@@ -386,6 +386,7 @@
             sessionTitleData.placeholder = sessionTitle;
             sessionTitleData.value = sessionTitle;
             if(data.success) {
+                sessionStorage.setItem('tagConcepts', JSON.stringify(data.tagConcepts));
                 window.location.href = data.redirect_url;
             }
         })

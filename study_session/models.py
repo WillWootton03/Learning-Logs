@@ -21,5 +21,6 @@ class Session(models.Model):
     concepts = models.ManyToManyField(Concept, blank=True, related_name='sessions')
     questionTypes = models.ManyToManyField(Question, related_name='sessions')
     correctAnswers = models.IntegerField(default=0)
+    isExclusive = models.BooleanField(default=False)
     incorrectAnswers = models.IntegerField(default=0)
     dateAdded = models.DateTimeField(auto_now_add=True)

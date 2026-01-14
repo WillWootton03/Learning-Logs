@@ -10,6 +10,7 @@ from django.db.models import F, Count, Q
 import json, urllib
 import uuid
 import random
+from django.core.cache import cache
 
 from .models import Session, SessionSettings
 from dashboard.models import Board, Tag, Concept, Question
@@ -76,7 +77,6 @@ def updateSessionSettings(request, board_id, sessionSettings_id = None):
     sessionSettingsTags = list(sessionSettings.tags.all().values('id','name'))
     availableTags_qs = board.tags.exclude(id__in=sessionSettings.tags.values_list('id', flat=True))
     availableTags = list(availableTags_qs.values('id','name'))
-    questionOptions = list(Question.objects.all().values('title'))
     questions = [question.title for question in sessionSettings.questionTypes.all()]
 
     defaultQuestions = Question.objects.all()
@@ -129,14 +129,16 @@ def sessionStart(request, board_id, sessionSettings_id):
             questionTypes = Question.objects.filter(title__in=data.get('questions'))
 
         if sessionSettings.isExclusive:
-            conceptQS = Concept.objects.annotate(matchedTags= Count('tags', filter=Q(tags__id__in=tagUuids), distinct=True)).filter(matchedTags=tagCount)
-            conceptQS = conceptQS.filter(questions__in=questionTypes).distinct()
+            tagConceptQS = Concept.objects.annotate(matchedTags= Count('tags', filter=Q(tags__id__in=tagUuids), distinct=True)).filter(matchedTags=tagCount)
+            conceptQS = tagConceptQS.filter(questions__in=questionTypes).distinct()
+            tagConcepts = list(tagConceptQS.values_list('answer', flat=True).distinct())
 
             board = Board.objects.prefetch_related(
                 Prefetch('concepts', queryset=conceptQS.prefetch_related('questions'), to_attr='filteredConcepts')).get(id=board_id)
         else:
-            conceptQS = Concept.objects.annotate(matchedTags=Count('tags', filter=Q(tags__id__in=tagUuids), distinct=True)).filter(matchedTags=tagCount)
-            conceptQS = conceptQS.filter(questions__in=questionTypes)
+            tagConceptQS = Concept.objects.annotate(matchedTags=Count('tags', filter=Q(tags__id__in=tagUuids), distinct=True)).filter(matchedTags=tagCount)
+            conceptQS = tagConceptQS.filter(questions__in=questionTypes)
+            tagConcepts = list(tagConceptQS.values_list('answer', flat=True).distinct())
             
             board = Board.objects.prefetch_related(
                 Prefetch('concepts', queryset=conceptQS.prefetch_related('questions'), to_attr='filteredConcepts') 
@@ -147,7 +149,10 @@ def sessionStart(request, board_id, sessionSettings_id):
         session.concepts.set(board.filteredConcepts)
         session.questionTypes.set(questionTypes)
 
-        return JsonResponse({'success' : True, 'redirect_url' : reverse('sessionPage', args=[board_id, session.id])})
+        cacheKey = f'board:{board_id}:tagConcepts'
+        cache.set(cacheKey, tagConcepts, timeout=600)
+
+        return JsonResponse({'success' : True, 'redirect_url' : reverse('sessionPage', args=[board_id, session.id]) })
     return JsonResponse({'success' : False})
 
 @login_required
@@ -159,7 +164,7 @@ def sessionPage(request, board_id, session_id):
 
     session = Session.objects.prefetch_related(
         Prefetch('concepts', queryset=Concept.objects.prefetch_related(questionsPrefetch),  to_attr='sessionConcepts'),
-        Prefetch('questionTypes', queryset=Question.objects.only('title'), to_attr='availableQuestions')
+        Prefetch('questionTypes', queryset=Question.objects.only('title'), to_attr='availableQuestions'),
     ).get(id=session_id)
 
     questions = {}
@@ -174,10 +179,15 @@ def sessionPage(request, board_id, session_id):
         pass
     
     questions =  json.dumps(questions)
+    # Checks to see if there is a recent session start instance, if there is will load all tagConcepts from there if not will return to boardPage
+    tagConcepts = cache.get(f'board:{board_id}:tagConcepts')
+    if tagConcepts is None:
+        return redirect('boardPage', board_id)
 
-    return render(request, 'sessions/sessionPage.html', {'board' : board, 'session' : session, 'questions' : questions, 'questionTypes' : questionTitles })
+    return render(request, 'sessions/sessionPage.html', {'board' : board, 'session' : session, 'questions' : questions, 'questionTypes' : questionTitles, 'tagConcepts' : tagConcepts })
 
 @login_required
+@csrf_exempt
 @require_POST
 def submitSession(request, board_id, session_id):
     if request.body:
