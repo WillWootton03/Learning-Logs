@@ -143,14 +143,16 @@
                 if(baseModalBackdrop.classList.contains('hidden')) {
                     baseModalBackdrop.classList.remove('hidden');
                     boardSettingsModal.classList.remove('hidden');
-                    console.log(boardDefaultQuestions);
-                    if(boardDefaultQuestions){
-                        boardDefaultQuestions.forEach(question => {
-                            const btn = document.querySelector(`[data-title="${question}"]`);
-                            btn.classList.add('text-purple-200', 'border-purple-600');
-                        });
                     stagedQuestions = [...boardDefaultQuestions];
-                }
+                    document.querySelectorAll('.settings-btn').forEach(btn => {
+                        if(stagedQuestions.includes(btn.dataset.title)) {
+                            btn.classList.remove('text-white', 'border-transparent');
+                            btn.classList.add('text-purple-200', 'border-purple-600');
+                        } else {
+                            btn.classList.remove('text-purple-200', 'border-purple-600');
+                            btn.classList.add('text-white', 'border-transparent');
+                        }
+                    });
                 } else {
                     baseModalBackdrop.classList.add('hidden');
                     boardSettingsModal.classList.add('hidden');
@@ -165,7 +167,7 @@
                     .then(data => {
                         baseQuestions = [...data.baseQuestions];
                         boardDefaultQuestions =[...data.boardDefaultQuestions];
-                        let stagedQuestions = [...data.boardDefaultQuestions];
+                        stagedQuestions = [...data.boardDefaultQuestions];
                     baseQuestions.forEach(question => {
                         const btn = document.createElement('button');
                         btn.dataset.title = question;
@@ -176,7 +178,7 @@
                             btn.classList.add('text-purple-200', 'border-purple-600')
                         }
                         btn.addEventListener('click', () => {
-                            if(boardDefaultQuestions.includes(question)){
+                            if(stagedQuestions.includes(question)){
                                 stagedQuestions.splice(stagedQuestions.indexOf(question), 1);
                                 btn.classList.add('text-white', 'border-transparent');
                                 btn.classList.remove('text-purple-200', 'border-purple-600');
@@ -190,6 +192,7 @@
                         defaultQuestionsrow.appendChild(btn);
                     });
                     saveBoardSettingsBtn.addEventListener('click', () => {
+                        console.log(stagedQuestions)
                         fetch(`/board/${baseBoardId}/saveSettings/`, {
                             method : 'POST',
                             headers : {
@@ -204,6 +207,18 @@
                                 console.log('Saved Board');
                                 boardSettingsModal.classList.add('hidden');
                                 baseModalBackdrop.classList.add('hidden');
+                                stagedQuestions = [...data.questions];
+                                boardDefaultQuestions = [...stagedQuestions]
+                                baseQuestions.forEach(question => {
+                                    const btn = document.querySelector(`[data-title="${question}"]`) 
+                                    if(stagedQuestions.includes(question)) {
+                                        btn.classList.remove('text-white', 'border-transparent');
+                                        btn.classList.add('text-purple-200', 'border-purple-600')
+                                    } else {
+                                        btn.classList.add('text-white', 'border-transparent');
+                                        btn.classList.remove('text-purple-200', 'border-purple-600')
+                                    }
+                                });
                             }
                         }).catch(err => {console.error('error', err)})
                     });

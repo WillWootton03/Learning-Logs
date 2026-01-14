@@ -54,8 +54,9 @@ def saveBoardSettings(request, board_id):
     if board:
         data = json.loads(request.body)
         if 'defaultQuestions' in data:
-           board.defaultQuestions.set(data.get('defaultQuestions'))
-        return JsonResponse({ 'success' : True })
+            board.defaultQuestions.set(Question.objects.filter(title__in=data.get('defaultQuestions')))
+            questions = list(board.defaultQuestions.values_list('title', flat=True))
+        return JsonResponse({ 'success' : True , 'questions' : questions})
     return JsonResponse({ 'success' : False })
 
 
