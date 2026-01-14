@@ -8,7 +8,7 @@
         <div class="w-full h-full flex-1 flex flex-col min-w-0 align-items-center justify-content-center gap-y-4 py-2">
             <!--Input for Setting the Sessions Title-->
             <div class="bg-gray-700 focus-within:bg-gray-600 h-fit w-[90%] rounded-2xl">
-                <input id="session-title" autocomplete="off" placeholder="{% if sessionSettings %}{{ sessionSettings.title }}{% else %}Session Title{% endif %}" value="{% if sessionSettings %}{{ sessionSettings.title }}{% else %}{% endif %}" class=" bg-transparent w-full h-full focus:outline-none text-white text-2xl font-bold text-center px-2 py-3 rounded-2xl focus:shadow-[0_0px_15px_rgba(0,0,0,0.9)] focus:shadow-purple-500 focus:border-2 focus:border-purple-600" />
+                <input id="session-title" autocomplete="off" placeholder="{% if sessionSettings %}{{ sessionSettings.title }}{% else %}Session Title{% endif %}" value="{% if sessionSettings %}{{ sessionSettings.title }}{% else %}{% endif %}" class=" bg-transparent border-3 border-transparent w-full h-full focus:outline-none text-white text-2xl font-bold text-center px-2 py-3 rounded-2xl focus:shadow-[0_0px_15px_rgba(0,0,0,0.9)] focus:shadow-purple-500 focus:border-2 focus:border-purple-600" />
             </div>
             <div class="w-[90%] h-[80%] gap-y-2 justify-content-center align-items-center flex flex-row gap-x-5">
             <!--Sets all tags for the current session-->
@@ -67,8 +67,8 @@
                     <div class="w-full h-full bg-gray-900 rounded-2xl py-2 justify-items-center">
                         <!--Questions Dropdown-->
                         <div class="relative w-[90%]">
-                            <div class="w-full h-fit flex flex-col bg-gray-800 rounded-2xl align-items-center px-1 py-2 gap-y-3">
-                                <h2 class="text-2xl text-white">Question Type</h2>
+                            <div id="question-type-selection" class="w-full h-fit flex flex-col bg-gray-800 rounded-2xl align-items-center px-1 py-2 gap-y-3">
+                                <h2 class="text-2xl text-white font-bold">Question Type</h2>
                                 <div id="selected-questions" class="flex flex-col gap-y-2 align-items-center px-1 py-2 min-w-full">
                                 </div>
                             </div>
@@ -80,8 +80,8 @@
             <div class="flex flex-row gap-x-2">
                 <a href="{% url 'boardPage' board.id %}"  class="bg-orange-500 px-4 py-2 text-2xl text-white font-bold rounded-2xl">Return</a>
                 <button id="save-button" class="bg-blue-500 px-4 py-2 text-2xl text-white font-bold rounded-2xl">Save</button>
-                {% if sessionSettings %}
                 <button id="start-session" onclick="startSessionFunc()" class="bg-green-500 px-12 py-2 text-2xl text-white font-bold rounded-2xl">Start Session</button> 
+                {% if sessionSettings %}
                 <button id="delete-session-settings" class="bg-red-500 px-4 py-2 text-2xl text-white font-bold rounded-2xl">Delete</button>  
                 {% endif %}
             </div>
@@ -167,6 +167,7 @@
     const sessionQuestions = JSON.parse(document.getElementById('session-questions').textContent);
 
     const selectedQuestions = document.getElementById('selected-questions');
+    const questionTypeSelection = document.getElementById("question-type-selection");
     let questionValues = [];
 
     if(sessionQuestions){
@@ -178,7 +179,7 @@
     let stagedTags = [];
     let isExclusive = "{{ sessionSettings.isExclusive|yesno:'true,false' }}" === 'true' || false ;
     const boardId = "{{ board.id }}";
-    const sessionSettingsId = "{{ sessionSettings.id }}";
+    let sessionSettingsId = "{{ sessionSettings.id }}";
 
 
     function createTagButton(tag, isSessionTag = false) {
@@ -223,6 +224,23 @@
         modalBackdrop.classList.remove('hidden');
     }
 
+    function checkTitle(sessionTitle) {
+        let canProceed = true;
+        if (sessionTitle === '' || sessionTitle === 'Session Title') {
+            sessionTitleData.classList.add('border-red-500', 'shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'shadow-red-500', 'focus:shadow-red-500', 'focus:border-red-500');
+            canProceed = false;
+        }
+        return canProceed;
+    }
+
+    function checkQuestion() {
+        let canProceed = true;
+         if (questionValues.length < 1){
+            questionTypeSelection.classList.add('border-red-500', 'shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'shadow-red-500', 'focus:shadow-red-500', 'focus:border-red-500');
+            canProceed = false;
+        }
+        return canProceed;
+    }
  
     cancelTagDelete.addEventListener('click', () => {
         closeConfirmTagDeleteModal();
@@ -307,23 +325,25 @@
     function startSessionFunc(){
         const sessionBtns = document.querySelectorAll('.sessionTag');
         let addTags = Array.from(sessionBtns).map(btn => btn.dataset.id);
-
-        fetch(`/board/${boardId}/sessions/${sessionSettingsId}/sessionStart/`, {
-            method : 'POST',
-            headers : {
-                'X-CSRFToken' :csrfToken,
-                'Content-Type' : 'application/json'
-            },
-            body : JSON.stringify({ tags : addTags, isExclusive : isExclusive, questions : questionValues })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                window.location.href = data.redirect_url;
-            } else {
-                alert('Failed');
-            }
-        })
+        if(checkQuestion()) {
+            questionTypeSelection.classList.remove('border-red-500', 'shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'shadow-red-500', 'focus:shadow-red-500', 'focus:border-red-500');
+            fetch(`/board/${boardId}/sessions/sessionStart/`, {
+                method : 'POST',
+                headers : {
+                    'X-CSRFToken' :csrfToken,
+                    'Content-Type' : 'application/json'
+                },
+                body : JSON.stringify({ tags : addTags, isExclusive : isExclusive, questions : questionValues })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = data.redirect_url;
+                } else {
+                    alert('Failed');
+                }
+            })
+        }
     }
    
     createTagBtn.addEventListener('click', () => {
@@ -366,31 +386,36 @@
     });
 
     saveButton.addEventListener('click', () => {
-        const sessionTitle = sessionTitleData.value.trim() || sessionTitleData.placeholder;
-        let fetchLink = '';
-        if(sessionSettingsId){
-            fetchLink = `/board/${boardId}/sessions/${sessionSettingsId}/update/`;
-        } else {
-            fetchLink = `/board/${boardId}/sessions/newSessionSettings/`;
-        }
-        fetch(fetchLink, {
-            method : 'POST',
-            headers : {
-                'X-CSRFToken' : csrfToken,
-                'Content-Type' : 'application/json'
-            },
-            body : JSON.stringify({title : sessionTitle, tags : stagedTags, isExclusive : isExclusive, questions : questionValues })
-        })
-        .then(res => res.json())
-        .then(data => {
-            sessionTitleData.placeholder = sessionTitle;
-            sessionTitleData.value = sessionTitle;
-            if(data.success) {
-                sessionStorage.setItem('tagConcepts', JSON.stringify(data.tagConcepts));
-                window.location.href = data.redirect_url;
+        const sessionTitle = sessionTitleData.value.trim() || sessionTitleData.placeholder.trim();
+
+        if(checkQuestion){ questionTypeSelection.classList.remove('border-red-500', 'shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'shadow-red-500', 'focus:shadow-red-500', 'focus:border-red-500'); } 
+        if(checkTitle(sessionTitle)) { sessionTitleData.classList.remove('border-red-500', 'shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'shadow-red-500', 'focus:shadow-red-500', 'focus:border-red-500'); }
+
+        if(checkQuestion() && checkTitle(sessionTitle)) {
+            let fetchLink = '';
+            if(sessionSettingsId){
+                fetchLink = `/board/${boardId}/sessions/${sessionSettingsId}/update/`;
+            } else {
+                fetchLink = `/board/${boardId}/sessions/newSessionSettings/`;
             }
-        })
-        .catch(err => console.error('Submit Failed', err))
+            fetch(fetchLink, {
+                method : 'POST',
+                headers : {
+                    'X-CSRFToken' : csrfToken,
+                    'Content-Type' : 'application/json'
+                },
+                body : JSON.stringify({title : sessionTitle, tags : stagedTags, isExclusive : isExclusive, questions : questionValues })
+            })
+            .then(res => res.json())
+            .then(data => {
+                sessionTitleData.placeholder = sessionTitle;
+                sessionTitleData.value = sessionTitle;
+                if(data.success) {
+                    sessionSettingsId = data.sessionSettingsId;
+                }
+            })
+            .catch(err => console.error('Submit Failed', err))
+        }
     });
 
     selectAll.addEventListener('click', () => {
@@ -453,12 +478,10 @@
             }
             newValue.addEventListener('click', () => {
                 if(questionValues.includes(question)) {
-                    if(questionValues.length != 1) {
-                        questionValues.splice(questionValues.indexOf(question), 1);
-                        newValue.classList.remove('border-blue-500');
-                        newValue.classList.remove('text-blue-300');
-                        newValue.classList.add('text-white');
-                    }
+                    questionValues.splice(questionValues.indexOf(question), 1);
+                    newValue.classList.remove('border-blue-500');
+                    newValue.classList.remove('text-blue-300');
+                    newValue.classList.add('text-white'); 
                 } else {
                     questionValues.push(question);
                     newValue.classList.add('border-blue-500');

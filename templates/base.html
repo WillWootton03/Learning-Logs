@@ -23,31 +23,27 @@
     <header class="bg-gray-800 py-1 rounded-2xl fixed top-2 left-4 right-4 z-30">
         <nav class="flex justify-between items-center w-full mx-auto">
             <div class="flex items-center gap-4 pl-4">
-                <a href="{% url 'home' %}">
+                <a href="{% url 'dashboard' %}">
                     <img src="{% static 'icons/LearningLogsLogo.png' %}" class="h-14 w-14 object-contain">
                 </a>
                 <a href="{% url 'dashboard' %}">
-                    <h1 class="text-2xl text-white hover:text-purple-800">My Boards</h1>
+                    <h1 class="text-2xl text-purple-400 hover:text-purple-700 font-bold">My Boards</h1>
                 </a>
                 {% if board %}
-                <a href="{% url 'boardPage' board.id %}">
-                    <h1 class="text-2xl text-white">{{ board.title }}</h1>
-                </a>
-                <a href="#">
-                    <h1 class="text-2xl text-purple-300">Study Sessions</h1>
-                </a>
-                <a href="#">
-                    <h1 class="text-2xl text-purple-300">Concepts</h1>
-                </a>
-                <a href="#">
-                    <h1 class="text-2xl text-purple-300">Logs</h1>
-                </a>
+                    <a href="{% url 'boardPage' board.id %}">
+                        <h1 class="text-2xl text-purple-400 hover:text-purple-700 font-bold">{{ board.title }}</h1>
+                    </a>
+                    <a href="{% url 'newSessionSettings' board.id %}">
+                        <h1 class="text-2xl text-purple-400 hover:text-purple-700 font-bold">Study</h1>
+                    </a>
                 {% endif %}
             </div>
             <div class="flex items-center gap-4 pr-4">
-                <a href="/study">
-                    <h1 class="text-2xl text-purple-300">Study</h1>
-                </a>
+                {% if board %}
+                    <a href="#">
+                        <h1 class="text-2xl text-purple-400 hover:text-purple-900 font-bold">Board Settings</h1>
+                    </a>
+                {% endif %}
                 <div class="relative inline-block text-left">
                     <img id="profile-button" src="{% static 'icons/placeholderProfile.png' %}" class="h-10 w-10 object-contain rounded-2xl hover:cursor-pointer">
                     

@@ -22,7 +22,7 @@ def signIn(request):
                user = authenticate(request, email=email, password=password)
                if user is not None:
                     login(request, user)
-                    return redirect('home')
+                    return redirect('dashboard')
                else:
                     form.add_error(None, 'Invalid Username or password')
      else:

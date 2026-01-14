@@ -72,7 +72,7 @@ def updateSessionSettings(request, board_id, sessionSettings_id = None):
             questions = Question.objects.filter(title__in=data.get('questions'))
             sessionSettings.questionTypes.set(questions)
 
-        return JsonResponse({'success' : True, 'board_id' : board.id, 'redirect_url' : reverse('boardPage', args=[board_id])})
+        return JsonResponse({'success' : True, 'board_id' : board.id, 'sessionSettingsId' : str(sessionSettings.id)})
     
     sessionSettingsTags = list(sessionSettings.tags.all().values('id','name'))
     availableTags_qs = board.tags.exclude(id__in=sessionSettings.tags.values_list('id', flat=True))
@@ -117,8 +117,9 @@ def sessionSettingsToggleTags(request, board_id, sessionSettings_id, tag_id):
 
 
 @login_required
-def sessionStart(request, board_id, sessionSettings_id):
-    sessionSettings = SessionSettings.objects.get(id=sessionSettings_id)
+def sessionStart(request, board_id, sessionSettings_id=None):
+    if sessionSettings_id:
+        sessionSettings = SessionSettings.objects.get(id=sessionSettings_id)
 
     if request.method == 'POST':
         data = json.loads(request.body)
@@ -128,21 +129,38 @@ def sessionStart(request, board_id, sessionSettings_id):
         if 'questions' in data:
             questionTypes = Question.objects.filter(title__in=data.get('questions'))
 
-        if sessionSettings.isExclusive:
-            tagConceptQS = Concept.objects.annotate(matchedTags= Count('tags', filter=Q(tags__id__in=tagUuids), distinct=True)).filter(matchedTags=tagCount)
-            conceptQS = tagConceptQS.filter(questions__in=questionTypes).distinct()
-            tagConcepts = list(tagConceptQS.values_list('answer', flat=True).distinct())
+        if sessionSettings_id:
+            if sessionSettings.isExclusive:
+                tagConceptQS = Concept.objects.annotate(matchedTags= Count('tags', filter=Q(tags__id__in=tagUuids), distinct=True)).filter(matchedTags=tagCount)
+                conceptQS = tagConceptQS.filter(questions__in=questionTypes).distinct()
+                tagConcepts = list(tagConceptQS.values_list('answer', flat=True).distinct())
 
-            board = Board.objects.prefetch_related(
-                Prefetch('concepts', queryset=conceptQS.prefetch_related('questions'), to_attr='filteredConcepts')).get(id=board_id)
+                board = Board.objects.prefetch_related(
+                    Prefetch('concepts', queryset=conceptQS.prefetch_related('questions'), to_attr='filteredConcepts')).get(id=board_id)
+            else:
+                tagConceptQS = Concept.objects.annotate(matchedTags=Count('tags', filter=Q(tags__id__in=tagUuids), distinct=True)).filter(matchedTags=tagCount)
+                conceptQS = tagConceptQS.filter(questions__in=questionTypes)
+                tagConcepts = list(tagConceptQS.values_list('answer', flat=True).distinct())
+                
+                board = Board.objects.prefetch_related(
+                    Prefetch('concepts', queryset=conceptQS.prefetch_related('questions'), to_attr='filteredConcepts') 
+                ).get(id=board_id)
         else:
-            tagConceptQS = Concept.objects.annotate(matchedTags=Count('tags', filter=Q(tags__id__in=tagUuids), distinct=True)).filter(matchedTags=tagCount)
-            conceptQS = tagConceptQS.filter(questions__in=questionTypes)
-            tagConcepts = list(tagConceptQS.values_list('answer', flat=True).distinct())
-            
-            board = Board.objects.prefetch_related(
-                Prefetch('concepts', queryset=conceptQS.prefetch_related('questions'), to_attr='filteredConcepts') 
-            ).get(id=board_id)
+            if data.get('isExclusive'):
+                tagConceptQS = Concept.objects.annotate(matchedTags= Count('tags', filter=Q(tags__id__in=tagUuids), distinct=True)).filter(matchedTags=tagCount)
+                conceptQS = tagConceptQS.filter(questions__in=questionTypes).distinct()
+                tagConcepts = list(tagConceptQS.values_list('answer', flat=True).distinct())
+
+                board = Board.objects.prefetch_related(
+                    Prefetch('concepts', queryset=conceptQS.prefetch_related('questions'), to_attr='filteredConcepts')).get(id=board_id)
+            else:
+                tagConceptQS = Concept.objects.annotate(matchedTags=Count('tags', filter=Q(tags__id__in=tagUuids), distinct=True)).filter(matchedTags=tagCount)
+                conceptQS = tagConceptQS.filter(questions__in=questionTypes)
+                tagConcepts = list(tagConceptQS.values_list('answer', flat=True).distinct())
+                
+                board = Board.objects.prefetch_related(
+                    Prefetch('concepts', queryset=conceptQS.prefetch_related('questions'), to_attr='filteredConcepts') 
+                ).get(id=board_id)
 
         # Converts the input strings from data into actual UUID objects
         session = Session.objects.create(board=board)
@@ -171,14 +189,16 @@ def sessionPage(request, board_id, session_id):
 
     questionTitles = [question.title for question in session.availableQuestions]
 
+    
     if session.sessionConcepts:
         for concept in session.sessionConcepts:
             questions[str(concept.id)] = {'answer' : concept.answer, 'definition' : concept.definition, 'hint' : concept.hint, 'count' : concept.count, 'known' : concept.known, 'unknown' : concept.unknown, 'questionTypes' : [type.title for type in concept.prefetchedQuestions] }
     else:
-        #return redirect('boardPage', board_id)
-        pass
+        return redirect('boardPage', board_id)
     
-    questions =  json.dumps(questions)
+
+    
+
     # Checks to see if there is a recent session start instance, if there is will load all tagConcepts from there if not will return to boardPage
     tagConcepts = cache.get(f'board:{board_id}:tagConcepts')
     if tagConcepts is None:
@@ -211,55 +231,3 @@ def submitSession(request, board_id, session_id):
     
         return JsonResponse({'success' : True, 'redirect_url': reverse('boardPage', args=[board_id])})
     return JsonResponse({'success' : False})
-""" 
-@login_required
-@require_POST
-def newQuestion(request, board_id, session_id):
-    data = json.loads(request.body)
-    questionId = uuid.UUID(data.get('questionId'))
-    session = Session.objects.prefetch_related(
-        Prefetch('concepts', queryset=Concept.objects.exclude(id=questionId), to_attr='sessionConcepts')
-    ).get(id=session_id)
-
-    if session.sessionConcepts:
-        question = random.choice(session.sessionConcepts)
-    else:
-        return JsonResponse({'success': False})
-
-    return JsonResponse({'success' : True, 'questionAnswer' : question.answer, 'questionId' : question.id, 'questionHint' : question.hint })
-
-@login_required
-@require_POST
-def submitAnswer(request, board_id, session_id):
-
-    submitedAnswer = str(request.POST.get('answer-input', '')).strip().lower()
-    question_id = request.POST.get('question_id')
-
-    board = Board.objects.only('knownThreshold').get(id=board_id)
-    session = Session.objects.get(id=session_id)
-
-    try:
-        question_id = uuid.UUID(question_id)
-        concept = Concept.objects.get(id=question_id)
-    except:
-        return JsonResponse({'success' : False})
-    
-    acceptableDefinitons = [definition.strip().lower() for definition in concept.definition.strip().lower().split('/')]
-    result = submitedAnswer in acceptableDefinitons
-    
-    if result:
-        concept.count += 1
-        concept.known = concept.count >= board.knownThreshold
-        concept.unknown = False
-        concept.save(update_fields=['count', 'known', 'unknown'])
-        session.correctAnswers += 1
-        session.save(update_fields=['correctAnswers'])
-    else:
-        concept.count = 0
-        concept.save(update_fields=['count'])
-        session.incorrectAnswers += 1
-        session.save(update_fields=['incorrectAnswers'])
-
-
-    return JsonResponse({'success' : True, 'result' : result, 'answer' : concept.definition })
-    """

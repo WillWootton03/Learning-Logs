@@ -48,9 +48,8 @@
     const boardId = '{{ board.id }}' ;
     const sessionId = '{{ session.id }}';
     const tagConcepts = JSON.parse(document.getElementById('tag-concepts').textContent);
-    const questions = JSON.parse(document.getElementById('questions-data').textContent);
     const questionTypes = JSON.parse(document.getElementById('question-types-data').textContent);
-    const questionsObjs = JSON.parse(questions.replace(/'/g, '"'));
+    const questionsObjs = JSON.parse(document.getElementById('questions-data').textContent);
     let questionKeys = Object.keys(questionsObjs);
     const csrf_token = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
@@ -117,14 +116,15 @@
         let randomIndex = null;
         answerSubmitted = false;
         function randomQuestion() {
-            const randIndex = questionKeys[Math.floor(Math.random() * questionKeys.length)];
+            const keyIndex = Math.floor(Math.random() * questionKeys.length)
+            const randKey = questionKeys[keyIndex];
             if(currentQuestion){
-                newQuestion = questionsObjs[randIndex];
-                questionKeys.splice(randIndex, 1);
+                newQuestion = questionsObjs[randKey];
+                questionKeys.splice(keyIndex, 1);
             } else {
-                newQuestion = questionsObjs[randIndex];
+                newQuestion = questionsObjs[randKey];
             }
-            return [newQuestion, randIndex];
+            return [newQuestion, randKey];
         }
 
         [currentQuestion, randomIndex] = randomQuestion(); 
@@ -258,6 +258,7 @@
                     selectedBtn.classList.remove('border-blue-500');
                     selectedBtn.classList.add('border-green-500');
                 }
+                
             } else {
                 questionAnswer.classList.add('shadow-red-600');
                 answerInput.classList.remove('shadow-md');
@@ -291,7 +292,7 @@
                     option.classList.add('hover:cursor-default');
                     option.classList.remove('hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'hover:shadow-blue-600', 'hover:bg-gray-600');
                 });
-            }   
+            } 
         }
     }
 
@@ -351,9 +352,6 @@
         }
     });
 
-
-
-    // Allows to make sure when reloading the page you are redirected back to the main page and cant continue that learning session
     window.addEventListener('load', () => {
         nextQuestion();
     });

@@ -70,6 +70,7 @@ urlpatterns = [
 
     # Sessions
     path('board/<uuid:board_id>/sessions/<uuid:sessionSettings_id>/sessionStart/', sessionStart, name='sessionStart'),
+    path('board/<uuid:board_id>/sessions/sessionStart/', sessionStart, name='coldSessionStart'),
     path('board/<uuid:board_id>/sessions/<uuid:session_id>/sessionPage/', sessionPage, name='sessionPage'),
 
     path('board/<uuid:board_id>/sessions/<uuid:session_id>/submit/', submitSession, name='submitSession'),
