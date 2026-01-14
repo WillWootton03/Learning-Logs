@@ -3,7 +3,9 @@
 {% block content %}
 <div id="page-wrapper" class="flex flex-box mx-auto pt-24 justify-center h-[calc(100vh-3rem)] w-[90%] transition-all duration-200">
     <div class="h-full w-[95%] bg-gray-800 rounded-2xl shadow-md shadow-black flex flex-col gap-y-12 px-20 justify-center text-center items-center relative">
-            <h2 id="question-answer" class="bg-gray-700 px-3 py-3 max-h-[40vh] max-w-[80vw] rounded text-white font-bold text-center flex items-center justify-center shadow-[0_0px_15px_rgba(0,0,0,0.9)] shadow-purple-600 cursor-default"></h2>
+        <div id="question-box" class="bg-gray-700 px-3 py-3 h-fit max-h-[70%] w-[80%] rounded flex items-center justify-center shadow-[0_0px_15px_rgba(0,0,0,0.9)] shadow-purple-600 cursor-default">
+            <h2 id="question-answer" class="text-white font-bold text-center px-20 py-2 w-full wrap-break-word" style="overflow-wrap: break-word; word-break: break-word;"></h2>
+        </div>
             <div class="flex flex-col gap-y-4 align-items-center">
                 <!--Div for both answer and definition input Box-->
                 <div id="answer-definition-box" class="hidden flex flex-col gap-y-4 align-items-center" >
@@ -62,6 +64,7 @@
     const answerDefinitionBox = document.getElementById('answer-definition-box');
     const answerInput = document.getElementById('answer-input');
     const questionAnswer = document.getElementById('question-answer');
+    const questionBox = document.getElementById('question-box');
 
     const trueOrFalseChoiceBox = document.getElementById('true-or-false-box');
     const trueBtn = document.getElementById('true-button');
@@ -84,7 +87,9 @@
 
     const questionFitty = fitty('#question-answer', {
         maxSize: 92,
-        minSize: 18
+        minSize: 18,
+        multiLine: true,
+        observe: true
     });
 
     function submitSession() {
@@ -132,8 +137,8 @@
         answerDefinitionBox.classList.add('hidden');
         multipleChoiceBox.classList.add('hidden');
         trueOrFalseChoiceBox.classList.add('hidden');
-        questionAnswer.classList.remove('shadow-green-600', 'shadow-red-600');
-        questionAnswer.classList.add('shadow-purple-600');
+        questionBox.classList.remove('shadow-green-600', 'shadow-red-600');
+        questionBox.classList.add('shadow-purple-600');
         multipleChoiceBox.innerHTML = '';
 
         // Gets the intersection between current question's question types and the sessions available question types
@@ -251,7 +256,7 @@
             editBtn.href = `/board/${boardId}/concepts/${randomIndex}/session/${sessionId}/`;
             canSubmitAnswer = false;
             if(result)  {
-                questionAnswer.classList.add('shadow-green-600');
+                questionBox.classList.add('shadow-green-600');
                 currentQuestion.count += 1;
                 if(currentQuestion.unknown) { currentQuestion.unknown = false; }
                 correctAnswers += 1;
@@ -266,11 +271,15 @@
                 }
                 
             } else {
-                questionAnswer.classList.add('shadow-red-600');
+                questionBox.classList.add('shadow-red-600');
                 answerInput.classList.remove('shadow-md');
                 answerInput.classList.add('shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'border-red-500', 'shadow-red-500', 'focus:border-red-500', 'focus:shadow-red-500');
                 correctAnswer.classList.remove('hidden');
-                correctAnswer.textContent = currentQuestion.definition;
+                if(randomQuestionType === 'answer'){
+                    correctAnswer.textContent = currentQuestion.definition;
+                } else if (randomQuestionType === 'definition') {
+                    correctAnswer.textContent = currentQuestion.answer;
+                }
                 currentQuestion.count = 0;
                 incorrectAnswers += 1;
                 if(currentQuestion.known) { currentQuestion.known = false; }

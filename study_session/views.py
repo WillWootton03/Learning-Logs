@@ -118,27 +118,28 @@ def sessionSettingsToggleTags(request, board_id, sessionSettings_id, tag_id):
 
 @login_required
 def sessionStart(request, board_id, sessionSettings_id=None):
-    if sessionSettings_id:
-        sessionSettings = SessionSettings.objects.get(id=sessionSettings_id)
+    board = Board.objects.get(id=board_id)
 
     if request.method == 'POST':
         data = json.loads(request.body)
         tagUuids = list({uuid.UUID(t) for t in data['tags']})
+            
+
         tagCount = len(tagUuids)
 
         if 'questions' in data:
             questionTypes = Question.objects.filter(title__in=data.get('questions'))
 
-        temp = Board.objects.prefetch_related('defaultQuestions').get(id=board_id)
-        boardDefaultQuestions = temp.defaultQuestions.all()
-
-        if data.get('isExclusive'):
-            tagConceptQS = Concept.objects.annotate(
-                matchedTags= Count('tags', filter=Q(tags__id__in=tagUuids), distinct=True),
-                totalTags= Count('tags', distinct=True)
-                ).filter(matchedTags=tagCount, totalTags=tagCount)
+        if tagUuids:
+            if data.get('isExclusive'):
+                tagConceptQS = Concept.objects.annotate(
+                    matchedTags= Count('tags', filter=Q(tags__id__in=tagUuids), distinct=True),
+                    totalTags= Count('tags', distinct=True)
+                    ).filter(matchedTags=tagCount, totalTags=tagCount)
+            else:
+                tagConceptQS = Concept.objects.annotate(matchedTags=Count('tags', filter=Q(tags__id__in=tagUuids), distinct=True)).filter(matchedTags=tagCount)
         else:
-            tagConceptQS = Concept.objects.annotate(matchedTags=Count('tags', filter=Q(tags__id__in=tagUuids), distinct=True)).filter(matchedTags=tagCount)
+            tagConceptQS = Concept.objects.filter(board=board)
 
 
         conceptQS = tagConceptQS.filter(Q(questions__in=questionTypes) | Q(questions__isnull=True)).distinct()
@@ -152,7 +153,7 @@ def sessionStart(request, board_id, sessionSettings_id=None):
         session = Session.objects.create(board=board)
         session.concepts.set(board.filteredConcepts)
         session.questionTypes.set(questionTypes)
-        
+
         tagConcepts = list(tagConceptQS.values_list('answer', flat=True).distinct())
         cacheKey = f'board:{board_id}:tagConcepts'
         cache.set(cacheKey, tagConcepts, timeout=600)

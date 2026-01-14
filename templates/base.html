@@ -48,9 +48,6 @@
                     
                     <div id="profile-dropdown" class="origin-top-right absolute right-0 mt-2 w-56 rounded-md bg-gray-800 shadow-lg hidden">
                         <div class="py-1">
-                            {% if board %}
-                                <a href="#" class="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700">Board Settings</a>
-                            {% endif %}
                             {% if user.is_authenticated %}
                             <form method="post" action="{% url 'logout' %}">
                                 {% csrf_token %}
