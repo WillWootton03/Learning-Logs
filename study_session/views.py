@@ -129,45 +129,31 @@ def sessionStart(request, board_id, sessionSettings_id=None):
         if 'questions' in data:
             questionTypes = Question.objects.filter(title__in=data.get('questions'))
 
-        if sessionSettings_id:
-            if sessionSettings.isExclusive:
-                tagConceptQS = Concept.objects.annotate(matchedTags= Count('tags', filter=Q(tags__id__in=tagUuids), distinct=True)).filter(matchedTags=tagCount)
-                conceptQS = tagConceptQS.filter(questions__in=questionTypes).distinct()
-                tagConcepts = list(tagConceptQS.values_list('answer', flat=True).distinct())
+        temp = Board.objects.prefetch_related('defaultQuestions').get(id=board_id)
+        boardDefaultQuestions = temp.defaultQuestions.all()
 
-                board = Board.objects.prefetch_related(
-                    Prefetch('concepts', queryset=conceptQS.prefetch_related('questions'), to_attr='filteredConcepts')).get(id=board_id)
-            else:
-                tagConceptQS = Concept.objects.annotate(matchedTags=Count('tags', filter=Q(tags__id__in=tagUuids), distinct=True)).filter(matchedTags=tagCount)
-                conceptQS = tagConceptQS.filter(questions__in=questionTypes)
-                tagConcepts = list(tagConceptQS.values_list('answer', flat=True).distinct())
-                
-                board = Board.objects.prefetch_related(
-                    Prefetch('concepts', queryset=conceptQS.prefetch_related('questions'), to_attr='filteredConcepts') 
-                ).get(id=board_id)
+        if data.get('isExclusive'):
+            tagConceptQS = Concept.objects.annotate(
+                matchedTags= Count('tags', filter=Q(tags__id__in=tagUuids), distinct=True),
+                totalTags= Count('tags', distinct=True)
+                ).filter(matchedTags=tagCount, totalTags=tagCount)
         else:
-            if data.get('isExclusive'):
-                tagConceptQS = Concept.objects.annotate(matchedTags= Count('tags', filter=Q(tags__id__in=tagUuids), distinct=True)).filter(matchedTags=tagCount)
-                conceptQS = tagConceptQS.filter(questions__in=questionTypes).distinct()
-                tagConcepts = list(tagConceptQS.values_list('answer', flat=True).distinct())
+            tagConceptQS = Concept.objects.annotate(matchedTags=Count('tags', filter=Q(tags__id__in=tagUuids), distinct=True)).filter(matchedTags=tagCount)
 
-                board = Board.objects.prefetch_related(
-                    Prefetch('concepts', queryset=conceptQS.prefetch_related('questions'), to_attr='filteredConcepts')).get(id=board_id)
-            else:
-                tagConceptQS = Concept.objects.annotate(matchedTags=Count('tags', filter=Q(tags__id__in=tagUuids), distinct=True)).filter(matchedTags=tagCount)
-                conceptQS = tagConceptQS.filter(questions__in=questionTypes)
-                tagConcepts = list(tagConceptQS.values_list('answer', flat=True).distinct())
-                
-                board = Board.objects.prefetch_related(
-                    Prefetch('concepts', queryset=conceptQS.prefetch_related('questions'), to_attr='filteredConcepts') 
-                ).get(id=board_id)
+
+        conceptQS = tagConceptQS.filter(Q(questions__in=questionTypes) | Q(questions__isnull=True)).distinct()
+
+        board = Board.objects.prefetch_related(
+            Prefetch('concepts', queryset=conceptQS, to_attr='filteredConcepts') 
+        ).get(id=board_id)
+
 
         # Converts the input strings from data into actual UUID objects
         session = Session.objects.create(board=board)
         session.concepts.set(board.filteredConcepts)
         session.questionTypes.set(questionTypes)
-        print(tagConcepts)
-
+        
+        tagConcepts = list(tagConceptQS.values_list('answer', flat=True).distinct())
         cacheKey = f'board:{board_id}:tagConcepts'
         cache.set(cacheKey, tagConcepts, timeout=600)
 
@@ -176,7 +162,8 @@ def sessionStart(request, board_id, sessionSettings_id=None):
 
 @login_required
 def sessionPage(request, board_id, session_id):
-    board = Board.objects.get(id=board_id)
+    board = Board.objects.prefetch_related('defaultQuestions').get(id=board_id)
+    boardDefaultQuestions = board.defaultQuestions.all()
 
     # Prefetches the list of questions into a workable list for js
     questionsPrefetch = Prefetch('questions', queryset=Question.objects.only('title'), to_attr='prefetchedQuestions')
@@ -187,25 +174,23 @@ def sessionPage(request, board_id, session_id):
     ).get(id=session_id)
 
     questions = {}
-
+    
+    for concept in getattr(session, 'sessionConcepts', []):
+        questionsList = concept.prefetchedQuestions if concept.prefetchedQuestions else boardDefaultQuestions
+        questions[str(concept.id)] = {'answer' : concept.answer, 'definition' : concept.definition, 'hint' : concept.hint, 'count' : concept.count, 'known' : concept.known, 'unknown' : concept.unknown, 'questionTypes' : [type.title for type in questionsList] }
+    
+    if not questions:
+        redirect('boardPage', board.id)
+    
     questionTitles = [question.title for question in session.availableQuestions]
-
-    
-    if session.sessionConcepts:
-        for concept in session.sessionConcepts:
-            questions[str(concept.id)] = {'answer' : concept.answer, 'definition' : concept.definition, 'hint' : concept.hint, 'count' : concept.count, 'known' : concept.known, 'unknown' : concept.unknown, 'questionTypes' : [type.title for type in concept.prefetchedQuestions] }
-    else:
-        return redirect('boardPage', board_id)
-    
-
-    
 
     # Checks to see if there is a recent session start instance, if there is will load all tagConcepts from there if not will return to boardPage
     tagConcepts = cache.get(f'board:{board_id}:tagConcepts')
     if tagConcepts is None:
         return redirect('boardPage', board_id)
+    
 
-    return render(request, 'sessions/sessionPage.html', {'board' : board, 'session' : session, 'questions' : questions, 'questionTypes' : questionTitles, 'tagConcepts' : tagConcepts })
+    return render(request, 'sessions/sessionPage.html', {'board' : board, 'session' : session, 'questions' : questions, 'questionTypes' : questionTitles, 'tagConcepts' : tagConcepts, 'defaultBoardQuestions' : list(boardDefaultQuestions.values_list('title', flat=True)) })
 
 @login_required
 @csrf_exempt

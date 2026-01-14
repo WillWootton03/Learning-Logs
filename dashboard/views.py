@@ -289,7 +289,7 @@ def loadConceptsCSV(request, board_id):
                 questionsRaw = row.get('Questions') or ''
                 questionsToAdd = [question.strip() for question in questionsRaw.split(',') if question.strip() in allQuestionTitles]
                 if not questionsToAdd:
-                    questionsToAdd = [question.title for question in board.questions] 
+                    questionsToAdd = [] 
                     
 
                 if(answer, definition, hint) not in existingConcepts:

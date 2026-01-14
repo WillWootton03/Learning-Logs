@@ -42,6 +42,7 @@
     {{ questions|json_script:'questions-data' }}
     {{ questionTypes|json_script:'question-types-data'}}
     {{ tagConcepts|json_script:'tag-concepts' }}
+    {{ defaultBoardQuestions|json_script:'default-board-questions'}}
 <script>
     const boardId = '{{ board.id }}' ;
     const sessionId = '{{ session.id }}';
@@ -112,6 +113,7 @@
     }
 
     function nextQuestion() {
+        const defaultBoardQuestions = JSON.parse(document.getElementById('default-board-questions').textContent);
         randomIndex = null;
         answerSubmitted = false;
         function randomQuestion() {
@@ -135,7 +137,12 @@
         multipleChoiceBox.innerHTML = '';
 
         // Gets the intersection between current question's question types and the sessions available question types
-        const questionPossibilites = questionTypes.filter(item => currentQuestion.questionTypes.includes(item));
+        let questionPossibilites = '';
+        if(currentQuestion?.questionTypes){
+             questionPossibilites = questionTypes.filter(item => currentQuestion.questionTypes.includes(item));
+        } else {
+            questionPossibilities = questionTypes;
+        }
 
         // Gets a random question type to be used for the random question
         randomQuestionType =  questionPossibilites[Math.floor(Math.random() * questionPossibilites.length)];
@@ -192,7 +199,7 @@
             const questionText = `The answer to ${currentQuestion.definition} is ${t_fAnswer}`;
             questionAnswer.textContent = questionText;
         }
-        currentQuestionTypes = currentQuestion.questions;
+        currentQuestionTypes = currentQuestion?.questions || defaultBoardQuestions;
         submitButton.textContent = 'Submit';
         submitButton.classList.remove('bg-green-600', 'hover:bg-green-600', 'hover:shadow-green-600');
         submitButton.classList.add('bg-blue-800', 'hover:bg-blue-600', 'hover:shadow-blue-600');

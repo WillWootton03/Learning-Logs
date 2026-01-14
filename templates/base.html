@@ -187,12 +187,10 @@
                                 btn.classList.remove('text-white', 'border-transparent');
                                 btn.classList.add('text-purple-200', 'border-purple-600');
                             }
-                            console.log(stagedQuestions);
                         });
                         defaultQuestionsrow.appendChild(btn);
                     });
                     saveBoardSettingsBtn.addEventListener('click', () => {
-                        console.log(stagedQuestions)
                         fetch(`/board/${baseBoardId}/saveSettings/`, {
                             method : 'POST',
                             headers : {
