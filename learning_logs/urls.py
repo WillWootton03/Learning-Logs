@@ -20,7 +20,7 @@ from django.contrib.auth.views import LogoutView
 
 from accounts.views import home
 from accounts.views import signIn, register
-from dashboard.views import home, boards, newBoard, boardPage, newConcept, conceptPage, conceptToggleTags, deleteTag, updateConcept, deleteConcept, createTag, deleteBoard, loadConceptsCSV, deleteAllConcepts, deleteAllTags
+from dashboard.views import home, boards, newBoard, boardPage, newConcept, conceptPage, conceptToggleTags, deleteTag, updateConcept, deleteConcept, createTag, deleteBoard, loadConceptsCSV, deleteAllConcepts, deleteAllTags, saveBoardSettings
 from user_logs.views import newLog, logBreakdown, deleteLog
 from study_session.views import sessionSettingsToggleTags, newSessionSettings, updateSessionSettings, deleteSessionSettings, sessionStart, sessionPage, submitSession
 
@@ -39,6 +39,7 @@ urlpatterns = [
     path('newBoard/', newBoard, name='newBoard'),
     path('board/<uuid:board_id>/', boardPage, name='boardPage'),
     path('board/delete/', deleteBoard, name='deleteBoard'),
+    path('board/<uuid:board_id>/saveSettings/', saveBoardSettings, name='saveBoardSettings'),
 
     # All Tag URLs
     path('board/<uuid:board_id>/<uuid:concept_id>/<uuid:tag_id>/toggle/', conceptToggleTags, name='toggleTags'),

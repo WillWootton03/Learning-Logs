@@ -138,7 +138,20 @@
         {% endfor %}
     </div>
     </div>
-    
+    <!--Board Settings Modal-->
+    <div id="board-settings-modal" class="hidden fixed inset-x-96 inset-y-20 mt-10 z-100 p-3 bg-gray-800 rounded-2xl shadow-md shadow-black">
+        <div class="h-full w-full flex flex-col align-items-center">
+            <div class="h-[95%] w-full flex flex-col align-items-center gap-y-12 ">
+                <h2 class="text-purple-400 text-5xl font-bold">Board Settings</h2>
+                <div class="flex flex-row w-[95%] h-fit gap-x-6 align-items-center">
+                    <h2 class="text-white text-2xl font-bold w-[30%]">Default Questions</h2>
+                    <div id="default-questions" class="flex flex-row gap-x-2 w-full">
+                    </div>
+                </div>
+            </div>
+            <button id="save-board-settings-button" class="px-10 py-1 bg-gray-600 rounded text-2xl text-white font-bold hover:bg-gray-700 hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-blue-500">Save</button>
+        </div>
+    </div>
     <!--Confirm Adding CSV File-->
     <div id="csv-confirm-modal" class="hidden flex flex-col fixed inset-x-[25%] inset-y-[40%] w-[50%] h-fit py-2 gap-y-4 rounded-2xl bg-gray-700 z-100 justify-content-center align-items-center">
         <h2 id="csv-concept-text" class="text-2xl text-white text-center"></h2>
@@ -158,10 +171,16 @@
         <a href="{% url 'deleteAllTags' board.id %}" class="bg-red-500 py-1 rounded w-fit h-fit text-lg font-bold px-4 hover:bg-red-800">Delete All</a>
         <button id="cancel-delete-all-tags" class="absolute top-2 right-2 bg-red-600 rounded px-2 text-white hover:bg-red-800">X</button>
     </div>
+   {% if board %}
+        {{ questions|json_script:'questions-data'}}
+        {{ boardQuestions|json_script:'board-questions-data'}}
+    {% endif %}
     <script>
         const boardID = "{{ board.id }}";
         const newTags = "{{ newTags }}" || null;
         const newConcepts = "{{ newConcepts }}" || null;
+        const allQuestions = JSON.parse(document.getElementById('questions-data').textContent)
+        const boardQuestions = JSON.parse(document.getElementById('board-questions-data').textContent)
         const sessionsSettingsDropdown = document.getElementById('sessions-settings-dropdown');
         const toggleSessionsSettingsDropdown = document.getElementById('toggle-sessions-settings');
         const modalBackdrop = document.getElementById('modal-backdrop');
@@ -199,6 +218,9 @@
         const confirmDeleteAllTagsText = document.getElementById('delete-all-tags-text');
         const cancelDeleteAllTagsBtn = document.getElementById('cancel-delete-all-tags');
         const deleteAllTags = document.getElementById('delete-all-tags');
+
+
+
 
         closeSessionSettings.addEventListener('click', () => {
             modalBackdrop.classList.toggle('hidden');

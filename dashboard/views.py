@@ -49,14 +49,30 @@ def boards(request):
     }
     return render(request, 'dashboard/boards.html', context=context)
 
+@login_required
+@require_POST
+def saveBoardSettings(request, board_id):
+    board = Board.objects.get(id=board_id)
+    if board:
+        data = json.loads(request.body)
+        if 'defaultQuestions' in data:
+           board.defaultQuestions.set(data.get('defaultQuestions'))
+        return JsonResponse({ 'success' : True })
+    return JsonResponse({ 'success' : False })
+
+
 
 @login_required
 def boardPage(request, board_id):
     board = Board.objects.prefetch_related(
         Prefetch('concepts', to_attr='allConcepts'),
+        Prefetch('defaultQuestions', to_attr='boardConcepts')
     ).get(id=board_id)
     logs = board.logs.order_by('-dateAdded')[:50]
     sessions = board.sessions.order_by('-dateAdded')[:20]
+    questions = list(Question.objects.all().values_list('title', flat=True))
+    boardQuestions = [question.title for question in board.boardConcepts]
+
 
     knownConcepts = [concept for concept in board.allConcepts if concept.known ]
     unknownConcepts = [concept for concept in board.allConcepts if concept.unknown]
@@ -85,7 +101,7 @@ def boardPage(request, board_id):
     uri = "data:image/png;base64," + urllib.parse.quote(string)
 
 
-    return render(request, 'dashboard/boardPage.html', {'board' : board, 'logs' : logs, 'chart' : uri, 'sessions' : sessions,  'knownConceptsCount' : len(knownConcepts), 'learningConceptsCount' : len(learningConcepts), 'unknownConceptsCount' : len(unknownConcepts), 'knownConcepts' : knownConcepts, 'learningConcepts' : learningConcepts, 'unknownConcepts' : unknownConcepts})
+    return render(request, 'dashboard/boardPage.html', {'board' : board, 'logs' : logs, 'chart' : uri, 'sessions' : sessions,  'knownConceptsCount' : len(knownConcepts), 'learningConceptsCount' : len(learningConcepts), 'unknownConceptsCount' : len(unknownConcepts), 'knownConcepts' : knownConcepts, 'learningConcepts' : learningConcepts, 'unknownConcepts' : unknownConcepts, 'questions' : questions, 'boardQuestions' : boardQuestions})
 
 
 @login_required 
