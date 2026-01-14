@@ -149,7 +149,10 @@
                     </div>
                 </div>
             </div>
-            <button id="save-board-settings-button" class="px-10 py-1 bg-gray-600 rounded text-2xl text-white font-bold hover:bg-gray-700 hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-blue-500">Save</button>
+            <div class="w-full h-fit align-items-center flex flex-row gap-x-4">
+                <button id="save-board-settings-button" class="px-10 py-1 bg-gray-600 rounded text-2xl text-white font-bold hover:bg-gray-700 hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-blue-500">Save</button>
+                <button id="cancel-board-settings-button" class="px-10 py-1 bg-gray-600 rounded text-2xl text-white font-bold hover:bg-gray-700 hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-red-500">Cancel</button>
+            </div>
         </div>
     </div>
     <!--Confirm Adding CSV File-->
@@ -218,6 +221,7 @@
         const confirmDeleteAllTagsText = document.getElementById('delete-all-tags-text');
         const cancelDeleteAllTagsBtn = document.getElementById('cancel-delete-all-tags');
         const deleteAllTags = document.getElementById('delete-all-tags');
+
 
         modalBackdrop.addEventListener('click', () =>{
             if(!modalBackdrop.classList.contains('hidden')) {

@@ -20,10 +20,6 @@
                     {% endfor %}
                 </p>
             {% endif %}   
-            <div class="relative bg-grey-300 mt-8 bg-gray-500 w-full rounded-3xl">
-                <h2 class="text-2xl text-white px-2 py-3 text-center font-bold">Log Tags</h2>      
-                <button class="absolute top-2.5 right-2.5 bg-blue-300 px-3 py-2.5 rounded-2xl font-bold">+</button>
-            </div>
             <div class="mt-auto mx-auto">
                 <a href="{% url 'boardPage' board.id %}" class="bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-red-600 hover:bg-gray-800">Cancel</a>
                 <button type="submit" class=" bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-900 hover:bg-gray-800">Submit</button>

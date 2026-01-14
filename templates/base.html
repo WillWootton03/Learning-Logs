@@ -79,7 +79,10 @@
                         </div>
                     </div>
                 </div>
-                <button id="save-board-settings-button" class="px-10 py-1 bg-gray-600 rounded text-2xl text-white font-bold hover:bg-gray-700 hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-blue-500">Save</button>
+                <div class="w-full h-fit justify-content-center flex flex-row gap-x-4">
+                    <button id="save-board-settings-button" class="px-10 py-1 bg-gray-600 rounded text-2xl text-white font-bold hover:bg-gray-700 hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-blue-500">Save</button>
+                    <button id="cancel-board-settings-button" class="px-10 py-1 bg-gray-600 rounded text-2xl text-white font-bold hover:bg-gray-700 hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-red-500">Cancel</button>
+                </div>            
             </div>
         </div>
 {% endif %}
@@ -96,7 +99,6 @@
         const profileButton = document.getElementById("profile-button");
         const profileDropdown = document.getElementById('profile-dropdown');
         const baseModalBackdrop = document.getElementById('base-modal-backdrop');
-        
 
 
         profileButton.addEventListener('click', () => {
@@ -117,7 +119,13 @@
             const saveBoardSettingsBtn = document.getElementById('save-board-settings-button');
             const boardSettingsModal = document.getElementById('board-settings-modal');
             const openBoardSettingsModal = document.getElementById('open-board-settings-modal');
+            const cancelBoardSettings = document.getElementById('cancel-board-settings-button');
+            let boardDefaultQuestions = [];
             let stagedQuestions = [];
+            cancelBoardSettings.addEventListener('click', () => {
+                boardSettingsModal.classList.add('hidden');
+                baseModalBackdrop.classList.add('hidden');
+            });
 
             
 
@@ -126,40 +134,50 @@
                     baseModalBackdrop.classList.add('hidden');
                     boardSettingsModal.classList.add('hidden');
                 }
+                if(!boardSettingsModal.classList.contains('hidden')) {
+                    boardSettingsModal.classList.add('hidden');
+                }
             });
 
             openBoardSettingsModal.addEventListener('click', () => {
                 if(baseModalBackdrop.classList.contains('hidden')) {
                     baseModalBackdrop.classList.remove('hidden');
                     boardSettingsModal.classList.remove('hidden');
+                    console.log(boardDefaultQuestions);
+                    if(boardDefaultQuestions){
+                        boardDefaultQuestions.forEach(question => {
+                            const btn = document.querySelector(`[data-title="${question}"]`);
+                            btn.classList.add('text-purple-200', 'border-purple-600');
+                        });
+                    stagedQuestions = [...boardDefaultQuestions];
+                }
                 } else {
                     baseModalBackdrop.classList.add('hidden');
                     boardSettingsModal.classList.add('hidden');
                 }
             })
 
-
             document.addEventListener('DOMContentLoaded', () => {
+                    boardDefaultQuestions = [];
                     let baseQuestions = [];
-                    let boardDefaultQuestions = [];
                     fetch(`/api/${baseBoardId}/all-questions/`)
                     .then(res => res.json())
                     .then(data => {
-                        baseQuestions = data.baseQuestions;
-                        boardDefaultQuestions = data.boardDefaultQuestions;
-                        stagedQuestions = data.boardDefaultQuestions;
+                        baseQuestions = [...data.baseQuestions];
+                        boardDefaultQuestions =[...data.boardDefaultQuestions];
+                        let stagedQuestions = [...data.boardDefaultQuestions];
                     baseQuestions.forEach(question => {
                         const btn = document.createElement('button');
                         btn.dataset.title = question;
                         btn.innerText = `${question.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}` ;
-                        btn.classList.add('bg-gray-500', 'w-full', 'h-fit', 'text-xl', 'text-white', 'font-bold', 'py-2', 'rounded', 'border-3', 'border-transparent', 'hover:bg-gray-600', 'hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'hover:shadow-purple-500')
+                        btn.classList.add('settings-btn', 'bg-gray-500', 'w-full', 'h-fit', 'text-xl', 'text-white', 'font-bold', 'py-2', 'rounded', 'border-3', 'border-transparent', 'hover:bg-gray-600', 'hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'hover:shadow-purple-500')
                         if(boardDefaultQuestions.includes(question)) {
                             btn.classList.remove('text-white', 'border-transparent');
                             btn.classList.add('text-purple-200', 'border-purple-600')
                         }
                         btn.addEventListener('click', () => {
                             if(boardDefaultQuestions.includes(question)){
-                                stagedQuestions.splice(boardDefaultQuestions.indexOf(question), 1);
+                                stagedQuestions.splice(stagedQuestions.indexOf(question), 1);
                                 btn.classList.add('text-white', 'border-transparent');
                                 btn.classList.remove('text-purple-200', 'border-purple-600');
                             } else {
@@ -167,6 +185,7 @@
                                 btn.classList.remove('text-white', 'border-transparent');
                                 btn.classList.add('text-purple-200', 'border-purple-600');
                             }
+                            console.log(stagedQuestions);
                         });
                         defaultQuestionsrow.appendChild(btn);
                     });
@@ -177,7 +196,7 @@
                                 'X-CSRFToken' : csrfToken,
                                 'Content-Type' : 'application/json'
                             },
-                            body : JSON.stringify({ defaultQuestions : boardDefaultQuestions })
+                            body : JSON.stringify({ defaultQuestions : stagedQuestions })
                         })
                         .then(res => res.json())
                         .then(data => {
