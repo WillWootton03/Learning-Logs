@@ -5,14 +5,14 @@
     <meta name="csrf_token" content="{{ csrf_token }}">
 
     <div class="flex flex-box mx-5 pt-24 h-[calc(100vh-3rem)]">
-        <div class="grid grid-cols-[1fr_2fr] grid-rows-2 gap-x-20 gap-y-10 w-full h-full">
-
+        <!--Left and right seperator-->
+        <div class="flex flex-col transition-all duration-200 lg:grid lg:grid-cols-[1fr_2fr] grid-rows-2 gap-x-10 gap-y-10 w-full h-full">
             <!--Is the small card for Logs-->
             <div class="w-full h-full flex flex-col bg-gray-700 rounded-2xl relative shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-700">
                 <div class="text-3xl font-bold mt-2 mb-4 text-center text-white cursor-default drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">My Logs</div>
                 {% for log in logs %}
                     <a href="{% url 'logBreakdown' log.id %}" class="bg-gray-600 w-[90%] h-14 rounded-2xl ml-[5%] my-2 flex justify-between items-center shadow-black shadow-md hover:bg-gray-800">
-                        <p class="text-left font-medium text-white px-4">{{ log.title }}</p>
+                        <p class="truncate text-left font-medium text-white px-4">{{ log.title }}</p>
                         <p class="text-right px-4 font-medium text-white">
                             <span class='local-time' data-time="{{ log.dateAdded|date:'c' }}"></span>
                         </p>
@@ -21,42 +21,40 @@
                 <a href="{% url 'newLog' board.id %}" class="absolute top-2 right-2 bg-purple-500 text-black rounded-full px-3.5 py-2 shadow-md shadow-black hover:bg-purple-700">+</a>
             </div>
 
-        <!--Is the large card for Learning Breakdown-->
-            <div class="w-full  flex flex-col bg-gray-700 rounded-2xl relative h-[cacl(100vh-8rem)] shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-700">
-                <h2 class="text-3xl font-bold mt-2 mb-4 text-center text-white cursor-default drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">My Learning Breakdown</h2>
-                <div class="flex flex-row h-full mx-8 mt-2 mb-6">
+            <!--Is the large card for Learning Breakdown-->
+            <div class="w-full flex flex-col pt-2 pb-4 items-center bg-gray-700 rounded-xl relative shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-700">
+                <h2 class="text-3xl font-bold pb-5 text-white cursor-default drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">My Learning Breakdown</h2>
+                <div class="flex flex-col md:flex-row gap-y-3 w-full gap-x-2 md:gap-x-12 px-2 md:px-10 h-[80%]">
                     <!--Div for the learning breakdown graph-->
-                    <div class="bg-gray-500 px-2 py-1 rounded-2xl shadow-md shadow-black h-full w-[35%] flex flex-col gap-y-2">
-                        <h2 class="text-center text-2xl font-bold text-black cursor-default">Graph Breakdown</h2>
-                        <img src="{{ chart }}" class="w-full h-full object-contain" alt="Chart">
+                    <div class="bg-gray-500 px-3 py-2 rounded-2xl shadow-md shadow-black h-full flex-1 flex flex-col gap-y-2">
+                        <h2 class="text-center text-lg xl:text-2xl font-bold text-black cursor-default">Graph Breakdown</h2>
+                        <img src="{{ chart }}" class="w-full h-[80%] object-contain" alt="Chart">
                     </div>
-                    <div class="bg-gray-500 h-full w-[65%] ml-12 flex-col rounded-2xl">
-                        <!--Section for known concepts-->
-                        <div class="h-12 my-9 mx-8 rounded-2xl w-[90%] bg-gray-800 flex items-center justify-between shadow-md shadow-black">
-                            <h2 class="text-2xl font-bold px-4 text-left text-white cursor-default">Known Concepts </h2>
-                            <h2 class="text-2xl font-bold px-4 text-right text-white cursor-default">{{ knownConceptsCount }}</h2>
+                    <!--Section for known concepts-->
+                    <div class="bg-gray-500 h-full flex-2 flex flex-col rounded-2xl justify-center items-center py-4 gap-y-5 lg:gap-y-4">
+                        <div class="h-fill py-2 md:py-0 px-2 md:rounded-lg rounded-2xl w-[90%] bg-gray-800 flex flex-row items-center justify-between shadow-md shadow-black">
+                            <h2 class="text-lg md:text-2xl font-bold px-4 text-left text-white cursor-default transition-all duration-200">Known Concepts </h2>
+                            <h2 class="text-lg md:text-2xl font-bold px-4 text-right text-white cursor-default transition-all duration-200">{{ knownConceptsCount }}</h2>
                         </div>
-                            <div class="h-12 my-9 mx-8 rounded-2xl w-[90%] bg-gray-800 flex items-center justify-between shadow-md shadow-black">
-                            <h2 class="text-2xl font-bold px-4 text-left text-white cursor-default">Learning Concepts</h2>
-                            <h2 class="text-2xl font-bold px-4 text-right text-white cursor-default">{{ learningConceptsCount }}</h2>
+                        <div class="h-fill py-2 md:py-0 px-2 md:rounded-lg rounded-2xl w-[90%] bg-gray-800 flex items-center justify-between shadow-md shadow-black">
+                            <h2 class="text-lg md:text-2xl font-bold px-4 text-left text-white cursor-default transition-all duration-200">Learning Concepts</h2>
+                            <h2 class="text-lg md:text-2xl font-bold px-4 text-right text-white cursor-default transition-all duration-200">{{ learningConceptsCount }}</h2>
                         </div>
-                            <div class="h-12 my-9 mx-8 rounded-2xl w-[90%] bg-gray-800 flex items-center justify-between shadow-md shadow-black">
-                            <h2 class="text-2xl text-white font-bold px-4 text-left cursor-default">Unknown Concepts</h2>
-                            <h2 class="text-2xl text-white font-bold px-4 text-right cursor-default">{{ unknownConceptsCount }}</h2>
+                        <div class="h-fill py-2 md:py-0 px-2 md:rounded-lg rounded-2xl w-[90%] bg-gray-800 flex items-center justify-between shadow-md shadow-black">
+                            <h2 class="text-lg md:text-2xl  text-white font-bold px-4 text-left cursor-default transition-all duration-200">Unknown Concepts</h2>
+                            <h2 class="text-lg md:text-2xl text-white font-bold px-4 text-right cursor-default transition-all duration-200">{{ unknownConceptsCount }}</h2>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!--Is the small card for Study Sessions-->
-            <div class="w-full h-full flex flex-col bg-gray-700 rounded-2xl relative shadow-md overflow-y-auto shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-700">
+            <div class="w-full flex flex-col bg-gray-700 rounded-2xl h-full relative shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-700">
                 <h2 class="text-3xl font-bold mt-2 mb-4 text-center text-white cursor-default drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">My Study Sessions</h2>
-                <div class="w-full h-full flex flex-col gap-y-2 overflow-y-auto align-items-center auto-rows-min">
+                <div class="w-full h-full flex flex-col gap-y-2 overflow-y-auto items-center auto-rows-min">
                 {% for session in sessions %}
-                    <div class="bg-purple-700 text-white cursor-default text-xl py-4 font-bold w-[90%] h-[10%] rounded flex justify-between items-center px-6">
-                        <p class="text-right px-4">
+                    <div class="bg-purple-700 text-white cursor-default text-lg h-fit font-bold w-[90%] rounded flex justify-between items-center px-2 py-2">
                             <span class='local-time' data-time="{{ session.dateAdded|date:'c' }}"></span>
-                        </p>
                         <div class="grid grid-cols-2 w-[30%] gap-x-2">
                             <p class="px-2 text-white bg-green-600 rounded text-center">{{ session.correctAnswers }}</p>
                             <p class="px-2 text-white bg-red-600 rounded text-center">{{ session.incorrectAnswers }}</p>
@@ -73,19 +71,19 @@
             </div>
 
             <!--Is the larger card for Concepts-->
-            <div class="w-full h-full flex flex-col bg-gray-700 rounded-2xl py-2 relative shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-700">
-                <div class="flex flex-row h-[15%] relative px-3 gap-x-8 align-items-center">
-                    <div class="h-full w-fit align-content-center pb-2">
-                        <button id="known-concepts-button" class="bg-gray-500 px-2 text-xl text-green-300 font-bold py-2 rounded hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-green-500 hover:bg-gray-500 hover:text-green-500 active:border-green-500 border-4 border-transparent">Known</button>
-                        <button id="learning-concepts-button" class="bg-gray-500 px-2 text-xl text-yellow-200 font-bold py-2 rounded hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-yellow-400 hover:bg-gray-500 hover:text-yellow-300 active:border-yellow-500 border-4 border-transparent">Learning</button>
-                        <button id="unknown-concepts-button" class="bg-gray-500 px-2 text-xl text-red-300 font-bold py-2 rounded hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-red-500 hover:bg-gray-500 hover:text-red-500 active:border-red-500 border-4 border-transparent">Unknown</button>
-                        <button id="clear-concepts-button" class="bg-gray-500 px-2 text-xl text-blue-300 font-bold py-2 rounded hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-blue-500 hover:bg-gray-500 hover:text-blue-500 active:border-blue-500 border-4 border-transparent">Clear</button>
+            <div class="w-full h-full flex flex-col gap-y-3 bg-gray-700 rounded-2xl py-2 relative shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-700">
+                <h2 class="text-3xl font-bold text-center text-white cursor-default drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] flex-1 flex justify-center ">My Concepts</h2>
+                    <div class="h-fit w-full align-content-center px-4 flex flex-col md:flex-row gap-y-2 items-center justify-between md:justify-start gap-x-2">
+                        <div class="flex flex-row flex-3 md:flex-4 gap-x-1 md:gap-x-3">
+                            <button id="known-concepts-button" class="bg-gray-500 px-1 text-sm md:px-2 md:text-xl text-green-300 font-bold py-1 rounded hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-green-500 hover:bg-gray-500 hover:text-green-500 active:border-green-500 border-4 border-transparent">Known</button>
+                            <button id="learning-concepts-button" class="bg-gray-500 px-1 text-sm md:px-2 md:text-xl text-yellow-200 font-bold py-1 rounded hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-yellow-400 hover:bg-gray-500 hover:text-yellow-300 active:border-yellow-500 border-4 border-transparent">Learning</button>
+                            <button id="unknown-concepts-button" class="bg-gray-500 px-1 text-sm md:px-2 md:text-xl text-red-300 font-bold py-1 rounded hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-red-500 hover:bg-gray-500 hover:text-red-500 active:border-red-500 border-4 border-transparent">Unknown</button>
+                            <button id="clear-concepts-button" class="bg-gray-500 px-1 text-sm md:px-2 md:text-xl text-blue-300 font-bold py-1 rounded hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-blue-500 hover:bg-gray-500 hover:text-blue-500 active:border-blue-500 border-4 border-transparent">Clear</button>
+                        </div>
+                        <input id="concept-search" placeholder="Search" class="text-md md:text-xl flex-2 text-center h-full bg-gray-500 text-white w-[30%] py-1 rounded md:justify-end" autocomplete="off"/>
                     </div>
-                    <h2 class="text-3xl font-bold text-center text-white cursor-default drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] flex-1 flex justify-center ">My Concepts</h2>
-                    <input id="concept-search" placeholder="Search" class="text-xl text-center h-fit bg-gray-500 text-white w-[30%] py-1 rounded" autocomplete="off"/>
-                    <button id="toggle-new-concept" class="bg-purple-500 text-black rounded-full px-3.5 py-2 shadow-md shadow-black flex-7 hover:bg-purple-700">+</button>
-                </div>
-                <div id="concept-grid" class="grid grid-cols-6 w-full h-full auto-rows-min gap-2 p-2 overflow-y-auto">
+                <button id="toggle-new-concept" class="bg-purple-500 absolute top-2 right-2 text-black rounded-full px-3.5 py-2 shadow-md shadow-black flex-7 hover:bg-purple-700">+</button>
+                <div id="concept-grid" class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 w-full h-full auto-rows-min gap-2 px-2 overflow-y-auto">
                     {% for concept in knownConcepts %}
                         <a id="{{ concept.id }}" data-answer="{{ concept.answer }}" data-definition="{{ concept.definition }}" href="{% url 'conceptPage' board_id=board.id concept_id=concept.id%}" class="conceptButton knownConcept bg-green-600 rounded-2xl py-1 justify-items-center border text-white text-lg border-black shadow-md shadow-black hover:bg-green-800">
                             <h2 class="font-medium mx-2 my-2">{{ concept.answer }}</h2>
