@@ -18,26 +18,30 @@
 <body class="bg-gray-900"> 
 {% if user.is_authenticated %}
     <header class="bg-gray-800 py-1 rounded-2xl fixed top-2 left-0 right-0 md:left-4 md:right-4 z-30">
-        <nav class="flex justify-between items-center w-full ">
+        <nav class="flex justify-between items-center w-full">
             <div class="flex items-center gap-4 pl-4">
-                <a href="{% url 'dashboard' %}" class="hidden sm:block">
+                <a href="{% url 'dashboard' %}" class="hidden sm:block transition-all duration-600">
                     <img src="{% static 'icons/LearningLogsLogo.png' %}" class="h-14 w-14 object-contain">
                 </a>
                 <a href="{% url 'dashboard' %}">
-                    <h1 class="text-sm md:text-2xl lg:text-xl text-purple-400 hover:text-purple-700 font-bold ">My Boards</h1>
+                    <h1 class="text-sm md:text-2xl lg:text-3xl text-purple-400 hover:text-purple-700 font-bold transition-all duration-600">My Boards</h1>
                 </a>
                 {% if board %}
                     <a href="{% url 'boardPage' board.id %}">
-                        <h1 class="text-sm md:text-2xl lg:text-xl text-purple-400 hover:text-purple-700 font-bold">{{ board.title }}</h1>
+                        <h1 class="text-sm md:text-2xl lg:text-3xl text-purple-400 hover:text-purple-700 font-bold transition-all duration-600">{{ board.title }}</h1>
                     </a>
                     <a href="{% url 'newSessionSettings' board.id %}">
-                        <h1 class="text-sm md:text-2xl lg:text-xl text-purple-400 hover:text-purple-700 font-bold">Study</h1>
+                        <h1 class="text-sm md:text-2xl lg:text-3xl text-purple-400 hover:text-purple-700 font-bold transition-all duration-600">Study</h1>
+                    </a>
+                {% else %}
+                <a href="{% url 'newBoard' %}">
+                        <h1 class="text-sm md:text-2xl lg:text-3xl text-purple-400 hover:text-purple-700 font-bold transition-all duration-600">New Board</h1>
                     </a>
                 {% endif %}
             </div>
-            <div class="flex items-center gap-4 pr-4">
+            <div class="flex items-center gap-x-4 md:gap-x-8 pr-4">
                 {% if board %}
-                    <button id="open-board-settings-modal" class="text-sm md:text-2xl text-purple-400 hover:text-purple-900 font-bold">Board Settings</button>
+                    <button id="open-board-settings-modal" class="text-sm md:text-2xl lg:text-3xl text-purple-400 hover:text-purple-900 font-bold transition-all duration-600">Board Settings</button>
                 {% endif %}
                 <div class="relative inline-block text-left">
                     <img id="profile-button" src="{% static 'icons/placeholderProfile.png' %}" class="h-10 w-10 object-contain rounded-2xl hover:cursor-pointer">
