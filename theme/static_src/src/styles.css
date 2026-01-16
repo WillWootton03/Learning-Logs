@@ -9,3 +9,8 @@
   * the scope of this path.
   */
 @source "../../../**/*.{html,py,js}";
+@layer utilities{
+    .transition-color-fontsize {
+    transition: color 180ms ease, font-size 600ms ease;
+  }
+}
