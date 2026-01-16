@@ -260,33 +260,40 @@
         });
 
         knownConceptsButton.addEventListener('click', () => {
+            knownConcepts.forEach(btn => {
+                btn.classList.toggle('hidden');
+            });
             learningConcepts.forEach(btn => {
-                btn.classList.add('hidden');
+                if(!btn.classList.contains('hidden')){ btn.classList.add('hidden');}
+                else { btn.classList.remove('hidden'); }
             });
             unknownConcepts.forEach(btn => {
-                btn.classList.add('hidden');
-            });
-            knownConcepts.forEach(btn => {
-                btn.classList.remove('hidden');
+                if(!btn.classList.contains('hidden')){btn.classList.add('hidden');}
+                else { btn.classList.remove('hidden'); }
             });
         });
         learningConceptsButton.addEventListener('click', () => {
-            unknownConcepts.forEach(btn => {
-                btn.classList.add('hidden');
-            });
-            knownConcepts.forEach(btn => {
-                btn.classList.add('hidden');
-            });
             learningConcepts.forEach(btn => {
                 btn.classList.remove('hidden');
             });
+            knownConcepts.forEach(btn => {
+                if(!btn.classList.contains('hidden')){ btn.classList.add('hidden');}
+                else { btn.classList.remove('hidden'); }
+            });
+            unknownConcepts.forEach(btn => {
+                if(!btn.classList.contains('hidden')){btn.classList.add('hidden');}
+                else { btn.classList.remove('hidden'); }
+            });
+
         });
         unknownConceptsButton.addEventListener('click', () => {
             learningConcepts.forEach(btn => {
-                btn.classList.add('hidden');
+                if(!btn.classList.contains('hidden')){ btn.classList.add('hidden');}
+                else { btn.classList.remove('hidden'); }
             });
             knownConcepts.forEach(btn => {
-                btn.classList.add('hidden');
+                if(!btn.classList.contains('hidden')){btn.classList.add('hidden');}
+                else { btn.classList.remove('hidden'); }
             });
             unknownConcepts.forEach(btn => {
                 btn.classList.remove('hidden');

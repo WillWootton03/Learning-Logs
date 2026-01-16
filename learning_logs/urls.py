@@ -78,8 +78,11 @@ urlpatterns = [
     # Extra API calls
     path('api/<uuid:board_id>/all-questions/', allQuestionsAPI, name='allQuestionsAPI'),
 
-    # Used to auto reload browser
-    path('__reload__/', include('django_browser_reload.urls')),
-
-
 ]
+
+# Used to auto reload browser
+from django.conf import settings
+if settings.DEBUG:
+    urlpatterns += [
+        path('__reload__/', include('django_browser_reload.urls')),
+    ]

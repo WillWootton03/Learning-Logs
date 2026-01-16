@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     #Tailwind Apps
     'tailwind',
     'theme',
-    'django_browser_reload',
     #My Apps
     'accounts',
     'dashboard',
@@ -48,7 +47,7 @@ INSTALLED_APPS = [
     'study_session',
 ]
 
-TAILWIND_APP_NAME = 'theme'
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -58,7 +57,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django_browser_reload.middleware.BrowserReloadMiddleware',
 ]
 
 ROOT_URLCONF = 'learning_logs.urls'
@@ -144,9 +142,20 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [BASE_DIR / "static"]
-
+STATICFILES_DIRS = [
+     os.path.join(BASE_DIR, "static")
+]
 
 AUTH_USER_MODEL = 'accounts.User'
 
 LOGOUT_REDIRECT_URL = 'signIn'
+
+# Tailwind Const variables
+TAILWIND_APP_NAME = 'theme'
+
+NPM_BIN_PATH = os.environ.get('NPM_BIN_PATH')
+
+if DEBUG:
+    INSTALLED_APPS += ['django_browser_reload',]
+    MIDDLEWARE += ['django_browser_reload.middleware.BrowserReloadMiddleware',]
+
