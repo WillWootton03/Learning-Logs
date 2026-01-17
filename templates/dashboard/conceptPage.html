@@ -4,8 +4,9 @@
     <meta name="csrf_token" content="{{ csrf_token }}">
     <!--Section for all tags-->
     <div id="page-wrapper" class="flex flex-box mx-auto pt-24 justify-center h-[calc(100vh-3rem)] w-[90%] transition-all duration-200">
-        <div class="grid grid-cols-2 gap-2 h-full w-full">
-            <div class="flex flex-col gap-4 px-4 pt-1 pb-2 align-items-center">
+        <div class="flex flex-col  xl:grid xl:grid-cols-2 gap-2 h-full w-full">
+            <div class="flex flex-col gap-4 px-4 pt-1 py-4 align-items-center">
+                <!--Concept answer -->
                 <div class="flex-row h-fit w-full bg-purple-950 justify-items-center px-5 pt-1 pb-2 rounded-2xl text-xl shadow-md shadow-black focus-within:shadow-[0_0px_15px_rgba(0,0,0,0.9)] focus-within:shadow-purple-500">
                     <input type="text" id="concept-answer" placeholder="{{ concept.answer }}" value="{{ concept.answer }}"
                             class="text-2xl font-bold text-white h-full w-full bg-transparent text-center focus:outline-none">
@@ -13,38 +14,40 @@
                 <div class="h-full w-full border-4 border-purple-900 bg-gray-800 justify-items-center px-5 py-3 rounded-2xl shadow-md shadow-black focus-within:shadow-[0_0px_15px_rgba(0,0,0,0.9)] focus-within:shadow-purple-500">
                     <h2 class="text-2xl font-bold text-white bg-purple-950 px-3 py-2 rounded-2xl shadow-md shadow-black mb-3 cursor-default">Concept Definition</h2>
                     <div class="h-[75%] w-full">
-                        <input type="text" id="concept-definition" placeholder="{{ concept.definition }}" value="{{ concept.definition }}" 
-                                class="text-lg text-white h-full w-full bg-transparent justify-items-center focus:outline-none">
+                        <textarea id="concept-definition" placeholder="{{ concept.definition }}"
+                                class="text-lg text-white h-full w-full bg-transparent justify-items-center focus:outline-none resize-none">{{ concept.definition }}</textarea>
                     </div>
                 </div>
-                <div class="h-[40%] w-full border-4 border-purple-900 bg-gray-800 justify-items-center px-5 py-3 rounded-2xl shadow-md shadow-black focus-within:shadow-[0_0px_15px_rgba(0,0,0,0.9)] focus-within:shadow-purple-500">
-                    <!--Header Section-->
-                    <div class="w-full h-fit relative">
-                        <h2 class="justify-self-center text-2xl font-bold text-white bg-purple-950 px-3 py-2 rounded-2xl shadow-md shadow-black mb-3 cursor-default">Concept Questions</h2>
+                <!--Header Section-->
+                <div class="h-fit w-full border-4 flex flex-col gap-y-2 border-purple-900 bg-gray-800 justify-items-center px-5 rounded-2xl shadow-md shadow-black focus-within:shadow-[0_0px_15px_rgba(0,0,0,0.9)] focus-within:shadow-purple-500">
+                    <div class="w-full h-fit py-2">
                         <!--Add new Question or Remove Question-->
-                        <button id="add-question" class="top-0 right-0 absolute bg-purple-500 text-black rounded-3xl shadow-md shadow-black hover:bg-purple-700 h-full w-fit text-xl font-bold px-3">+</button>
+                        <div class="flex flex-row h-fit w-full gap-x-4 justify-center items-center">
+                            <h2 class="justify-self-center bg-purple-950 shadow-md shadow-black lg:text-2xl text-lg font-bold text-white px-3 py-2 rounded-2xl cursor-default">Concept Questions</h2>
+                            <button id="add-question" class=" bg-purple-500 text-black rounded-3xl shadow-md shadow-black hover:bg-purple-700 h-full w-fit text-xl font-bold px-3 py-1">+</button>
+                        </div>
                         <!--Available Questions Dropdown-->
-                        <div id="available-questions-dropdown" class=" hidden top-6 right-5 absolute h-fit w-[30%] bg-gray-700 flex flex-col gap-y-2 align-items-center py-2 px-1">
+                        <div id="available-questions-dropdown" class=" hidden top-6 right-5 absolute h-fit w-[30%] bg-gray-700 flex flex-col gap-y-2 py-2 px-1">
                             {% for question in availableQuestions %}
                             <div data-title="{{ question.title }}" class="available-question cursor-pointer h-fit w-[95%] bg-gray-500 text-center text-white rounded text-lg font-bold">{{ question.display_title }}</div>
                             {% endfor %}
                         </div>
                     </div>
-                    <div id="question-container" class="flex flex-row align-content-center gap-x-3">
+                    <div id="question-container" class="grid grid-rows-2 grid-cols-2 pb-2 md:flex md:flex-row gap-x-3 gap-y-3 justify-center">
                         {% for question in concept.questions.all %}
-                            <div data-title="{{ question.title }}" class="question-button flex flex-row gap-x-4 cursor-default text-center px-2 py-2 bg-gray-700 text-white rounded-lg hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] shadow-md shadow-black hover:shadow-purple-900 hover:bg-gray-900 w-fit relative">
+                            <div data-title="{{ question.title }}" class="question-button w-full flex flex-row justify-between cursor-default text-center px-2 py-2 bg-gray-700 text-white rounded-lg hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] shadow-md shadow-black hover:shadow-purple-900 hover:bg-gray-900 relative">
                                 <h2 class="text-white text-xl">{{ question.display_title }}</h2>
                                 <button data-title="{{ question.title }}" class="remove-question bg-red-500 text-white font-bold px-2 rounded hover:bg-red-900">X</button>
                             </div>  
                         {% endfor %}
                     </div>
                 </div>
-                <div class="h-[50%] w-full flex flex-row gap-x-2">
-                    <div class="flex-[2] flex-row h-full border-4 border-purple-900 bg-gray-800 justify-items-center px-5 py-3 rounded-2xl shadow-md shadow-black focus-within:shadow-[0_0px_15px_rgba(0,0,0,0.9)] focus-within:shadow-purple-500">
+                <div class="h-fit w-full flex flex-col sm:flex-row gap-x-2 gap-y-2">
+                    <div class="flex-2 flex-row h-full border-4 border-purple-900 bg-gray-800 justify-items-center px-5 py-3 rounded-2xl shadow-md shadow-black focus-within:shadow-[0_0px_15px_rgba(0,0,0,0.9)] focus-within:shadow-purple-500">
                         <h2 class="text-2xl font-bold text-white bg-purple-950 mb-3 px-3 py-2 rounded-2xl shadow-md shadow-black cursor-default">Concept Hint</h2>
                         <div class="h-[70%] w-full">
                             <input type="text" id="concept-hint" placeholder="{{ concept.hint }}" value="{{ concept.hint }}" 
-                                    class="text-lg font-medium text-white h-full w-full bg-transparent justify-items-center text-center placeholder:justify-items-center focus:outline-none">
+                                    class="text-lg pb-4 font-medium text-white h-full w-full bg-transparent justify-items-center text-center placeholder:justify-items-center focus:outline-none">
                         </div>
                     </div>
                     <div class="flex flex-col gap-y-3 h-full flex-[1.5] border-4 border-purple-900 bg-gray-800 justify-items-center px-2 py-3 rounded-2xl shadow-md shadow-black items-center">
@@ -56,7 +59,7 @@
             </div>
             <!--Right side of the screen for adding and removing tags-->
             <div class="relative h-full w-full flex flex-col items-center">
-                <div class="h-full w-[90%] bg-gray-800 flex flex-col items-center gap-y-6 rounded-2xl shadow-md shadow-black">
+                <div class="h-fit w-[90%] bg-gray-800 flex flex-col items-center gap-y-6 pb-4 rounded-2xl shadow-md shadow-black">
                     <!--Acts as the Concept tag headers with search-->
                     <div class="flex flex-col items-center gap-y-2 w-[70%]">
                         <h1 class="py-1  text-white text-2xl font-bold">{{ concept.answer }} Tags</h1>
@@ -66,17 +69,17 @@
                     <div class="h-full w-full flex flex-col items-center gap-y-5 ">
                         <!--Section for all tags selected on a concepts-->
                         <div class="h-64 w-[90%] flex flex-col">
-                            <h2 class="text-2xl bg-purple-500 text-black font-medium text-center">Selected Tags</h2>
+                            <h2 class="text-2xl bg-purple-900 text-white font-medium text-center">Selected Tags</h2>
                             <div class="bg-gray-500 h-full w-full overflow-y-auto pt-2">
-                                <div id="concept-tags" class="grid grid-cols-4 gap-x-2 gap-y-3 m-1">
+                                <div id="concept-tags" class="grid grid-cols-4 gap-x-2 gap-y-3 pb-4 m-1">
                                 </div>
                             </div>
                         </div>
                         <!--Section for all tags in the board that arent already on the concept-->
                         <div class="h-64 w-[90%] flex flex-col bg-gray-600">
-                            <h2 class="text-2xl bg-red-400  text-white text-center">Available Tags</h2>
+                            <h2 class="text-2xl bg-purple-900 font-medium text-white text-center">Available Tags</h2>
                             <div class="h-full w-full overflow-y-auto pt-2">
-                                <div id="available-tags" class="grid grid-cols-4 gap-x-2 gap-y-3 m-1">
+                                <div id="available-tags" class="grid grid-cols-2 md:grid-cols-4 gap-x-2 pb-4 gap-y-3 m-1 h-fit">
                                 </div>
                             </div>
                         </div>
