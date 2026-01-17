@@ -20,14 +20,14 @@
                 </div>
                 <!--Header Section-->
                 <div class="h-fit w-full border-4 flex flex-col gap-y-2 border-purple-900 bg-gray-800 justify-items-center px-5 rounded-2xl shadow-md shadow-black focus-within:shadow-[0_0px_15px_rgba(0,0,0,0.9)] focus-within:shadow-purple-500">
-                    <div class="w-full h-fit py-2">
+                    <div class="w-full h-fit py-2 relative">
                         <!--Add new Question or Remove Question-->
                         <div class="flex flex-row h-fit w-full gap-x-4 justify-center items-center">
                             <h2 class="justify-self-center bg-purple-950 shadow-md shadow-black lg:text-2xl text-lg font-bold text-white px-3 py-2 rounded-2xl cursor-default">Concept Questions</h2>
                             <button id="add-question" class=" bg-purple-500 text-black rounded-3xl shadow-md shadow-black hover:bg-purple-700 h-full w-fit text-xl font-bold px-3 py-1">+</button>
                         </div>
                         <!--Available Questions Dropdown-->
-                        <div id="available-questions-dropdown" class=" hidden top-6 right-5 absolute h-fit w-[30%] bg-gray-700 flex flex-col gap-y-2 py-2 px-1">
+                        <div id="available-questions-dropdown" class=" top-6 right-5 absolute h-fit w-[30%] bg-gray-700 flex flex-col gap-y-2 py-2 px-1">
                             {% for question in availableQuestions %}
                             <div data-title="{{ question.title }}" class="available-question cursor-pointer h-fit w-[95%] bg-gray-500 text-center text-white rounded text-lg font-bold">{{ question.display_title }}</div>
                             {% endfor %}
@@ -71,7 +71,7 @@
                         <div class="h-64 w-[90%] flex flex-col">
                             <h2 class="text-2xl bg-purple-900 text-white font-medium text-center">Selected Tags</h2>
                             <div class="bg-gray-500 h-full w-full overflow-y-auto pt-2">
-                                <div id="concept-tags" class="grid grid-cols-4 gap-x-2 gap-y-3 pb-4 m-1">
+                                <div id="concept-tags" class="grid grid-cols-2 gap-x-2 gap-y-3 pb-4 m-1 h-fit">
                                 </div>
                             </div>
                         </div>
@@ -79,7 +79,7 @@
                         <div class="h-64 w-[90%] flex flex-col bg-gray-600">
                             <h2 class="text-2xl bg-purple-900 font-medium text-white text-center">Available Tags</h2>
                             <div class="h-full w-full overflow-y-auto pt-2">
-                                <div id="available-tags" class="grid grid-cols-2 md:grid-cols-4 gap-x-2 pb-4 gap-y-3 m-1 h-fit">
+                                <div id="available-tags" class="grid grid-cols-2 gap-x-2 pb-4 gap-y-3 m-1 h-fit">
                                 </div>
                             </div>
                         </div>
@@ -95,16 +95,12 @@
         </div>
     </div>
     <!--Acts as the blurred background to cover main page-->
-    <div id="modal-backdrop" class="hidden fixed inset-0 z-90 bg-black/50 backdrop-blur-sm">
+    <div id="modal-backdrop" class="hidden fixed inset-0 z-100 bg-black/50 backdrop-blur-sm flex px-8 items-center justify-center">
         <!--Main modal for adding a tag-->
-        <div id="new-tag-modal" class="hidden flex flex-row fixed inset-x-[25%] inset-y-[40%] w-[50%] h-[6vw] rounded-2xl bg-gray-500 z-100 align-content-center">
-            <div class="flex flex-row h-full w-full py-2 px-3 gap-x-14 align-items-center">
-                <!--Icon Capability for tags-->
-                <div class="bg-gray-700 text-white p-3 rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-500 cursor-pointer hover:bg-gray-800 text-2xl font-bold">Img</div>
-                <input id="tag-name" placeholder="Tag Name" class="bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-500 hover:bg-gray-800" />
-                <button id="confirm-create-tag" class="justify-self-end bg-gray-700 text-white text-2xl font-bold p-3 rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-green-500 hover:bg-gray-800 absolute right-16">Confirm</button>
-                <button id="close-tag-modal" class="absolute top-3.5 right-2 bg-red-600 rounded-xl px-3 py-3 hover:bg-red-800">X</button>
-            </div>
+        <div id="new-tag-modal" class="hidden flex flex-row gap-x-4 rounded-2xl bg-gray-500 z-101 justify-center items-center px-1 py-2">
+                <input id="tag-name" placeholder="Tag Name" class="bg-gray-700 text-white text-md font-bold p-3 w-fit rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-500 hover:bg-gray-800" />
+                <button id="confirm-create-tag" class="bg-gray-700 text-white text-md font-bold p-3 rounded-2xl hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-green-500 hover:bg-gray-800 ">Confirm</button>
+                <button id="close-tag-modal" class=" bg-red-600 rounded-xl px-2 py-2 hover:bg-red-800">X</button>
         </div>
         <!--Permanently Delete Tag Modal Popup-->
         <div id="delete-tag-confirm" class="hidden flex flex-col fixed inset-x-[25%] inset-y-[40%] w-[50%] h-[6vw] rounded-2xl bg-gray-700 z-100 justify-content-center align-items-center">

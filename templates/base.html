@@ -63,9 +63,9 @@
     </header>
     <!--Background wrapper to make bg blurry when choosing which settings to load-->
     {% if board %}
-    <div id="base-modal-backdrop" class="hidden fixed inset-0 z-[1000] bg-black/50 backdrop-blur-sm">
+    <div id="base-modal-backdrop" class="hidden h-full w-full fixed flex items-center justify-center inset-0 z-[1000] bg-black/50 backdrop-blur-sm">
         <!--Board Settings Modal-->
-        <div id="board-settings-modal" class="hidden fixed inset-0 m-1 z-[1001] flex items-center justify-center">
+        <div id="board-settings-modal" class="hidden h-fit w-fit z-[1001] flex items-center justify-center">
             <div class="py-2 bg-gray-800 rounded-2xl px-5 shadow-md shadow-black flex flex-col items-center gap-y-10">
                 <div class="h-[95%] w-fit flex flex-col items-center gap-y-12 ">
                     <h2 class="text-purple-400 text-5xl font-bold">Board Settings</h2>
@@ -122,7 +122,6 @@
                 baseModalBackdrop.classList.add('hidden');
             });
 
-            
 
             baseModalBackdrop.addEventListener('click', () => {
                 if(!baseModalBackdrop.classList.contains('hidden') ){
@@ -134,7 +133,12 @@
                 }
             });
 
-            openBoardSettingsModal.addEventListener('click', () => {
+            boardSettingsModal.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+
+            openBoardSettingsModal.addEventListener('click', (e) => {
+                e.stopPropagation();
                 if(baseModalBackdrop.classList.contains('hidden')) {
                     baseModalBackdrop.classList.remove('hidden');
                     boardSettingsModal.classList.remove('hidden');

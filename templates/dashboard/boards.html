@@ -28,16 +28,17 @@
         {% endif %}
     </div>
         <!--Acts as the blurred background to cover main page-->
-    <div id="modal-backdrop" class="hidden fixed inset-0 z-90 bg-black/50 backdrop-blur-sm"></div>
-    <!--Permanently Delete Board Modal Popup-->
-    <div id="delete-board-confirm" class="hidden flex flex-col fixed inset-x-[25%] inset-y-[40%] w-[50%] h-[6vw] rounded-2xl bg-gray-700 z-100 justify-content-center align-items-center">
-        <h2 class="text-2xl text-white text-center pb-3">Do you want to permanently delete this Board?</h2>
-        <form method="POST" action="{% url 'deleteBoard' %}">
-            {% csrf_token %}
-            <input type="hidden" id="modal-board-id" name="board_id">
-            <button type="submit" class="bg-red-500 py-1 rounded w-fit h-fit text-lg font-bold px-4 hover:bg-red-800">Delete</button>
-        </form>
-        <button onclick="closeDeleteBoard()" class="absolute top-2 right-2 bg-red-600 rounded px-2 text-white hover:bg-red-800">X</button>
+    <div id="modal-backdrop" class="hidden fixed inset-0 z-90 bg-black/50 backdrop-blur-sm flex items-center justify-center">
+        <!--Permanently Delete Board Modal Popup-->
+        <div id="delete-board-confirm" class="hidden flex flex-col w-[80%] h-fit rounded-2xl py-2 bg-gray-700 z-100 justify-content-center items-center">
+            <h2 class="text-2xl text-white text-center pb-3">Do you want to permanently delete this Board?</h2>
+            <form method="POST" action="{% url 'deleteBoard' %}">
+                {% csrf_token %}
+                <input type="hidden" id="modal-board-id" name="board_id">
+                <button type="submit" class="bg-red-500 py-1 rounded w-fit h-fit text-lg font-bold px-4 hover:bg-red-800">Delete</button>
+            </form>
+            <button onclick="closeDeleteBoard()" class="absolute top-2 right-2 bg-red-600 rounded px-2 text-white hover:bg-red-800">X</button>
+        </div>
     </div>
     <script>
         const deleteBoardBtn = document.querySelectorAll('.deleteBoardBtn');
