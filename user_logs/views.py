@@ -9,7 +9,6 @@ from dashboard.views import boardPage
 import json
 from django.http import JsonResponse
 
-from .forms import NewLog
 from .models import Log
 
 # Create your views here.

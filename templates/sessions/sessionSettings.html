@@ -3,90 +3,86 @@
 {% block content %}
 <meta name="csrf_token" content="{{ csrf_token }}">
 
-<div id="page-wrapper" class="flex flex-box mx-auto pt-24 justify-center h-[calc(100vh-3rem)] w-[90%] transition-all duration-200">
-    <div class="h-full w-[95%] bg-gray-800 rounded-2xl shadow-md shadow-black">
-        <div class="w-full h-full flex-1 flex flex-col min-w-0 align-items-center justify-content-center gap-y-4 py-2">
-            <!--Input for Setting the Sessions Title-->
-            <div class="bg-gray-700 focus-within:bg-gray-600 h-fit w-[90%] rounded-2xl">
-                <input id="session-title" autocomplete="off" placeholder="{% if sessionSettings %}{{ sessionSettings.title }}{% else %}Session Title{% endif %}" value="{% if sessionSettings %}{{ sessionSettings.title }}{% else %}{% endif %}" class=" bg-transparent border-3 border-transparent w-full h-full focus:outline-none text-white text-2xl font-bold text-center px-2 py-3 rounded-2xl focus:shadow-[0_0px_15px_rgba(0,0,0,0.9)] focus:shadow-purple-500 focus:border-2 focus:border-purple-600" />
-            </div>
-            <div class="w-[90%] h-[80%] gap-y-2 justify-content-center align-items-center flex flex-row gap-x-5">
-            <!--Sets all tags for the current session-->
-                <div class="w-[80%] h-[80%] flex flex-col gap-y-2 justify-content-center align-items-center">
-                    <!--Left side for tag filters-->
-                    <!--Header for Tag Filter-->
-                    <div class="bg-gray-600 w-full h-fit rounded-2xl shadow-md shadow-black">
-                        <h2 class="text-white text-2xl font-bold text-center px-2 py-3 cursor-default">Tag Filter</h2>
-                    </div>
-                    <div class="h-full w-full bg-gray-900 rounded-2xl flex flex-row gap-x-3 p-3">
-                        <!--Add Tags from left-->
-                        <div class="h-full w-full bg-gray-800 rounded-2xl flex flex-col gap-y-6">
-                            <!--Header Section-->
-                            <div class="h-fit w-full  px-1 py-2 gap-y-2 flex flex-col align-items-center">   
-                                <h2 class="text-xl text-white font-bold text-center cursor-default">Add Tags</h2>
-                                <div class="w-[90%] flex flex-row justify-between bg-green-800 border rounded">
-                                    <input id="available-tags-search" placeholder="Search" class="bg-transparent outline-none w-full text-lg text-center rounded">
-                                    <button id="clear-available-tag-search" class="content-end px-2 py-1 rounded text-md text-white bg-red-500">X</button>
-                                </div>
-                                <div class="flex flex-row shrink-0 justify-content-center gap-x-2 w-[90%]">
-                                <button id="create-tag" class="bg-gray-600 w-full py-2 rounded border-2 border-transparent text-purple-300 text-xl font-bold hover:shadow-[0_0px_8px_rgba(0,0,0,0.9)] hover:shadow-purple-500 hover:border-2 hover:border-purple-600 hover:text-purple-500">Create Tag</button>
-                                    <button id="select-all" class="bg-gray-600 w-full py-2 rounded border-2 border-transparent text-blue-300 text-xl font-bold hover:shadow-[0_0px_8px_rgba(0,0,0,0.9)] hover:shadow-blue-500 hover:border-2 hover:border-blue-600 hover:text-blue-500">Select All</button>
-                                </div>
-                            </div>
-                            <!--Section for all Tags-->
-                            <div class="flex-1 overflow-y-auto w-full">
-                                <div id="available-tags" class="grid grid-cols-2 gap-x-2 gap-y-3 py-1 px-2 h-fit w-full">
-                                </div>
-                            </div>
-                        </div>
-                        <!--Current Added Tags-->
-                        <div class="h-full w-full bg-gray-800 rounded-2xl flex flex-col gap-y-6">
-                            <div class="h-fit w-full px-1 py-2 gap-y-2 flex flex-col align-items-center">   
-                                <h2 class="text-xl text-white font-bold text-center cursor-default">Current Tags</h2>
-                                <div class="w-[90%] flex flex-row justify-between bg-green-800 rounded border">
-                                    <input id="session-tags-search" placeholder="Search" class="bg-transparent w-full text-lg text-center rounded">
-                                    <button id="clear-session-tag-search" class="content-end px-2 py-1 rounded text-md text-white bg-red-500">X</button>
-                                </div>
-                                <div class="flex flex-row w-[90%] shrink-0 justify-content-center gap-x-2">
-                                    <button id="exclusive" class="{% if sessionSettings.isExclusive %}bg-green-600 text-gray-700 hover:text-gray-950{% else %}bg-gray-600 text-green-300{% endif %} w-full py-2 rounded border-2 border-transparent text-xl font-bold hover:shadow-[0_0px_8px_rgba(0,0,0,0.9)] hover:shadow-green-500 hover:border-2 hover:border-green-600 hover:text-green-500">Exclusive</button>
-                                    <button id="deselect-all" class="bg-gray-600 w-full py-2 rounded border-2 border-transparent text-red-300 text-xl font-bold hover:shadow-[0_0px_8px_rgba(0,0,0,0.9)] hover:shadow-red-500 hover:border-2 hover:border-red-600 hover:text-red-500">Deselect All</button>
-                                </div>
-                            </div>
-                            <!--Section for current added Tags-->
-                            <div class="flex-1 overflow-y-auto w-full">
-                                <div id="session-tags" class="grid grid-cols-2 gap-x-4 gap-y-4 py-1 px-2 h-fit w-full">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    <div class="h-screen w-screen flex items-center justify-center">
+    <div class="w-[90%] h-[95%] rounded-2xl flex flex-col gap-y-4 pt-20 items-center">
+        <!--Input for Setting the Sessions Title-->
+        <input id="session-title" autocomplete="off" placeholder="{% if sessionSettings %}{{ sessionSettings.title }}{% else %}Session Title{% endif %}" value="{% if sessionSettings %}{{ sessionSettings.title }}{% else %}{% endif %}" 
+        class="bg-gray-700 px-4 py-2 w-[90%] rounded-2xl border-3 border-transparent h-full focus:outline-none text-white text-2xl font-bold text-center focus:shadow-[0_0px_15px_rgba(0,0,0,0.9)] focus:shadow-purple-500 focus:border-2 focus:border-purple-600" />
+        <!--Main Page Div-->
+        <div class="flex-10 md:w-[90%] h-[80%] gap-y-2 items-center flex flex-col lg:flex-row gap-x-5">
+        <!--Div for add and current tags-->
+            <div class="w-full h-full flex flex-col gap-y-2 items-center">
+                <!--Left side for tag filters-->
+                <!--Header for Tag Filter-->
+                <div class="bg-gray-600 w-full h-fit rounded-2xl shadow-md shadow-black">
+                    <h2 class="text-white text-2xl font-bold text-center px-2 py-3 cursor-default">Tag Filter</h2>
                 </div>
-                <div class="w-[20%] h-full flex flex-col gap-y-2 rounded-2xl pt-7 pb-7">
-                    <div class="w-full h-fit text-center justify-content-center align-items-center bg-gray-600 rounded-2xl shadow-md shadow-black">
-                        <h2 class="text-2xl text-white py-3 font-bold cursor-default">Settings</h2>
+                <!--Main div to hold both tag boxes-->
+                <div class="h-full w-full rounded-2xl flex md:flex-row flex-col gap-y-3 gap-x-3 p-3">
+                    <!--Add Tags from left-->
+                    <div class="h-full w-full bg-gray-900 rounded-2xl flex flex-col gap-y-6">
+                        <!--Header Section-->
+                        <div class="h-fit w-full  px-1 py-2 gap-y-2 flex flex-col align-items-center">   
+                            <h2 class="text-xl text-white font-bold text-center cursor-default">Add Tags</h2>
+                            <div class="w-[90%] flex flex-row justify-between bg-green-800 border rounded">
+                                <input id="available-tags-search" placeholder="Search" class="bg-transparent outline-none w-full text-lg text-center rounded">
+                                <button id="clear-available-tag-search" class="content-end px-2 py-1 rounded text-md text-white bg-red-500">X</button>
+                            </div>
+                            <div class="flex flex-row shrink-0 justify-content-center gap-x-2 w-[90%]">
+                            <button id="create-tag" class="bg-gray-600 w-full py-2 rounded border-2 border-transparent text-purple-300 text-xl font-bold hover:shadow-[0_0px_8px_rgba(0,0,0,0.9)] hover:shadow-purple-500 hover:border-2 hover:border-purple-600 hover:text-purple-500">Create Tag</button>
+                                <button id="select-all" class="bg-gray-600 w-full py-2 rounded border-2 border-transparent text-blue-300 text-xl font-bold hover:shadow-[0_0px_8px_rgba(0,0,0,0.9)] hover:shadow-blue-500 hover:border-2 hover:border-blue-600 hover:text-blue-500">Select All</button>
+                            </div>
+                        </div>
+                        <!--Section for all Tags-->
+                        <div class="flex-1 overflow-y-auto w-full">
+                            <div id="available-tags" class="grid grid-cols-2 gap-x-2 gap-y-3 py-1 px-2 h-fit w-full">
+                            </div>
+                        </div>
                     </div>
-                    <div class="w-full h-full bg-gray-900 rounded-2xl py-2 justify-items-center">
-                        <!--Questions Dropdown-->
-                        <div class="relative w-[90%]">
-                            <div id="question-type-selection" class="w-full h-fit flex flex-col bg-gray-800 rounded-2xl align-items-center px-1 py-2 gap-y-3">
-                                <h2 class="text-2xl text-white font-bold">Question Type</h2>
-                                <div id="selected-questions" class="flex flex-col gap-y-2 align-items-center px-1 py-2 min-w-full">
-                                </div>
+                    <!--Current Added Tags-->
+                    <div class="h-full w-full bg-gray-900 rounded-2xl flex flex-col gap-y-6">
+                        <div class="h-fit w-full px-1 py-2 gap-y-2 flex flex-col align-items-center">   
+                            <h2 class="text-xl text-white font-bold text-center cursor-default">Current Tags</h2>
+                            <div class="w-[90%] flex flex-row justify-between bg-green-800 rounded border">
+                                <input id="session-tags-search" placeholder="Search" class="bg-transparent w-full text-lg text-center rounded">
+                                <button id="clear-session-tag-search" class="content-end px-2 py-1 rounded text-md text-white bg-red-500">X</button>
+                            </div>
+                            <div class="flex flex-row w-[90%] shrink-0 justify-content-center gap-x-2">
+                                <button id="exclusive" class="{% if sessionSettings.isExclusive %}bg-green-600 text-gray-700 hover:text-gray-950{% else %}bg-gray-600 text-green-300{% endif %} w-full py-2 rounded border-2 border-transparent text-xl font-bold hover:shadow-[0_0px_8px_rgba(0,0,0,0.9)] hover:shadow-green-500 hover:border-2 hover:border-green-600 hover:text-green-500">Exclusive</button>
+                                <button id="deselect-all" class="bg-gray-600 w-full py-2 rounded border-2 border-transparent text-red-300 text-xl font-bold hover:shadow-[0_0px_8px_rgba(0,0,0,0.9)] hover:shadow-red-500 hover:border-2 hover:border-red-600 hover:text-red-500">Deselect All</button>
+                            </div>
+                        </div>
+                        <!--Section for current added Tags-->
+                        <div class="flex-1 overflow-y-auto w-full">
+                            <div id="session-tags" class="grid grid-cols-2 gap-x-4 gap-y-4 py-1 px-2 h-fit w-full">
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <div class="flex flex-row gap-x-2">
-                <a href="{% url 'boardPage' board.id %}"  class="bg-orange-500 px-4 py-2 text-2xl text-white font-bold rounded-2xl">Return</a>
-                <button id="save-button" class="bg-blue-500 px-4 py-2 text-2xl text-white font-bold rounded-2xl">Save</button>
-                <button id="start-session" onclick="startSessionFunc()" class="bg-green-500 px-12 py-2 text-2xl text-white font-bold rounded-2xl">Start Session</button> 
-                {% if sessionSettings %}
-                <button id="delete-session-settings" class="bg-red-500 px-4 py-2 text-2xl text-white font-bold rounded-2xl">Delete</button>  
-                {% endif %}
+            <div class="lg:flex-1 h-full flex flex-col gap-y-2 rounded-2xl">
+                <div class="w-full h-fit text-center justify-center items-center bg-gray-600 rounded-2xl shadow-md shadow-black">
+                    <h2 class="text-2xl text-white py-3 font-bold cursor-default">Settings</h2>
+                </div>
+                <div class="w-full h-full bg-gray-900 rounded-2xl py-2 ">
+                    <!--Questions Dropdown-->
+                        <div id="question-type-selection" class="w-full h-fit flex flex-row lg:flex-col bg-gray-800 rounded-2xl items-center px-1 py-2 gap-y-3">
+                            <h2 class="text-2xl text-white font-bold">Question Type</h2>
+                            <div id="selected-questions" class="grid grid-cols-2 grid-rows-2 lg:flex lg:flex-col gap-y-2 items-center px-1 py-2 min-w-full"></div>
+                        </div>
+                </div>
             </div>
         </div>
+        <div class="flex flex-row gap-x-2">
+            <a href="{% url 'boardPage' board.id %}"  class="bg-orange-500 px-4 py-2 text-2xl text-white font-bold rounded-2xl">Return</a>
+            <button id="save-button" class="bg-blue-500 px-4 py-2 text-2xl text-white font-bold rounded-2xl">Save</button>
+            <button id="start-session" onclick="startSessionFunc()" class="bg-green-500 px-12 py-2 text-2xl text-white font-bold rounded-2xl">Start Session</button> 
+            {% if sessionSettings %}
+            <button id="delete-session-settings" class="bg-red-500 px-4 py-2 text-2xl text-white font-bold rounded-2xl">Delete</button>  
+            {% endif %}
+        </div>
     </div>
+
 </div>
 <!--Acts as the blurred background to cover main page-->
 <div id="modal-backdrop" class="hidden fixed inset-0  bg-black/50 backdrop-blur-sm">></div>
@@ -468,7 +464,7 @@
 
         defaultQuestionList.forEach(question => {
             const newValue = document.createElement('button');
-            newValue.classList.add('bg-gray-700', 'w-full', 'rounded-xl', 'py-1', 'text-xl', 'text-white', 'font-bold', 'text-center', 'border-3', 'border-transparent', 'hover:shadow-[0_0px_8px_rgba(0,0,0,0.9)]', 'hover:shadow-blue-500');
+            newValue.classList.add('bg-gray-700', 'text-sm', 'w-full', 'rounded-xl', 'py-1', 'lg:text-xl', 'text-white', 'font-bold', 'text-center', 'border-3', 'border-transparent', 'hover:shadow-[0_0px_8px_rgba(0,0,0,0.9)]', 'hover:shadow-blue-500');
             newValue.dataset.title=question;
             newValue.innerText = `${question.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}`
             if(questionValues.includes(question)){

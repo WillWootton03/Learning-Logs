@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="m-0 bg-gray-900"  lang="en">
 <head>
     {% load static tailwind_tags %}
     <meta charset="UTF-8">
@@ -15,7 +15,6 @@
 
     {% tailwind_css %}
 </head>
-<body class="bg-gray-900"> 
 {% if user.is_authenticated %}
     <header class="bg-gray-800 py-1 rounded-2xl fixed top-2 left-0 right-0 md:left-4 md:right-4 z-30 shadow-md shadow-black">
         <nav class="flex justify-between items-center w-full">
