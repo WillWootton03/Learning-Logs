@@ -1,9 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
+from django.urls import reverse
 
 from dashboard.models import Board
 from dashboard.views import boardPage
+
+import json
+from django.http import JsonResponse
 
 from .forms import NewLog
 from .models import Log
@@ -14,18 +18,16 @@ def newLog(request, board_id):
     board = get_object_or_404(Board, id=board_id)
 
     if request.method == 'POST':
-        form = NewLog(request.POST)
-        if form.is_valid():
-            log = form.save(commit=False)
-            log.board = board
-            log.save()
-            return redirect(boardPage, board_id=board_id)
-        else:
-            print(form.errors)
-    else:
-        form = NewLog()
+        data = json.loads(request.body)
+        redirect_url = reverse('boardPage', args=[board_id])
+        if 'logTitle' and 'logInput' in data:
+            log = Log.objects.create(board=board, title=data.get('logTitle'), content=data.get('logInput'))
+            log.save() 
+            return JsonResponse({'success' : True, 'redirect_url' : redirect_url })
+        
+        return JsonResponse({'success' : False})
 
-    return render(request, 'logs/newLog.html', {'form' : form, 'board' : board})
+    return render(request, 'logs/newLog.html', {'board' : board})
 
 @login_required
 def logBreakdown(request, log_id):

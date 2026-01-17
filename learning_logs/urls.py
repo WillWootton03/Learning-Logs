@@ -57,7 +57,7 @@ urlpatterns = [
     path('board/<uuid:board_id>/deleteAllTags/', deleteAllTags, name='deleteAllTags'),
 
     # All Logs URLs
-    path('logs/newLog/<uuid:board_id>/', newLog, name='newLog'),
+    path('logs/<uuid:board_id>/newLog/', newLog, name='newLog'),
     path('logs/logBreakdown/<uuid:log_id>/', logBreakdown, name='logBreakdown'),
     path('logs/delete/<uuid:log_id>/', deleteLog, name='deleteLog'),
 

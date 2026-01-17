@@ -8,16 +8,18 @@
         <!--Left and right seperator-->
         <div class="flex flex-col transition-all duration-200 lg:grid lg:grid-cols-[1fr_2fr] grid-rows-2 gap-x-10 gap-y-10 w-full h-full">
             <!--Is the small card for Logs-->
-            <div class="w-full h-full flex flex-col bg-gray-700 rounded-2xl relative shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-700">
+            <div class="w-full flex flex-col pt-2 pb-4 items-center bg-gray-700 rounded-xl relative shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-700">
                 <div class="text-3xl font-bold mt-2 mb-4 text-center text-white cursor-default drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)]">My Logs</div>
-                {% for log in logs %}
-                    <a href="{% url 'logBreakdown' log.id %}" class="bg-gray-600 w-[90%] h-14 rounded-2xl ml-[5%] my-2 flex justify-between items-center shadow-black shadow-md hover:bg-gray-800">
-                        <p class="truncate text-left font-medium text-white px-4">{{ log.title }}</p>
-                        <p class="text-right px-4 font-medium text-white">
-                            <span class='local-time' data-time="{{ log.dateAdded|date:'c' }}"></span>
-                        </p>
-                    </a>
-                {% endfor %}
+                <div class="w-full h-40 lg:h-full overflow-y-auto items-center flex flex-col gap-y-3">
+                    {% for log in logs %}
+                        <a href="{% url 'logBreakdown' log.id %}" class="bg-gray-600 w-[90%] h-14 rounded flex flex-row items-center shadow-black shadow-md hover:bg-gray-800">
+                            <p class="truncate text-left font-medium text-white px-4 flex-1">{{ log.title }}</p>
+                            <p class="text-right px-4 font-medium text-white flex-3">
+                                <span class='local-time' data-time="{{ log.dateAdded|date:'c' }}"></span>
+                            </p>
+                        </a>
+                    {% endfor %}
+                </div>
                 <a href="{% url 'newLog' board.id %}" class="absolute top-2 right-2 bg-purple-500 text-black rounded-full px-3.5 py-2 shadow-md shadow-black hover:bg-purple-700">+</a>
             </div>
 

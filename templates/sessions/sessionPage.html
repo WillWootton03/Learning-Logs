@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 {% load static tailwind_tags %}
 {% block content %}
+<meta name="csrf_token" content="{{ csrf_token }}">
+
 <div id="page-wrapper" class="flex flex-box mx-auto pt-24 justify-center h-[calc(100vh-3rem)] w-[90%] transition-all duration-200">
     <div class="h-full w-[95%] bg-gray-800 rounded-2xl shadow-md shadow-black flex flex-col gap-y-12 px-20 justify-center text-center items-center relative">
         <div id="question-box" class="bg-gray-700 px-3 py-3 h-fit max-h-[70%] w-[80%] rounded flex items-center justify-center shadow-[0_0px_15px_rgba(0,0,0,0.9)] shadow-purple-600 cursor-default">
