@@ -18,7 +18,7 @@
 {% if user.is_authenticated %}
     <header class="bg-gray-800 py-1 rounded-2xl fixed top-2 left-0 right-0 md:left-4 md:right-4 z-30 shadow-md shadow-black">
         <nav class="flex justify-between items-center w-full">
-            <div class="flex items-center gap-4 pl-4">
+            <div class="flex items-center gap-x-2 md:gap-x-4 pl-4">
                 <a id="ll-icon" href="{% url 'dashboard' %}" class="hidden md:inline-block">
                     <img src="{% static 'icons/LearningLogsLogo.png' %}" class="h-14 w-14 object-contain drop-shadow-md drop-shadow-black">
                 </a>
