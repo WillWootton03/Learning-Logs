@@ -3383,7 +3383,7 @@
     --page-scroll-transition-on: background-color 0.3s ease-out;
     transition: var(--page-scroll-transition);
     scrollbar-gutter: var(--page-scroll-gutter, unset);
-    scrollbar-gutter: if(style(--page-has-scroll: 1): var(--page-scroll-gutter, unset) ; else: unset);
+    scrollbar-gutter: var(--page-scroll-gutter, unset);
   }
   @keyframes set-page-has-scroll {
     0%, to {
