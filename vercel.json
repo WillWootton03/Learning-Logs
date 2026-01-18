@@ -1,6 +1,10 @@
 {
     "builds" : [
         {
+            "src" : "build.sh",
+            "use" : "@vercel/python"
+        },
+        {
             "src" : "learning_logs/wsgi.py",
             "use" : "@vercel/python"
         }

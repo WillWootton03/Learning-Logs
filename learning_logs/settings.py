@@ -164,7 +164,10 @@ LOGOUT_REDIRECT_URL = 'signIn'
 # Tailwind Const variables
 TAILWIND_APP_NAME = 'theme'
 
-NPM_BIN_PATH = os.environ.get('NPM_BIN_PATH')
+try :
+    NPM_BIN_PATH = os.environ.get('NPM_BIN_PATH')
+except:
+    pass
 
 if DEBUG:
     INSTALLED_APPS += ['django_browser_reload',]
