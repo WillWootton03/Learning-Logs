@@ -117,9 +117,23 @@
     }
 
     function nextQuestion() {
+        questionBox.classList.add('shadow-purple-600');
+        questionBox.classList.remove('shadow-green-600', 'shadow-red-600')
+
+        // Resets true or false button outlines
+        trueBtn.classList.remove('border-green-600', 'shadow-green-600', 'border-red-600', 'shadow-red-600', 'hover:cursor-default');
+        trueBtn.classList.add('hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'hover:shadow-blue-600', 'hover:bg-gray-600', 'border-transparent');
+        falseBtn.classList.remove('border-green-600', 'shadow-green-600', 'border-red-600', 'shadow-red-600', 'hover:cursor-default');
+        falseBtn.classList.add('hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'hover:shadow-red-600', 'hover:bg-gray-600', 'border-transparent');
+
+        // Resets answer / definition box
+        answerInput.classList.add('shadow-md', 'border-purple-950', 'shadow-purple-600', 'focus:border-purple-800', 'focus:shadow-purple-600');
+
+
         const defaultBoardQuestions = JSON.parse(document.getElementById('default-board-questions').textContent);
         randomIndex = null;
         answerSubmitted = false;
+
         function randomQuestion() {
             const keyIndex = Math.floor(Math.random() * questionKeys.length)
             const randKey = questionKeys[keyIndex];
@@ -177,14 +191,17 @@
                 option.addEventListener('click', () => {
                     if(!answerSubmitted){
                         if(selectedOption !== answer){
-                            option.classList.add('border-blue-500');
-                            if(selectedOption){
+                            if(selectedOption) {
                                 const selectedBtn =  document.querySelector(`[data-answer='${selectedOption}']`);
                                 selectedBtn.classList.remove('border-blue-500');
+                                selectedBtn.classList.add('border-transparent');
                             }
                             selectedOption = answer;
+                            option.classList.remove('border-transparent');
+                            option.classList.add('border-blue-500');
                             canSubmitAnswer = true;
                         } else if(selectedOption === answer ) {
+                            option.classList.add('border-transparent');
                             option.classList.remove('border-blue-500');
                             selectedOption = '';
                             canSubmitAnswer = false;
@@ -230,9 +247,9 @@
             if(true_false === null){
                 result = null;
             }
-            else if(true_false) {
+            else if(true_false === true) {
                 result = currentQuestion.answer === t_fAnswer ? true : false;
-            } else if(!true_false) {
+            } else if(true_false === false) {
                 result = currentQuestion.answer !== t_fAnswer ? true : false;
             }
         } else if (randomQuestionType === 'multiple_choice') {
@@ -245,7 +262,7 @@
         }
         if(result === null) {
             alert('No Answer Given');
-            return;
+        // If an Answer was given
         } else{
             submitButton.textContent = 'Next';
             submitButton.classList.remove('bg-blue-800', 'hover:bg-blue-600', 'hover:shadow-blue-600');
@@ -254,13 +271,15 @@
             editBtn.classList.remove('hidden');
             editBtn.href = `/board/${boardId}/concepts/${randomIndex}/session/${sessionId}/`;
             canSubmitAnswer = false;
+            questionBox.classList.remove('shadow-purple-600');
+            // If answer is correct
             if(result)  {
                 questionBox.classList.add('shadow-green-600');
                 currentQuestion.count += 1;
                 if(currentQuestion.unknown) { currentQuestion.unknown = false; }
                 correctAnswers += 1;
                 if(randomQuestionType === 'answer' || randomQuestionType === 'definition'){
-                    answerInput.classList.remove('shadow-md');
+                    answerInput.classList.remove('shadow-md', 'border-purple-950', 'shadow-purple-600', 'focus:border-purple-800', 'focus:shadow-purple-600');
                     answerInput.classList.add('shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'border-green-500', 'shadow-green-500', 'focus:border-green-500', 'focus:shadow-green-500');
                 } 
                 if(randomQuestionType === 'multiple_choice'){
@@ -268,12 +287,23 @@
                     selectedBtn.classList.remove('border-blue-500');
                     selectedBtn.classList.add('border-green-500');
                 }
-                
+                if(randomQuestionType === 'true_or_false') {
+                    // Adds green shadow to selected correct answer
+                    if(true_false === true){
+                        trueBtn.classList.remove('border-transparent', 'border-blue-600');
+                        trueBtn.classList.add('shadow-green-600', 'border-green-600');
+                    } else if (true_false === false) {
+                        falseBtn.classList.remove('border-transparent', 'border-red-600');
+                        falseBtn.classList.add('shadow-green-600','border-green-600');
+                    }
+                }
+            // If answer is incorrect
             } else {
                 questionBox.classList.add('shadow-red-600');
                 answerInput.classList.remove('shadow-md');
                 answerInput.classList.add('shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'border-red-500', 'shadow-red-500', 'focus:border-red-500', 'focus:shadow-red-500');
                 correctAnswer.classList.remove('hidden');
+
                 if(randomQuestionType === 'answer'){
                     correctAnswer.textContent = currentQuestion.definition;
                 } else if (randomQuestionType === 'definition') {
@@ -291,14 +321,22 @@
                     correctBtn.classList.add('border-green-500'); 
                 }
                 if(randomQuestionType === 'true_or_false') {
-                    trueBtn.classList.remove('border-blue-500');
-                    falseBtn.classList.remove('border-blue-500');
+                    // Adds green shadow to selected correct answer
+                    if(true_false === true){
+                        trueBtn.classList.remove('border-transparent');
+                        trueBtn.classList.add('shadow-red-600', 'border-red-600');
+                    } else if (true_false === false) {
+                        falseBtn.classList.remove('border-transparent');
+                        falseBtn.classList.add('shadow-red-600', 'border-red-600');
+                    }
                 }
             }
             if(randomQuestionType === 'true_or_false'){
                 true_false = null;
-                trueBtn.classList.remove('border-blue-500');
-                falseBtn.classList.remove('border-red-500');
+                trueBtn.classList.add('hover:cursor-default');
+                trueBtn.classList.remove('hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'hover:shadow-blue-600', 'hover:bg-gray-600');
+                falseBtn.classList.add('hover:cursor-default');
+                falseBtn.classList.remove('hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)]', 'hover:shadow-red-600', 'hover:bg-gray-600');
             }
             if(randomQuestionType === 'multiple_choice'){
                 selectedOption = '';
@@ -311,28 +349,30 @@
     }
 
     trueBtn.addEventListener('click', (e) => {
-        if (true_false) {
+        if (true_false === true) {
             true_false = null;
             trueBtn.classList.remove('border-blue-500');
-            canSubmitAnswer = false;
+            trueBtn.classList.add('border-transparent');
         } else {
-            trueBtn.classList.add('border-blue-500')
-            falseBtn.classList.remove('border-red-500')
+            trueBtn.classList.remove('border-transparent');
+            trueBtn.classList.add('border-blue-600');
+            falseBtn.classList.remove('border-red-600');
+            falseBtn.classList.add('border-transparent');
             true_false = true;
-            canSubmitAnswer = true;
-        } 
+        }
     });
 
     falseBtn.addEventListener('click', (e) => {
         if(true_false === false){
             true_false = null;
-            falseBtn.classList.remove('border-red-500')
-            canSubmitAnswer = false;
+            falseBtn.classList.remove('border-red-600');
+            falseBtn.classList.add('border-transparent');
         } else {
-            falseBtn.classList.add('border-red-500')
-            trueBtn.classList.remove('border-blue-500')
+            falseBtn.classList.add('border-red-600');
+            falseBtn.classList.remove('border-transparent');
+            trueBtn.classList.remove('border-blue-600');
+            trueBtn.classList.add('border-transparent');
             true_false = false;
-            canSubmitAnswer = true;
         }
     });
 

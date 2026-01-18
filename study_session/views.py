@@ -124,7 +124,6 @@ def sessionStart(request, board_id, sessionSettings_id=None):
         data = json.loads(request.body)
         tagUuids = list({uuid.UUID(t) for t in data['tags']})
             
-
         tagCount = len(tagUuids)
 
         if 'questions' in data:
@@ -149,14 +148,17 @@ def sessionStart(request, board_id, sessionSettings_id=None):
         ).get(id=board_id)
 
 
-        # Converts the input strings from data into actual UUID objects
-        session = Session.objects.create(board=board)
-        session.concepts.set(board.filteredConcepts)
-        session.questionTypes.set(questionTypes)
+        if board.filteredConcepts:
+            session = Session.objects.create(board=board)
+            session.concepts.set(board.filteredConcepts)
+            session.questionTypes.set(questionTypes)
 
         tagConcepts = list(tagConceptQS.values_list('answer', flat=True).distinct())
         cacheKey = f'board:{board_id}:tagConcepts'
         cache.set(cacheKey, tagConcepts, timeout=600)
+        if not tagConcepts:
+           return JsonResponse({'success' : False, 'redirect_url' : reverse('boardPage', args=[board_id])})
+
 
         return JsonResponse({'success' : True, 'redirect_url' : reverse('sessionPage', args=[board_id, session.id]) })
     return JsonResponse({'success' : False})

@@ -9,7 +9,7 @@
         <div class="flex flex-col transition-all duration-200 lg:grid lg:grid-cols-[1fr_2fr] grid-rows-2 gap-x-10 gap-y-10 w-full h-full">
             <!--Is the small card for Logs-->
             <div class="w-full flex flex-col pt-2 pb-4 items-center bg-gray-700 rounded-xl relative shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-700">
-                <div class="flex flex-row w-full justify-between px-2 align-center">
+                <div class="flex flex-row w-full justify-between px-2 pb-2 align-center">
                     <div class="text-3xl px-2 font-bold text-center text-white cursor-default drop-shadow-md drop-shadow-black">My Logs</div>
                     <a href="{% url 'newLog' board.id %}" class=" bg-purple-500 text-black rounded-full px-3.5 py-2 shadow-md shadow-black hover:bg-purple-700">+</a>
                 </div>
@@ -53,12 +53,13 @@
             </div>
 
             <!--Is the small card for Study Sessions-->
-            <div class="w-full flex flex-col bg-gray-700 rounded-2xl h-full relative shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-700">
-                <div class="flex flex-row w-full justify-between px-3 py-1">
+            <div class="w-full flex flex-col bg-gray-700 rounded-2xl pb-3 r h-full relative shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-700">
+                <!--Study Sessions header-->
+                <div class="flex flex-row w-full justify-between items-center px-3 py-1">
                     <h2 class="text-3xl font-bold px-2 py-2 text-center text-white cursor-default drop-shadow-md drop-shadow-black">My Study Sessions</h2>
                     <button id="toggle-sessions-settings" class="bg-purple-500 h-fit text-black rounded-full px-3.5 py-2 shadow-md shadow-black hover:bg-purple-700">+</button>
                 </div>
-                <div class="w-full h-full flex flex-col gap-y-2 overflow-y-auto items-center auto-rows-min">
+                <div class="w-full h-full flex flex-col gap-y-2 overflow-y-auto items-center j auto-rows-min pb-0">
                 {% for session in sessions %}
                     <div class="bg-gray-800 shadow-md shadow-black text-white cursor-default text-lg h-fit font-bold w-[90%] rounded flex justify-between items-center px-2 py-2">
                             <span class='local-time' data-time="{{ session.dateAdded|date:'c' }}"></span>
@@ -76,10 +77,11 @@
             </div>
 
             <!--Is the larger card for Concepts-->
-            <div class="w-full h-full flex flex-col gap-y-3 bg-gray-700 rounded-2xl py-2 relative shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-700">
-                <div class="flex flex-row w-full px-4 h-fit justify-between">
+            <div class="w-full h-full flex flex-col gap-y-3 bg-gray-700 rounded-2xl py-3 relative shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-700">
+                <!--Concepts Header-->
+                <div class="flex flex-row w-full px-4 h-fit items-center justify-between">
                     <h2 class="text-3xl font-bold text-center text-white cursor-default drop-shadow-md drop-shadow-black flex justify-center ">My Concepts</h2>
-                    <button id="toggle-new-concept" class="bg-purple-500 w-fit text-black rounded-full px-3 py-2 shadow-md shadow-black  hover:bg-purple-700">+</button>
+                    <button id="toggle-new-concept" class="bg-purple-500 w-fit text-black rounded-full px-3.5 py-2 shadow-md shadow-black  hover:bg-purple-700">+</button>
                 </div>
                     <div class="h-fit w-full align-center px-4 flex flex-col md:flex-row gap-y-2 items-center justify-between md:justify-start gap-x-2">
                         <div class="flex flex-row flex-3 md:flex-4 gap-x-1 md:gap-x-3">
@@ -132,7 +134,7 @@
                     <h2 class="text-2xl text-center font-bold text-white pt-2 pb-4">All Session Settings</h2>
                     <button id="close-session-settings" class="h-fit bg-red-500 text-white rounded px-2 py-1 shadow-md shadow-black">X</button>
                 </div>
-                <div class="w-full h-[90%] flex flex-col md:grid md:grid-cols-2 md:auto-rows-min gap-4 ">
+                <div class="w-full h-[90%] flex flex-col md:grid md:grid-cols-2 md:auto-rows-min gap-4">
                 {% for sessionSettings in board.sessionSettings.all %} 
                     <!--Href link For Each Button of board session settings so bring you to edit session settings to start a new session -->
                     <a href="{% url 'updateSessionSettings' board.id sessionSettings.id %}" class="bg-gray-700 w-full h-fit rounded-2xl shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-purple-500 hover:bg-gray-600">
@@ -146,7 +148,7 @@
             </div>
         </div>
         <!--Confirm Adding CSV File-->
-        <div id="csv-confirm-modal" class="hidden flex flex-col fixed inset-x-[25%] inset-y-[40%] w-[50%] h-fit py-2 gap-y-4 rounded-2xl bg-gray-700 z-100 justify-content-center align-items-center">
+        <div id="csv-confirm-modal" class="hidden flex flex-col w-[80%] md:w-fit h-fit py-2 px-4 gap-y-4 rounded-2xl bg-gray-700 z-101 content-center items-center">
             <h2 id="csv-concept-text" class="text-2xl text-white text-center"></h2>
             <h2 id="csv-tag-text" class="text-2xl text-white text-center"></h2>
             <button id="confirm-csv-upload" class="bg-red-500 py-1 rounded w-fit h-fit text-lg font-bold px-4 hover:bg-red-800">Upload</button>

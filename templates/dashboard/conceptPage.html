@@ -27,7 +27,7 @@
                             <button id="add-question" class=" bg-purple-500 text-black rounded-3xl shadow-md shadow-black hover:bg-purple-700 h-full w-fit text-xl font-bold px-3 py-1">+</button>
                         </div>
                         <!--Available Questions Dropdown-->
-                        <div id="available-questions-dropdown" class=" top-6 right-5 absolute h-fit w-[30%] bg-gray-700 flex flex-col gap-y-2 py-2 px-1">
+                        <div id="available-questions-dropdown" class="hidden top-6 right-5 absolute h-fit w-[30%] bg-gray-700 flex flex-col gap-y-2 py-2 px-1">
                             {% for question in availableQuestions %}
                             <div data-title="{{ question.title }}" class="available-question cursor-pointer h-fit w-[95%] bg-gray-500 text-center text-white rounded text-lg font-bold">{{ question.display_title }}</div>
                             {% endfor %}
