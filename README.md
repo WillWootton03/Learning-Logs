@@ -2,7 +2,12 @@
 **Learning Logs**
 *****************
 
-
+**WE ARE LIVE**
+You can now visit the site at https://learning-logs-gilt.vercel.app/
+Feel free to test it out and use it if you can, I will provide rolling updates as I find bugs, or am told of bugs
+I have plans to continue development and improve the site over time, but I am focused currently on finding an 
+internship so if anyone out there is hoping for updates as of 1.18.2026 you might wait a while sorry.
+********************
 
 
 **Project Breakdown** 
