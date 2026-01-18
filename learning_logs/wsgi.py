@@ -15,4 +15,4 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'learning_logs.settings')
 
 application = get_wsgi_application()
 
-handler = application
+app = application
