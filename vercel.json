@@ -1,7 +1,7 @@
 {
     "builds" : [
         {
-            "src" : "learning_logs/wsgi.pi",
+            "src" : "learning_logs/wsgi.py",
             "use" : "@vercel/python"
         }
     ],
