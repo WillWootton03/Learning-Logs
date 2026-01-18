@@ -3,8 +3,8 @@
 {% block content %}
 <meta name="csrf_token" content="{{ csrf_token }}">
 
-<div id="page-wrapper" class="flex pt-24 items-center justify-center h-[calc(100vh-3rem)] w-[90%] transition-all duration-200">
-    <div class="h-full w-[90%] bg-gray-800 rounded-2xl shadow-md  shadow-black flex flex-col gap-y-12 px-2 md:px-10 lg:px-15 justify-center text-center items-center relative">
+<div id="page-wrapper" class="flex pt-24 items-center justify-center h-[calc(100vh-3rem)] w-full transition-all duration-200">
+    <div class="h-full w-[90%] bg-gray-800 rounded-2xl shadow-md shadow-black flex flex-col gap-y-12 px-2 md:px-10 lg:px-15 justify-center text-center items-center relative">
         <div id="question-box" class="bg-gray-700  px-3 py-3 h-fit w-full rounded flex items-center justify-center shadow-[0_0px_15px_rgba(0,0,0,0.9)] shadow-purple-600 cursor-default">
             <h2 id="question-answer" class="text-white font-bold text-center w-full px-5 py-2 wrap-break-word break-all text-md md:text-lg lg:text-xl"></h2>
         </div>
@@ -29,8 +29,8 @@
                 <!--Bottom of the page buttons div-->
                 <div class="flex flex-col justify-center items-center gap-y-10">
                     <div class="h-fit w-full flex flex-row gap-x-3 justify-center items-center">
-                        <button id="submit-button" type="submit" class="text-center bg-blue-800 text-white px-10 w-fit py-3 shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-blue-600 hover:bg-blue-600 font-bold text-2xl rounded-2xl">Submit</button>
-                        <button id="hint-button" class="w-fit text-center bg-orange-400 text-white px-10 py-3 shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-orange-300 hover:bg-orange-300 font-bold text-2xl rounded-2xl">Hint</button>
+                        <button id="submit-button" type="submit" class="text-center bg-blue-800 text-white px-10 w-full py-3 shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-blue-600 hover:bg-blue-600 font-bold text-2xl rounded-2xl">Submit</button>
+                        <button id="hint-button" class="w-fill text-center bg-orange-400 text-white px-10 py-3 shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-orange-300 hover:bg-orange-300 font-bold text-2xl rounded-2xl">Hint</button>
                         <a href="#" id="edit-button" class="hidden w-full text-center bg-indigo-500 text-white px-10 py-3 shadow-md shadow-black hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-indigo-400 hover:bg-indigo-400 font-bold text-2xl rounded-2xl">Edit</a>
                     </div>
                         <div id="hint" class="hidden h-max-[20%] w-max-[80%] h-fit w-fit bg-gray-700 text-2xl text-white px-2 py-2 rounded shadow-[0_0px_15px_rgba(0,0,0,0.9)] shadow-orange-400">

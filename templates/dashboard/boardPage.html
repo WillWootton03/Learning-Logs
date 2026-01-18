@@ -124,13 +124,13 @@
         </div>
     </div>
     <!--Background wrapper to make bg blurry when choosing which settings to load-->
-    <div id="modal-backdrop" class="hidden fixed inset-0 z-100 bg-black/50 backdrop-blur-sm flex px-8 items-center justify-center">
+    <div id="modal-backdrop" class="hidden fixed inset-0 h-full w-full z-100 bg-black/50 backdrop-blur-sm flex items-center justify-center">
         <!--Load Session Settings-->
         <div id="load-settings-modal" class="hidden z-101 flex items-center justify-center w-full h-[80%] ">
             <div class="h-full w-[80%] py-2 bg-gray-800 rounded-2xl px-5 shadow-md shadow-black flex flex-col items-center gap-y-4">
                 <div class="w-full h-fit items-center flex flex-row justify-between">
                     <h2 class="text-2xl text-center font-bold text-white pt-2 pb-4">All Session Settings</h2>
-                    <button id="close-session-settings" class="h-fit bg-red-500 text-white rounded px-2 py-1">X</button>
+                    <button id="close-session-settings" class="h-fit bg-red-500 text-white rounded px-2 py-1 shadow-md shadow-black">X</button>
                 </div>
                 <div class="w-full h-[90%] flex flex-col md:grid md:grid-cols-2 md:auto-rows-min gap-4 ">
                 {% for sessionSettings in board.sessionSettings.all %} 
@@ -153,25 +153,26 @@
             <button id="cancel-csv-upload" class="absolute top-2 right-2 bg-red-600 rounded px-2 text-white hover:bg-red-800">X</button>
         </div>
         <!--Confirm Deleting all Concepts-->
-        <div id="delete-all-concepts-confirm-modal" class=" hidden flex w-full h-full items-center justify-center z-101">
+        <div id="delete-all-concepts-confirm-modal" class=" hidden flex w-fit h-fit items-center justify-center z-101">
             <div class="flex flex-col w-fit h-fit py-2 gap-y-4 rounded-2xl bg-gray-700 z-100 justify-center items-center">
                 <div class="flex flex-row w-full h-fit justify-center px-5 gap-x-2">
-                    <h2 id="delete-all-concepts-text" class="text-sm md:text-lg lg:text-2xl text-white text-center">Are you sure you want to delete {{ conceptsCount }} concepts <span class="text-red-600 font-bold">FOREVER?</span></h2>
+                    <h2 id="delete-all-concepts-text" class="text-sm sm:text-lg lg:text-2xl text-white text-center transition-all duration-200">Are you sure you want to delete {{ conceptsCount }} concepts <span class="text-red-600 font-bold">FOREVER?</span></h2>
                     <button id="cancel-delete-all-concepts" class="h-fit bg-red-600 justify-end rounded px-2 py-1 text-white hover:bg-red-800">X</button>
                 </div>
                 <a href="{% url 'deleteAllConcepts' board.id %}" id="confirm-delete-all" class="bg-red-500 py-1 rounded w-fit h-fit text-lg font-bold px-4 hover:bg-red-800">Delete All</a>
             </div>
         </div>
         <!--Confirm Deleting all Tags-->
-        <div id="delete-all-tags-confirm-modal" class=" hidden flex w-full h-full items-center justify-center z-101">
+        <div id="delete-all-tags-confirm-modal" class=" hidden flex w-fit h-fit items-center justify-center z-101">
             <div class="flex flex-col w-fit h-fit py-2 gap-y-4 rounded-2xl bg-gray-700 z-100 justify-center items-center">
                 <div class="flex flex-row w-full h-fit justify-center px-5 gap-x-2">
-                    <h2 id="delete-all-tags-text" class="text-sm md:text-lg lg:text-2xl text-white text-center">Are you sure you want to delete {{ tagsCount }} tags <span class="text-red-600 font-bold">FOREVER?</span></h2>
-                    <button id="cancel-delete-all-tags" class="absolute top-2 right-2 bg-red-600 rounded px-2 text-white hover:bg-red-800">X</button>
+                    <h2 id="delete-all-tags-text" class="text-sm sm:text-lg lg:text-2xl text-white text-center">Are you sure you want to delete {{ tagsCount }} tags <span class="text-red-600 font-bold">FOREVER?</span></h2>
+                    <button id="cancel-delete-all-tags" class="bg-red-600 rounded px-2 text-white hover:bg-red-800">X</button>
                 </div>
             <a href="{% url 'deleteAllTags' board.id %}" class="bg-red-500 py-1 rounded w-fit h-fit text-lg font-bold px-4 hover:bg-red-800">Delete All</a>
         </div>  
     </div>
+</div>
    {% if board %}
         {{ questions|json_script:'questions-data'}}
         {{ boardQuestions|json_script:'board-questions-data'}}
@@ -220,6 +221,10 @@
         const cancelDeleteAllTagsBtn = document.getElementById('cancel-delete-all-tags');
         const deleteAllTags = document.getElementById('delete-all-tags');
 
+        // Used to check toggle for concepts section 
+        let knowns = true;
+        let unknowns = true;
+        let learnings = true;
 
         modalBackdrop.addEventListener('click', () =>{
             if(!modalBackdrop.classList.contains('hidden')) {
@@ -251,62 +256,110 @@
             confirmDeleteAllTagsModal.classList.toggle('hidden');
             modalBackdrop.classList.toggle('hidden');
         });
+
+        confirmDeleteAllTagsModal.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
         
+        confirmDeleteAllConceptsModal.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
         cancelDeleteAllTagsBtn.addEventListener('click', () => {
                 confirmDeleteAllTagsModal.classList.toggle('hidden');
             modalBackdrop.classList.toggle('hidden');
         });
 
         knownConceptsButton.addEventListener('click', () => {
-            knownConcepts.forEach(btn => {
-                btn.classList.toggle('hidden');
-            });
-            learningConcepts.forEach(btn => {
-                if(!btn.classList.contains('hidden')){ btn.classList.add('hidden');}
-                else { btn.classList.remove('hidden'); }
-            });
-            unknownConcepts.forEach(btn => {
-                if(!btn.classList.contains('hidden')){btn.classList.add('hidden');}
-                else { btn.classList.remove('hidden'); }
-            });
+            if(knowns) {
+                knownConcepts.forEach(btn => {
+                    btn.classList.remove('hidden');
+                });
+                learningConcepts.forEach(btn => {
+                    btn.classList.add('hidden');
+                });
+                unknownConcepts.forEach(btn => {
+                    btn.classList.add('hidden');
+                });
+                knowns = false;
+                learnings = true;
+                unknowns = true;
+            } else {
+                learningConcepts.forEach(btn => {
+                    btn.classList.remove('hidden');
+                });
+                unknownConcepts.forEach(btn => {
+                    btn.classList.remove('hidden');
+                });
+                knowns = true;
+                learnings = false;
+                unknowns = false;
+            }
         });
-        learningConceptsButton.addEventListener('click', () => {
-            learningConcepts.forEach(btn => {
-                btn.classList.remove('hidden');
-            });
-            knownConcepts.forEach(btn => {
-                if(!btn.classList.contains('hidden')){ btn.classList.add('hidden');}
-                else { btn.classList.remove('hidden'); }
-            });
-            unknownConcepts.forEach(btn => {
-                if(!btn.classList.contains('hidden')){btn.classList.add('hidden');}
-                else { btn.classList.remove('hidden'); }
-            });
 
+        learningConceptsButton.addEventListener('click', () => {
+                if(learnings) {
+                learningConcepts.forEach(btn => {
+                    btn.classList.remove('hidden');
+                });
+                knownConcepts.forEach(btn => {
+                    btn.classList.add('hidden');
+                });
+                unknownConcepts.forEach(btn => {
+                    btn.classList.add('hidden');
+                });
+                learnings = false;
+                knowns = true;
+                unknowns = true;
+            } else {
+                knownConcepts.forEach(btn => {
+                    btn.classList.remove('hidden');
+                });
+                unknownConcepts.forEach(btn => {
+                    btn.classList.remove('hidden');
+                });
+                learnings = true;
+                knowns = false;
+                unknowns = false;
+            }
         });
         unknownConceptsButton.addEventListener('click', () => {
-            learningConcepts.forEach(btn => {
-                if(!btn.classList.contains('hidden')){ btn.classList.add('hidden');}
-                else { btn.classList.remove('hidden'); }
-            });
-            knownConcepts.forEach(btn => {
-                if(!btn.classList.contains('hidden')){btn.classList.add('hidden');}
-                else { btn.classList.remove('hidden'); }
-            });
-            unknownConcepts.forEach(btn => {
-                btn.classList.remove('hidden');
-            });
+            if(unknowns) {
+                unknownConcepts.forEach(btn => {
+                    btn.classList.remove('hidden');
+                });
+                learningConcepts.forEach(btn => {
+                    btn.classList.add('hidden');
+                });
+                knownConcepts.forEach(btn => {
+                    btn.classList.add('hidden');
+                });
+                unknowns = false;
+                learnings = true;
+                knowns = true;
+            } else {
+                learningConcepts.forEach(btn => {
+                    btn.classList.remove('hidden');
+                });
+                knownConcepts.forEach(btn => {
+                    btn.classList.remove('hidden');
+                });
+                unknowns = true;
+                knowns = false;
+                learnings = false;
+            }
         });
+    
         clearConceptsButton.addEventListener('click', () => {
             unknownConcepts.forEach(btn => {
-                btn.classList.remove('hidden');
-            });
-           learningConcepts.forEach(btn => {
-                btn.classList.remove('hidden');
-            });
+                    btn.classList.remove('hidden');
+                });
+            learningConcepts.forEach(btn => {
+                    btn.classList.remove('hidden');
+                });
             knownConcepts.forEach(btn => {
-                btn.classList.remove('hidden');
-            });
+                    btn.classList.remove('hidden');
+                });
         });
 
         cancelCSVUpload.addEventListener('click', () => {
