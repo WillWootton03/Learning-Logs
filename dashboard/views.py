@@ -65,7 +65,8 @@ def saveBoardSettings(request, board_id):
 def boardPage(request, board_id):
     board = Board.objects.prefetch_related(
         Prefetch('concepts', to_attr='allConcepts'),
-        Prefetch('defaultQuestions', to_attr='boardConcepts')
+        Prefetch('defaultQuestions', to_attr='boardConcepts'),
+        Prefetch('tags', to_attr='allTags')
     ).get(id=board_id)
     logs = board.logs.order_by('-dateAdded')[:50]
     sessions = board.sessions.order_by('-dateAdded')[:20]
@@ -77,6 +78,9 @@ def boardPage(request, board_id):
     knownConcepts = [concept for concept in board.allConcepts if concept.known ]
     unknownConcepts = [concept for concept in board.allConcepts if concept.unknown]
     learningConcepts = [concept for concept in board.allConcepts if not concept.known and not concept.unknown]
+
+    conceptsCount = len(board.allConcepts)
+    tagsCount = len(board.allTags)
 
     graphLabels = ['Known Concepts', 'Learning Concepts', 'Unknown Concepts']
     graphValues = [len(knownConcepts), len(learningConcepts), len(unknownConcepts)]
@@ -101,7 +105,7 @@ def boardPage(request, board_id):
     uri = "data:image/png;base64," + urllib.parse.quote(string)
 
 
-    return render(request, 'dashboard/boardPage.html', {'board' : board, 'logs' : logs, 'chart' : uri, 'sessions' : sessions,  'knownConceptsCount' : len(knownConcepts), 'learningConceptsCount' : len(learningConcepts), 'unknownConceptsCount' : len(unknownConcepts), 'knownConcepts' : knownConcepts, 'learningConcepts' : learningConcepts, 'unknownConcepts' : unknownConcepts, 'allQuestions' : allQuestions, 'boardQuestions' : boardQuestions})
+    return render(request, 'dashboard/boardPage.html', {'board' : board, 'logs' : logs, 'chart' : uri, 'sessions' : sessions,  'knownConceptsCount' : len(knownConcepts), 'learningConceptsCount' : len(learningConcepts), 'unknownConceptsCount' : len(unknownConcepts), 'knownConcepts' : knownConcepts, 'learningConcepts' : learningConcepts, 'unknownConcepts' : unknownConcepts, 'allQuestions' : allQuestions, 'boardQuestions' : boardQuestions, 'conceptsCount' : conceptsCount, 'tagsCount' : tagsCount})
 
 
 @login_required 
