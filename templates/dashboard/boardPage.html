@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
-{% load static tailwind_tags %}
+{% load static %}
+<!--Tailwind for vercel-->
+<link href="{% static 'styles.css' %}" rel="stylesheet">
 
 {% block content %}
     <meta name="csrf_token" content="{{ csrf_token }}">
