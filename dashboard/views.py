@@ -125,7 +125,6 @@ def newBoard(request):
 
     if request.method == 'POST':
         data = json.loads(request.body)
-        print(data)
         if data:
             board = Board.objects.create(user=request.user)
             board.title = data.get('title')
@@ -184,16 +183,13 @@ def createTag(request, board_id):
 def conceptPage(request, board_id, concept_id, session_id = None):
     board = Board.objects.get(id=board_id)
     concept = Concept.objects.get(id=concept_id)
-
-    # If user is editing a concept during a session
-    if session_id is not None:
-        print(session_id)
     
     # Used to get values for initial render of the page
     availableTags_qs = board.tags.exclude(id__in=concept.tags.all().values_list('id', flat=True))
     availableTags = list(availableTags_qs.values('id','name'))
     conceptTags = list(concept.tags.values("id", "name"))
     availableQuestions = Question.objects.exclude(title__in=concept.questions.all())
+
 
     return render(request, 'dashboard/conceptPage.html', {'board' : board, 'concept' : concept, 'availableTags' : availableTags, 'conceptTags' : conceptTags, 'sessionId' : session_id, 'availableQuestions' : availableQuestions})
 

@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'whitenoise.runserver_nostatic',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -51,6 +52,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -94,16 +96,21 @@ load_dotenv()
 import dj_database_url
 
 DATABASES = {
-    'default': dj_database_url.parse(os.environ.get('DATABASE_URL'), conn_max_age=600)
+    'default': dj_database_url.parse(os.getenv('DATABASE_URL'), conn_max_age=600)
 }
 
 CACHES = {
     'default' : {
         "BACKEND" : 'django_redis.cache.RedisCache',
-        "LOCATION" : 'redis://127.0.0.1:6379/1',
+        "LOCATION" : os.getenv('REDIS_URL'),
         "OPTIONS" : {
             "CLIENT__CLASS" : 'django_redis.client.DefaultClient',
-        }
+            # For Upstash
+            "CONNECTION_POOL_KWARGS" : {
+                "ssl_cert_reqs" : None
+            },
+        },
+        "KEY_PREFIX" : "learning_logs:prod"
     }
 }
 
