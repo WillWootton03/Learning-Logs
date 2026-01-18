@@ -28,7 +28,10 @@ DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-ALLOWED_HOSTS = ['.vercel.app']
+if DEBUG:
+    ALLOWED_HOSTS = []
+else:
+    ALLOWED_HOSTS = ['.vercel.app']
 
 # Application definition
 
