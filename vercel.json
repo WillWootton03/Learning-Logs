@@ -17,6 +17,10 @@
             "dest" : "/staticfiles/favicon.ico"
         },
         {
+            "src" : "/favicon.png",
+            "dest" : "/staticfiles/favicon.ico"
+        },
+        {
             "src" : "/(.*)",
             "dest" : "learning_logs/wsgi.py"
         }
