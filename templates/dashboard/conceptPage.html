@@ -17,19 +17,19 @@
                     <h2 class="text-2xl font-bold text-white bg-purple-950 px-3 py-2 rounded-2xl shadow-md shadow-black mb-3 cursor-default">Concept Definition</h2>
                     <div class="h-[75%] w-full">
                         <textarea id="concept-definition" placeholder="{{ concept.definition }}"
-                                class="text-lg text-white h-full w-full bg-transparent justify-items-center focus:outline-none resize-none">{{ concept.definition }}</textarea>
+                                class="text-lg text-center text-white h-full w-full bg-transparent items-center justify-center focus:outline-none resize-none">{{ concept.definition }}</textarea>
                     </div>
                 </div>
                 <!--Header Section-->
                 <div class="h-fit w-full border-4 flex flex-col gap-y-2 border-purple-900 bg-gray-800 justify-items-center px-5 rounded-2xl shadow-md shadow-black focus-within:shadow-[0_0px_15px_rgba(0,0,0,0.9)] focus-within:shadow-purple-500">
                     <div class="w-full h-fit py-2 relative">
                         <!--Add new Question or Remove Question-->
-                        <div class="flex flex-row h-fit w-full gap-x-4 justify-center items-center">
+                        <div class="flex flex-row h-fit w-full gap-x-4 justify-between items-center">
                             <h2 class="justify-self-center bg-purple-950 shadow-md shadow-black lg:text-2xl text-lg font-bold text-white px-3 py-2 rounded-2xl cursor-default">Concept Questions</h2>
                             <button id="add-question" class=" bg-purple-500 text-black rounded-3xl shadow-md shadow-black hover:bg-purple-700 h-full w-fit text-xl font-bold px-3 py-1">+</button>
                         </div>
                         <!--Available Questions Dropdown-->
-                        <div id="available-questions-dropdown" class="hidden top-6 right-5 absolute h-fit w-[30%] bg-gray-700 flex flex-col gap-y-2 py-2 px-1">
+                        <div id="available-questions-dropdown" class="hidden top-6 right-7 absolute h-fit w-[30%] bg-gray-700 flex flex-col gap-y-2 py-2 px-1">
                             {% for question in availableQuestions %}
                             <div data-title="{{ question.title }}" class="available-question cursor-pointer h-fit w-[95%] bg-gray-500 text-center text-white rounded text-lg font-bold">{{ question.display_title }}</div>
                             {% endfor %}
@@ -260,7 +260,6 @@
         questionContainer.addEventListener('click', (e) => {
             const questionBtn = e.target.closest('.remove-question');
             if(!questionBtn) return;
-            if(questionContainer.children.length > 1) {
                 const btn = questionBtn.closest('.question-button');
 
                 const newAvailableQuestion = document.createElement('div');
@@ -271,9 +270,8 @@
 
                 availableQuestionsDropdown.append(newAvailableQuestion);
                 stagedQuestions = stagedQuestions.filter(title => title !== btn.dataset.title);
-                questionContainer.removeChild(btn);
-            } 
-                });
+                questionContainer.removeChild(btn); 
+            });
 
 
     tagSearch.addEventListener('input', (e) => { 
