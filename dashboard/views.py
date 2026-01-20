@@ -189,8 +189,8 @@ def createTag(request, board_id):
 
 @login_required
 def conceptPage(request, board_id, concept_id, session_id = None):
+    board = Board.objects.get(id=board_id)
     if request.user == board.user:
-        board = Board.objects.get(id=board_id)
         concept = Concept.objects.get(id=concept_id)
         
         # Used to get values for initial render of the page
