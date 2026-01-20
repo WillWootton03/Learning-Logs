@@ -15,18 +15,19 @@ from .models import Log
 @login_required
 def newLog(request, board_id):
     board = get_object_or_404(Board, id=board_id)
+    if request.user == board.user:
+        if request.method == 'POST':
+            data = json.loads(request.body)
+            redirect_url = reverse('boardPage', args=[board_id])
+            if 'logTitle' and 'logInput' in data:
+                log = Log.objects.create(board=board, title=data.get('logTitle'), content=data.get('logInput'))
+                log.save() 
+                return JsonResponse({'success' : True, 'redirect_url' : redirect_url })
+            
+            return JsonResponse({'success' : False})
 
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        redirect_url = reverse('boardPage', args=[board_id])
-        if 'logTitle' and 'logInput' in data:
-            log = Log.objects.create(board=board, title=data.get('logTitle'), content=data.get('logInput'))
-            log.save() 
-            return JsonResponse({'success' : True, 'redirect_url' : redirect_url })
-        
-        return JsonResponse({'success' : False})
-
-    return render(request, 'logs/newLog.html', {'board' : board})
+        return render(request, 'logs/newLog.html', {'board' : board})
+    return redirect('dashboard')
 
 @login_required
 def logBreakdown(request, log_id):

@@ -19,6 +19,7 @@ from user_logs.models import Log
 from study_session.models import Session
 
 from .forms import NewBoard, CreateTag, NewConcept
+from accounts.models import User
 
 
 # Create your views here.
@@ -52,11 +53,12 @@ def boards(request):
 def saveBoardSettings(request, board_id):
     board = Board.objects.get(id=board_id)
     if board:
-        data = json.loads(request.body)
-        if 'defaultQuestions' in data:
-            board.defaultQuestions.set(Question.objects.filter(title__in=data.get('defaultQuestions')))
-            questions = list(board.defaultQuestions.values_list('title', flat=True))
-        return JsonResponse({ 'success' : True , 'questions' : questions})
+        if request.user == board.user:
+            data = json.loads(request.body)
+            if 'defaultQuestions' in data:
+                board.defaultQuestions.set(Question.objects.filter(title__in=data.get('defaultQuestions')))
+                questions = list(board.defaultQuestions.values_list('title', flat=True))
+            return JsonResponse({ 'success' : True , 'questions' : questions})
     return JsonResponse({ 'success' : False })
 
 
@@ -66,46 +68,48 @@ def boardPage(request, board_id):
     board = Board.objects.prefetch_related(
         Prefetch('concepts', to_attr='allConcepts'),
         Prefetch('defaultQuestions', to_attr='boardConcepts'),
-        Prefetch('tags', to_attr='allTags')
+        Prefetch('tags', to_attr='allTags'),
     ).get(id=board_id)
-    logs = board.logs.order_by('-dateAdded')[:50]
-    sessions = board.sessions.order_by('-dateAdded')[:20]
+    if request.user == board.user: 
+        logs = board.logs.order_by('-dateAdded')[:50]
+        sessions = board.sessions.order_by('-dateAdded')[:20]
 
-    allQuestions = list(Question.objects.all().values_list('title', flat=True))
-    boardQuestions = [question.title for question in board.boardConcepts]
-
-
-    knownConcepts = [concept for concept in board.allConcepts if concept.known ]
-    unknownConcepts = [concept for concept in board.allConcepts if concept.unknown]
-    learningConcepts = [concept for concept in board.allConcepts if not concept.known and not concept.unknown]
-
-    conceptsCount = len(board.allConcepts)
-    tagsCount = len(board.allTags)
-
-    graphLabels = ['Known Concepts', 'Learning Concepts', 'Unknown Concepts']
-    graphValues = [len(knownConcepts), len(learningConcepts), len(unknownConcepts)]
-    barColors = ['#22d628','#d6c722','#bf2424']
-
-    fig, ax = plt.subplots(figsize=(6, 4))
-    ax.bar(graphLabels, graphValues, color=barColors)
-
-    for tick in ax.get_xticklabels():
-        tick.set_fontsize(10)
-        tick.set_fontweight('bold')
-    fig.patch.set_alpha(0.0)
-    ax.set_facecolor('none')
-
-    plt.tight_layout()
-
-    buf = io.BytesIO()
-    fig.savefig(buf, format='png')
-    plt.close(fig)
-    buf.seek(0)
-    string = base64.b64encode(buf.read())
-    uri = "data:image/png;base64," + urllib.parse.quote(string)
+        allQuestions = list(Question.objects.all().values_list('title', flat=True))
+        boardQuestions = [question.title for question in board.boardConcepts]
 
 
-    return render(request, 'dashboard/boardPage.html', {'board' : board, 'logs' : logs, 'chart' : uri, 'sessions' : sessions,  'knownConceptsCount' : len(knownConcepts), 'learningConceptsCount' : len(learningConcepts), 'unknownConceptsCount' : len(unknownConcepts), 'knownConcepts' : knownConcepts, 'learningConcepts' : learningConcepts, 'unknownConcepts' : unknownConcepts, 'allQuestions' : allQuestions, 'boardQuestions' : boardQuestions, 'conceptsCount' : conceptsCount, 'tagsCount' : tagsCount})
+        knownConcepts = [concept for concept in board.allConcepts if concept.known ]
+        unknownConcepts = [concept for concept in board.allConcepts if concept.unknown]
+        learningConcepts = [concept for concept in board.allConcepts if not concept.known and not concept.unknown]
+
+        conceptsCount = len(board.allConcepts)
+        tagsCount = len(board.allTags)
+
+        graphLabels = ['Known Concepts', 'Learning Concepts', 'Unknown Concepts']
+        graphValues = [len(knownConcepts), len(learningConcepts), len(unknownConcepts)]
+        barColors = ['#22d628','#d6c722','#bf2424']
+
+        fig, ax = plt.subplots(figsize=(6, 4))
+        ax.bar(graphLabels, graphValues, color=barColors)
+
+        for tick in ax.get_xticklabels():
+            tick.set_fontsize(10)
+            tick.set_fontweight('bold')
+        fig.patch.set_alpha(0.0)
+        ax.set_facecolor('none')
+
+        plt.tight_layout()
+
+        buf = io.BytesIO()
+        fig.savefig(buf, format='png')
+        plt.close(fig)
+        buf.seek(0)
+        string = base64.b64encode(buf.read())
+        uri = "data:image/png;base64," + urllib.parse.quote(string)
+
+
+        return render(request, 'dashboard/boardPage.html', {'board' : board, 'logs' : logs, 'chart' : uri, 'sessions' : sessions,  'knownConceptsCount' : len(knownConcepts), 'learningConceptsCount' : len(learningConcepts), 'unknownConceptsCount' : len(unknownConcepts), 'knownConcepts' : knownConcepts, 'learningConcepts' : learningConcepts, 'unknownConcepts' : unknownConcepts, 'allQuestions' : allQuestions, 'boardQuestions' : boardQuestions, 'conceptsCount' : conceptsCount, 'tagsCount' : tagsCount})
+    return redirect('dashboard')
 
 
 @login_required 
@@ -145,53 +149,59 @@ def newConcept(request, board_id):
         Prefetch('defaultQuestions', to_attr='boardQuestions'),
     ).get(id=board_id)
 
-    allQuestions = list(Question.objects.all().values_list('title', flat=True))
-    boardQuestions = [question.title for question in board.boardQuestions]
+    if request.user == board.user:
 
-    if request.method == 'POST':
-        form = NewConcept(request.POST)
-        if form.is_valid():
-            concept = form.save(commit=False)
-            concept.board = board
-            concept.save()
-            concept.questions.set([question.title for question in board.boardQuestions])
-            
+        allQuestions = list(Question.objects.all().values_list('title', flat=True))
+        boardQuestions = [question.title for question in board.boardQuestions]
 
-            return redirect('conceptPage', board_id = board.id, concept_id= concept.id)
-    else:
-        form = NewConcept()
+        if request.method == 'POST':
+            form = NewConcept(request.POST)
+            if form.is_valid():
+                concept = form.save(commit=False)
+                concept.board = board
+                concept.save()
+                concept.questions.set([question.title for question in board.boardQuestions])
+                
 
-    return render(request, 'dashboard/newConcept.html', {'board' : board, 'form' : form, 'allQuestions' : allQuestions, 'boardQuestions' : boardQuestions})
+                return redirect('conceptPage', board_id = board.id, concept_id= concept.id)
+        else:
+            form = NewConcept()
+
+        return render(request, 'dashboard/newConcept.html', {'board' : board, 'form' : form, 'allQuestions' : allQuestions, 'boardQuestions' : boardQuestions})
+    return redirect('dashboard')
 
 @login_required
 def createTag(request, board_id):
     board = Board.objects.get(id=board_id)
+    if request.user == board.user:
+        if request.method == 'POST':
+            data = json.loads(request.body)
+            tag = Tag()
+            tag.board = board
+            if 'name' in data:
+                tag.name = data['name']
+            
+            tag.save()
 
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        tag = Tag()
-        tag.board = board
-        if 'name' in data:
-            tag.name = data['name']
-        
-        tag.save()
-
-        return JsonResponse({'success' : True, 'name' : tag.name, 'id' : tag.id })
+            return JsonResponse({'success' : True, 'name' : tag.name, 'id' : tag.id })
+    return redirect('dashboard')
 
 
 @login_required
 def conceptPage(request, board_id, concept_id, session_id = None):
-    board = Board.objects.get(id=board_id)
-    concept = Concept.objects.get(id=concept_id)
-    
-    # Used to get values for initial render of the page
-    availableTags_qs = board.tags.exclude(id__in=concept.tags.all().values_list('id', flat=True))
-    availableTags = list(availableTags_qs.values('id','name'))
-    conceptTags = list(concept.tags.values("id", "name"))
-    availableQuestions = Question.objects.exclude(title__in=concept.questions.all())
+    if request.user == board.user:
+        board = Board.objects.get(id=board_id)
+        concept = Concept.objects.get(id=concept_id)
+        
+        # Used to get values for initial render of the page
+        availableTags_qs = board.tags.exclude(id__in=concept.tags.all().values_list('id', flat=True))
+        availableTags = list(availableTags_qs.values('id','name'))
+        conceptTags = list(concept.tags.values("id", "name"))
+        availableQuestions = Question.objects.exclude(title__in=concept.questions.all())
 
 
-    return render(request, 'dashboard/conceptPage.html', {'board' : board, 'concept' : concept, 'availableTags' : availableTags, 'conceptTags' : conceptTags, 'sessionId' : session_id, 'availableQuestions' : availableQuestions})
+        return render(request, 'dashboard/conceptPage.html', {'board' : board, 'concept' : concept, 'availableTags' : availableTags, 'conceptTags' : conceptTags, 'sessionId' : session_id, 'availableQuestions' : availableQuestions})
+    return redirect('dashboard')
 
 @login_required
 def conceptToggleTags(request, board_id, concept_id, tag_id):
@@ -226,7 +236,6 @@ def updateConcept(request, concept_id):
     if request.method == 'POST':
             data = json.loads(request.body)
             concept = Concept.objects.get(id=concept_id)
-            board = concept.board
 
             if 'answer' in data:
                 concept.answer = data['answer']
@@ -244,6 +253,7 @@ def updateConcept(request, concept_id):
                 concept.questions.set(questions)
 
             return JsonResponse({'success' : True})
+    return JsonResponse({'success' : False})
 
 @require_POST
 @login_required
