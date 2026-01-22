@@ -114,6 +114,10 @@ def sessionSettingsToggleTags(request, board_id, sessionSettings_id, tag_id):
     else:
         sessionSettings.tags.add(tag)
 
+    #Updates tag boxes
+    # sessionSettingsTags = list(SessionSettings.tags.values('id', 'name'))
+    # availableTags = list(board.tags.exclude(id__in=sessionSettings.tags.all().values_list('id', flat=True)).values('id','name'))
+
     return JsonResponse({'sessionSettingsTags' : sessionSettings.sessionSettingsTags, 'availableTags' : board.availableTags})
 
 

@@ -239,11 +239,11 @@
         let possibleAnswers = '';
         if(randomQuestionType === 'answer'){
             possibleAnswers = currentQuestion.definition.toLowerCase().trim().split('/');
-            result = possibleAnswers.includes(answerValue.toLowerCase().trim()) ? true : false;
+            result = possibleAnswers.includes(answerValue) ? true : false;
 
         } else if (randomQuestionType === 'definition') {
             possibleAnswers = currentQuestion.answer.toLowerCase().trim().split('/');
-            result = possibleAnswers.includes(answerValue.toLowerCase().trim()) ? true : false;
+            result = possibleAnswers.includes(answerValue) ? true : false;
 
         } else if (randomQuestionType === 'true_or_false') {
             if(true_false === null){
