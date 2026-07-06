@@ -59,7 +59,7 @@
                 <!--Study Sessions header-->
                 <div class="flex flex-row w-full justify-between items-center px-3 py-1">
                     <h2 class="text-3xl font-bold px-2 py-2 text-center text-white cursor-default drop-shadow-md drop-shadow-black">My Study Sessions</h2>
-                    <button id="toggle-sessions-settings" class="bg-purple-500 h-fit text-black rounded-full px-3.5 py-2 shadow-md shadow-black hover:bg-purple-700">+</button>
+                    <button id="toggle-sessions-settings" class="bg-purple-500 h-fit text-black rounded-full px-3.5 py-2 shadow-md shadow-black hover:bg-purple-700 cursor-pointer">+</button>
                 </div>
                 <div class="w-full h-full flex flex-col gap-y-2 overflow-y-auto items-center j auto-rows-min pb-0">
                 {% for session in sessions %}
@@ -83,14 +83,14 @@
                 <!--Concepts Header-->
                 <div class="flex flex-row w-full px-4 h-fit items-center justify-between">
                     <h2 class="text-3xl font-bold text-center text-white cursor-default drop-shadow-md drop-shadow-black flex justify-center ">My Concepts</h2>
-                    <button id="toggle-new-concept" class="bg-purple-500 w-fit text-black rounded-full px-3.5 py-2 shadow-md shadow-black  hover:bg-purple-700">+</button>
+                    <button id="toggle-new-concept" class="bg-purple-500 w-fit text-black rounded-full px-3.5 py-2 shadow-md shadow-black  hover:bg-purple-700 cursor-pointer">+</button>
                 </div>
                     <div class="h-fit w-full align-center px-4 flex flex-col md:flex-row gap-y-2 items-center justify-between md:justify-start gap-x-2">
                         <div class="flex flex-row flex-3 md:flex-4 gap-x-1 md:gap-x-3">
-                            <button id="known-concepts-button" class="bg-gray-500 px-3 text-sm md:px-2 sm:text-xl text-green-300 font-bold py-1 rounded hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-green-500 hover:bg-gray-500 hover:text-green-500 active:border-green-500 border-4 border-transparent">Known</button>
-                            <button id="learning-concepts-button" class="bg-gray-500 px-3  text-sm md:px-2 sm:text-xl text-yellow-200 font-bold py-1 rounded hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-yellow-400 hover:bg-gray-500 hover:text-yellow-300 active:border-yellow-500 border-4 border-transparent">Learning</button>
-                            <button id="unknown-concepts-button" class="bg-gray-500 px-3  text-sm md:px-2 sm:text-xl text-red-300 font-bold py-1 rounded hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-red-500 hover:bg-gray-500 hover:text-red-500 active:border-red-500 border-4 border-transparent">Unknown</button>
-                            <button id="clear-concepts-button" class="bg-gray-500 px-3  text-sm md:px-2 sm:text-xl text-blue-300 font-bold py-1 rounded hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-blue-500 hover:bg-gray-500 hover:text-blue-500 active:border-blue-500 border-4 border-transparent">Clear</button>
+                            <button id="known-concepts-button" class="bg-gray-500 px-3 text-sm md:px-2 sm:text-xl text-green-300 font-bold py-1 rounded hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-green-500 hover:bg-gray-500 hover:text-green-500 active:border-green-500 border-4 border-transparent cursor-pointer">Known</button>
+                            <button id="learning-concepts-button" class="bg-gray-500 px-3  text-sm md:px-2 sm:text-xl text-yellow-200 font-bold py-1 rounded hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-yellow-400 hover:bg-gray-500 hover:text-yellow-300 active:border-yellow-500 border-4 border-transparent cursor-pointer">Learning</button>
+                            <button id="unknown-concepts-button" class="bg-gray-500 px-3  text-sm md:px-2 sm:text-xl text-red-300 font-bold py-1 rounded hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-red-500 hover:bg-gray-500 hover:text-red-500 active:border-red-500 border-4 border-transparent cursor-pointer">Unknown</button>
+                            <button id="clear-concepts-button" class="bg-gray-500 px-3  text-sm md:px-2 sm:text-xl text-blue-300 font-bold py-1 rounded hover:shadow-[0_0px_15px_rgba(0,0,0,0.9)] hover:shadow-blue-500 hover:bg-gray-500 hover:text-blue-500 active:border-blue-500 border-4 border-transparent cursor-pointer">Clear</button>
                         </div>
                         <input id="concept-search" placeholder="Search" class="text-md w-[80%] md:text-xl flex-2 text-center h-full bg-gray-500 text-white py-1 rounded md:justify-end" autocomplete="off"/>
                     </div>
