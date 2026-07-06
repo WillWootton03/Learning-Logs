@@ -102,20 +102,7 @@ DATABASES = {
     'default': dj_database_url.parse(os.getenv('DATABASE_URL'), conn_max_age=600)
 }
 
-CACHES = {
-    'default' : {
-        "BACKEND" : 'django_redis.cache.RedisCache',
-        "LOCATION" : os.getenv('REDIS_URL'),
-        "OPTIONS" : {
-            "CLIENT__CLASS" : 'django_redis.client.DefaultClient',
-            # For Upstash
-            "CONNECTION_POOL_KWARGS" : {
-                "ssl_cert_reqs" : 'none'
-            },
-        },
-        "KEY_PREFIX" : "learning_logs:prod"
-    }
-}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators

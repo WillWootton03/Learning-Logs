@@ -10,11 +10,16 @@ from django.db.models import F, Count, Q
 import json, urllib
 import uuid
 import random
-from django.core.cache import cache
 
 from .models import Session, SessionSettings
 from dashboard.models import Board, Tag, Concept, Question
 from accounts.models import User
+
+from upstash_redis import Redis
+import os
+
+redis = Redis(url=os.environ.get('UPSTASH_REDIS_REST_URL'), token=os.environ.get('UPSTASH_REDIS_REST_TOKEN'))
+
 
 # Create your views here.
 @login_required
@@ -159,8 +164,7 @@ def sessionStart(request, board_id, sessionSettings_id=None):
                 session.questionTypes.set(questionTypes)
 
             tagConcepts = list(tagConceptQS.values_list('answer', flat=True).distinct())
-            cacheKey = f'board:{board_id}:tagConcepts'
-            cache.set(cacheKey, tagConcepts, timeout=600)
+            redis.set(f'board:{board_id}:tagConcepts', tagConcepts)
             if not tagConcepts:
                 return JsonResponse({'success' : False, 'redirect_url' : reverse('boardPage', args=[board_id])})
 
@@ -195,7 +199,7 @@ def sessionPage(request, board_id, session_id):
         questionTitles = [question.title for question in session.availableQuestions]
 
         # Checks to see if there is a recent session start instance, if there is will load all tagConcepts from there if not will return to boardPage
-        tagConcepts = cache.get(f'board:{board_id}:tagConcepts')
+        tagConcepts = redis.get(f'board:{board_id}:tagConcepts')
         if tagConcepts is None:
             return redirect('boardPage', board_id)
         
