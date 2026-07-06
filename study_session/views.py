@@ -21,6 +21,7 @@ import os
 redis = Redis(url=os.environ.get('UPSTASH_REDIS_REST_URL'), token=os.environ.get('UPSTASH_REDIS_REST_TOKEN'))
 
 
+
 # Create your views here.
 @login_required
 def newSessionSettings(request, board_id):
@@ -164,7 +165,14 @@ def sessionStart(request, board_id, sessionSettings_id=None):
                 session.questionTypes.set(questionTypes)
 
             tagConcepts = list(tagConceptQS.values_list('answer', flat=True).distinct())
-            redis.set(f'board:{board_id}:tagConcepts', tagConcepts)
+
+            try:
+                redis.set(f'board:{board_id}:tagConcepts', tagConcepts)
+                print('redis ok')
+            except Exception as e:
+                print('Redis error', repr(e))
+                raise
+            
             if not tagConcepts:
                 return JsonResponse({'success' : False, 'redirect_url' : reverse('boardPage', args=[board_id])})
 
